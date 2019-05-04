@@ -1,22 +1,12 @@
 package geobattle.geobattle.game;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.IntFloatMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 import geobattle.geobattle.game.attacking.AttackEvent;
-import geobattle.geobattle.game.attacking.TimePoint;
-import geobattle.geobattle.game.attacking.UnitGroupMovingInfo;
-import geobattle.geobattle.game.buildings.BuildingParams;
-import geobattle.geobattle.game.buildings.Hangar;
-import geobattle.geobattle.game.units.Bomber;
-import geobattle.geobattle.game.units.Unit;
-import geobattle.geobattle.game.units.UnitGroup;
 
 // State of game
 public class GameState {
@@ -41,37 +31,6 @@ public class GameState {
         this.time = time;
         this.players = new ArrayList<PlayerState>();
         this.attackEvents = new ArrayList<AttackEvent>();
-
-        UnitGroupMovingInfo[] unitGroupMoving = {
-                new UnitGroupMovingInfo(100000, time + 20, 5232900, 5500960, time + 35)
-        };
-
-        IntFloatMap unitGroupHealth1 = new IntFloatMap();
-        unitGroupHealth1.put(100000, 40);
-
-        IntFloatMap unitGroupHealth2 = new IntFloatMap();
-        unitGroupHealth1.put(100000, 40);
-
-        IntFloatMap unitGroupHealth3 = new IntFloatMap();
-        unitGroupHealth1.put(100000, 20);
-
-        TimePoint[] timePoints = {
-                new TimePoint(time + 10, 200, unitGroupHealth1),
-                new TimePoint(time + 20, 200, unitGroupHealth2),
-                new TimePoint(time + 25, 0, unitGroupHealth3)
-        };
-
-        attackEvents.add(new AttackEvent(
-                0, 0, 0,
-                unitGroupMoving, timePoints
-        ));
-
-//        Hangar hangar = new Hangar(new BuildingParams(5232810, 5500965, 100000, 0, 0), new UnitGroup(new Unit[4], 40));
-//        hangar.units.addUnit(new Bomber(0, 0, 0, 0, 100000, 0));
-//        hangar.units.addUnit(new Bomber(0, 0, 0, 0, 100000, 1));
-//        hangar.units.addUnit(new Bomber(0, 0, 0, 0, 100000, 2));
-//
-//        players.get(0).addBuilding(hangar);
     }
 
     // Clones GameState
@@ -136,12 +95,6 @@ public class GameState {
     }
 
     public static GameState fromJson(JsonObject object) {
-        Gdx.app.log("GeoBattle", String.format(
-                Locale.US,
-                "Creating game state from: %s",
-                object.toString()
-        ));
-
         float resources = object.getAsJsonPrimitive("resources").getAsFloat();
         int playerId = object.getAsJsonPrimitive("playerId").getAsInt();
         double time = object.getAsJsonPrimitive("time").getAsDouble();
@@ -166,13 +119,6 @@ public class GameState {
         time = other.time;
 
         players = other.players;
-        // attackEvents = other.attackEvents;
-
-        Hangar hangar = new Hangar(new BuildingParams(5232810, 5500965, 100000, 0, 0), new UnitGroup(new Unit[4]));
-        hangar.units.addUnit(new Bomber(0, 0, 0, 0, 100000, 0));
-        hangar.units.addUnit(new Bomber(0, 0, 0, 0, 100000, 1));
-        hangar.units.addUnit(new Bomber(0, 0, 0, 0, 100000, 2));
-
-        players.get(0).addBuilding(hangar);
+        attackEvents = other.attackEvents;
     }
 }

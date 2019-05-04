@@ -20,17 +20,14 @@ public final class JoinIterator<T> implements Iterator<T> {
     // Returns true if iterator has next element
     @Override
     public boolean hasNext() {
-        return
-                currentIterator < innerIterators.size() &&
-                innerIterators.get(currentIterator).hasNext();
+        while (currentIterator < innerIterators.size() && !innerIterators.get(currentIterator).hasNext())
+            currentIterator++;
+        return currentIterator < innerIterators.size();
     }
 
     // Returns next element
     @Override
     public T next() {
-        T next = innerIterators.get(currentIterator).next();
-        if (!innerIterators.get(currentIterator).hasNext())
-            currentIterator++;
-        return next;
+        return innerIterators.get(currentIterator).next();
     }
 }
