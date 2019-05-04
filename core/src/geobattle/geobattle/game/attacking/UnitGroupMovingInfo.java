@@ -1,0 +1,32 @@
+package geobattle.geobattle.game.attacking;
+
+// Info about unit group moving
+public final class UnitGroupMovingInfo {
+    // Hangar ID (home for unit group)
+    public final int hangarId;
+
+    // Time of arrive
+    public final double arriveTime;
+
+    // X coordinate of arrive point
+    public final int arriveX;
+
+    // Y coordinate of arrive point
+    public final int arriveY;
+
+    // Time when unit should be in hangar
+    public final double returnTime;
+
+    public UnitGroupMovingInfo(int hangarId, double arriveTime, int arriveX, int arriveY, double returnTime) {
+        this.hangarId = hangarId;
+        this.arriveTime = arriveTime;
+        this.arriveX = arriveX;
+        this.arriveY = arriveY;
+        this.returnTime = returnTime;
+    }
+
+    // Clones UnitGroupMovingInfo
+    public UnitGroupMovingInfo clone() {
+        return new UnitGroupMovingInfo(hangarId, arriveTime, arriveX, arriveY, returnTime);
+    }
+}
