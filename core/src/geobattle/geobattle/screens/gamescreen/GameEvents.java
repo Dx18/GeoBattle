@@ -98,13 +98,13 @@ public class GameEvents {
 
     private void onSectorBuildResult(SectorBuildResult result) {
         result.match(
-                new MatchBranch<SectorBuildResult.SectorTaken>() {
+                new MatchBranch<SectorBuildResult.SectorBuilt>() {
                     @Override
-                    public void onMatch(SectorBuildResult.SectorTaken sectorTaken) {
+                    public void onMatch(SectorBuildResult.SectorBuilt sectorTaken) {
                         gameState.getPlayers().get(sectorTaken.info.playerIndex).addSector(new Sector(
                                 sectorTaken.info.x,
                                 sectorTaken.info.y,
-                                sectorTaken.info.sectorId
+                                sectorTaken.info.id
                         ));
                         screen.switchToNormalMode();
                     }

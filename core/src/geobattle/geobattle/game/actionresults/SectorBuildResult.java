@@ -1,25 +1,27 @@
 package geobattle.geobattle.game.actionresults;
 
+import com.google.gson.JsonObject;
+
 import geobattle.geobattle.game.SectorTransactionInfo;
 
 // Result of sector building
 public abstract class SectorBuildResult {
-    // Player successfully taken sector
-    public static final class SectorTaken extends SectorBuildResult {
+    // Sector successfully built
+    public static final class SectorBuilt extends SectorBuildResult {
         // Info about sector
         public final SectorTransactionInfo info;
 
-        public SectorTaken(SectorTransactionInfo info) {
+        public SectorBuilt(SectorTransactionInfo info) {
             this.info = info;
+        }
+
+        public static SectorBuilt fromJson(JsonObject object) {
+            SectorTransactionInfo info = SectorTransactionInfo.fromJson(object.getAsJsonObject("info"));
+            return new SectorBuilt(info);
         }
     }
 
-    // New sector intersects with enemy's sector
-    public static final class IntersectsWithEnemySector extends SectorBuildResult {
-        public IntersectsWithEnemySector() {}
-    }
-
-    // Not enough resources for sector building
+    // Cannot build because amount of resources is too low
     public static final class NotEnoughResources extends SectorBuildResult {
         // Required amount of resources
         public final int required;
@@ -27,35 +29,81 @@ public abstract class SectorBuildResult {
         public NotEnoughResources(int required) {
             this.required = required;
         }
+
+        public static NotEnoughResources fromJson(JsonObject object) {
+            int required = object.getAsJsonPrimitive("required").getAsInt();
+            return new NotEnoughResources(required);
+        }
     }
 
-    // Wrong position of sector (not neighbour / not aligned)
+    // Cannot build because sector player wants to build intersects with other player's sector
+    public static final class IntersectsWithEnemy extends SectorBuildResult {
+        // Index of enemy which owns nearby sector
+        public final int enemyIndex;
+
+        public IntersectsWithEnemy(int enemyIndex) {
+            this.enemyIndex = enemyIndex;
+        }
+
+        public static IntersectsWithEnemy fromJson(JsonObject object) {
+            int enemyIndex = object.getAsJsonPrimitive("enemyIndex").getAsInt();
+            return new IntersectsWithEnemy(enemyIndex);
+        }
+    }
+
+    // Sector is not aligned or it's not attached to other sector
     public static final class WrongPosition extends SectorBuildResult {
         public WrongPosition() {}
+
+        public static WrongPosition fromJson(JsonObject object) {
+            return new WrongPosition();
+        }
     }
 
     // Wrong auth info
     public static final class WrongAuthInfo extends SectorBuildResult {
         public WrongAuthInfo() {}
+
+        public static WrongAuthInfo fromJson(JsonObject object) {
+            return new WrongAuthInfo();
+        }
+    }
+
+    // Creates SectorBuildResult from JSON
+    public static SectorBuildResult fromJson(JsonObject object) {
+        String type = object.getAsJsonPrimitive("type").getAsString();
+
+        if (type.equals("SectorBuilt"))
+            return SectorBuilt.fromJson(object);
+        else if (type.equals("NotEnoughResources"))
+            return NotEnoughResources.fromJson(object);
+        else if (type.equals("IntersectsWithEnemy"))
+            return IntersectsWithEnemy.fromJson(object);
+        else if (type.equals("WrongPosition"))
+            return WrongPosition.fromJson(object);
+        else if (type.equals("WrongAuthInfo"))
+            return WrongAuthInfo.fromJson(object);
+        return null;
     }
 
     // Matches SectorBuildResult
-    public final void match(
-            MatchBranch<SectorTaken> sectorTaken,
-            MatchBranch<IntersectsWithEnemySector> intersectsWithEnemySector,
+    public void match(
+            MatchBranch<SectorBuilt> sectorBuilt,
             MatchBranch<NotEnoughResources> notEnoughResources,
+            MatchBranch<IntersectsWithEnemy> intersectsWithEnemy,
             MatchBranch<WrongPosition> wrongPosition,
             MatchBranch<WrongAuthInfo> wrongAuthInfo
     ) {
-        if (sectorTaken != null && this instanceof SectorTaken)
-            sectorTaken.onMatch((SectorTaken) this);
+        if (sectorBuilt != null && this instanceof SectorBuilt)
+            sectorBuilt.onMatch((SectorBuilt) this);
         else if (notEnoughResources != null && this instanceof NotEnoughResources)
             notEnoughResources.onMatch((NotEnoughResources) this);
-        else if (intersectsWithEnemySector != null && this instanceof IntersectsWithEnemySector)
-            intersectsWithEnemySector.onMatch((IntersectsWithEnemySector) this);
+        else if (intersectsWithEnemy != null && this instanceof IntersectsWithEnemy)
+            intersectsWithEnemy.onMatch((IntersectsWithEnemy) this);
         else if (wrongPosition != null && this instanceof WrongPosition)
             wrongPosition.onMatch((WrongPosition) this);
         else if (wrongAuthInfo != null && this instanceof WrongAuthInfo)
             wrongAuthInfo.onMatch((WrongAuthInfo) this);
     }
 }
+

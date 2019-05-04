@@ -14,13 +14,13 @@ public final class SectorTransactionInfo {
     public final int y;
 
     // ID of sector
-    public final int sectorId;
+    public final int id;
 
-    public SectorTransactionInfo(int playerIndex, int x, int y, int sectorId) {
+    public SectorTransactionInfo(int playerIndex, int x, int y, int id) {
         this.playerIndex = playerIndex;
         this.x = x;
         this.y = y;
-        this.sectorId = sectorId;
+        this.id = id;
     }
 
     // Creates SectorTransactionInfo from JSON
@@ -28,8 +28,8 @@ public final class SectorTransactionInfo {
         int playerIndex = object.getAsJsonPrimitive("playerIndex").getAsInt();
         int x = object.getAsJsonPrimitive("x").getAsInt();
         int y = object.getAsJsonPrimitive("y").getAsInt();
-        int sectorId = object.getAsJsonPrimitive("sectorId").getAsInt();
+        int id = object.getAsJsonPrimitive("id").getAsInt();
 
-        return new SectorTransactionInfo(playerIndex, x, y, sectorId);
+        return new SectorTransactionInfo(playerIndex, x, y, id);
     }
 }

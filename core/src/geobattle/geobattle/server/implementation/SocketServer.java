@@ -21,6 +21,7 @@ import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.events.BuildEvent;
 import geobattle.geobattle.game.events.DestroyEvent;
+import geobattle.geobattle.game.events.SectorBuildEvent;
 import geobattle.geobattle.game.events.StateRequestEvent;
 import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.server.AuthInfo;
@@ -199,7 +200,20 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle requestSectorBuild(AuthInfo authInfo, int x, int y, Callback<SectorBuildResult> callback) {
+    public CancelHandle requestSectorBuild(final AuthInfo authInfo, final int x, final int y, final Callback<SectorBuildResult> callback) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String resultStr = request(new SectorBuildEvent(authInfo, x, y).toJson().toString());
+
+                if (resultStr == null)
+                    return;
+
+                JsonObject result = parser.parse(resultStr).getAsJsonObject();
+                callback.onResult(SectorBuildResult.fromJson(result));
+            }
+        }).start();
+
         return null;
     }
 
