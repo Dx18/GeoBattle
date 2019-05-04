@@ -1,13 +1,11 @@
 package geobattle.geobattle.desktop;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Locale;
 import java.util.Scanner;
 
@@ -55,15 +53,7 @@ public class DesktopLauncher {
 
         System.out.println(String.format("Cache path: %s", cachePath));
 
-        ExternalAPI externalAPI = null;
-        try {
-            externalAPI = createExternalAPI("tileAPI", cachePath);
-        } catch (IOException e) {
-            Gdx.app.error("GeoBattle", String.format(
-                    "Cannot read app ID and code: %s",
-                    e.toString()
-            ));
-        }
+        ExternalAPI externalAPI = createExternalAPI("tileAPI", cachePath);
 
         if (externalAPI == null)
             return;
