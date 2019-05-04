@@ -7,6 +7,8 @@ import com.google.gson.JsonObject;
 import java.util.ArrayList;
 
 import geobattle.geobattle.game.attacking.AttackEvent;
+import geobattle.geobattle.game.gamestatediff.GameStateDiff;
+import geobattle.geobattle.game.gamestatediff.PlayerStateDiff;
 
 // State of game
 public class GameState {
@@ -112,13 +114,24 @@ public class GameState {
         return gameState;
     }
 
+    // Applies GameStateDiff to game state
+    public void applyDiff(GameStateDiff diff) {
+        for (PlayerStateDiff playerStateDiff : diff.changedPlayers)
+            players.get(playerStateDiff.playerId).applyDiff(playerStateDiff);
+
+        players.addAll(diff.addedPlayers);
+    }
+
     // Sets data of other game state
     public void setData(GameState other) {
         resources = other.resources;
         playerId = other.playerId;
         time = other.time;
 
-        players = other.players;
+        GameStateDiff diff = new GameStateDiff(this, other);
+
+        applyDiff(diff);
+
         attackEvents = other.attackEvents;
     }
 }

@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 
+import geobattle.geobattle.game.gamestatediff.SectorDiff;
 import geobattle.geobattle.map.BuildingTextures;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.util.CastIterator;
@@ -304,5 +305,13 @@ public final class Sector {
 
     public int getEnergy() {
         return energy;
+    }
+
+    // Applies SectorDiff to sector
+    public void applyDiff(SectorDiff diff) {
+        for (Building removed : diff.removedBuildings)
+            removeBuilding(removed);
+        for (Building added : diff.addedBuildings)
+            addBuilding(added);
     }
 }

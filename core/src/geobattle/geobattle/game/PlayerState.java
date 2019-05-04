@@ -18,6 +18,8 @@ import geobattle.geobattle.game.buildings.Mine;
 import geobattle.geobattle.game.buildings.ResearchCenter;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.game.buildings.Turret;
+import geobattle.geobattle.game.gamestatediff.PlayerStateDiff;
+import geobattle.geobattle.game.gamestatediff.SectorDiff;
 import geobattle.geobattle.game.units.Bomber;
 import geobattle.geobattle.game.units.Spotter;
 import geobattle.geobattle.game.units.Unit;
@@ -385,5 +387,15 @@ public class PlayerState {
             player.addSector(Sector.fromJson(jsonSector.getAsJsonObject()));
 
         return player;
+    }
+
+    // Applies PlayerStateDiff to player state
+    public void applyDiff(PlayerStateDiff diff) {
+        for (Sector removed : diff.removedSectors)
+            removeSector(removed);
+        for (SectorDiff sectorDiff : diff.changedSectors)
+            getSector(sectorDiff.sectorId).applyDiff(sectorDiff);
+        for (Sector added : diff.addedSectors)
+            addSector(added);
     }
 }
