@@ -5,9 +5,6 @@ public final class GeoBattleAssets {
     // Path to GUI skin
     public static final String GUI_SKIN = "skins/testSkin/skin.json";
 
-    // Pointer texture
-    public static final String POINTER = "pointer.png";
-
     // Color texture (single white pixel)
     public static final String COLOR = "color.png";
 

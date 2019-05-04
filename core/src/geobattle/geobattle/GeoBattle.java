@@ -65,7 +65,6 @@ public final class GeoBattle extends Game {
         assetManager.load(GeoBattleAssets.BOMBER_TEAM_COLOR, Texture.class, param);
         assetManager.load(GeoBattleAssets.SPOTTER_TEAM_COLOR, Texture.class, param);
 
-        assetManager.load(GeoBattleAssets.POINTER, Texture.class);
         assetManager.load(GeoBattleAssets.COLOR, Texture.class);
         assetManager.finishLoading();
 
