@@ -14,7 +14,14 @@ import geobattle.geobattle.game.units.UnitType;
 
 // Game server
 public interface Server {
+    // Sets IP address and port of server
     void setAddress(String ipAddress, int port);
+
+    // Returns IP address of server
+    String getIPAddress();
+
+    // Returns port of server
+    int getPort();
 
     // Requests player register
     CancelHandle register(String playerName, String email, String password, Color color, Callback<RegistrationResult> callback);

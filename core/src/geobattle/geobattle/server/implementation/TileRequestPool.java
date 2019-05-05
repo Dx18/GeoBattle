@@ -167,17 +167,22 @@ public final class TileRequestPool {
                 appCode
         );
 
+        HttpURLConnection connection = null;
+        InputStream fromConnection = null;
         try {
             URL url = new URL(urlString);
 
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
 
-            InputStream fromConnection = connection.getInputStream();
+            fromConnection = connection.getInputStream();
             return readPixmap(fromConnection);
         } catch (IOException e) {
             // e.printStackTrace();
             return null;
+        } finally {
+            if (connection != null)
+                connection.disconnect();
         }
     }
 

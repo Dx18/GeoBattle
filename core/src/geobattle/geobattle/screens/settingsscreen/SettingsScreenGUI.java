@@ -26,8 +26,8 @@ public final class SettingsScreenGUI {
         skin = assetManager.get(GeoBattleAssets.GUI_SKIN, Skin.class);
 
         settings = new Table();
-        ip = new TextField("localhost", skin);
-        port = new TextField("12000", skin);
+        ip = new TextField(screen.getIPAddress(), skin);
+        port = new TextField(String.valueOf(screen.getPort()), skin);
         guiStage.addActor(settings);
 
         reset(screen);

@@ -66,16 +66,19 @@ public class TileTree {
     // Sets texture of tile and increments tree counter if needed
     private void setTile(Pixmap tile, TileCounter tileCounter) {
         if (tile == null && texture != null) {
+            texture.dispose();
             texture = null;
             tileCounter.onUnload();
             textureRequested = false;
         } else if (tile != null && texture == null) {
             texture = new Texture(tile);
+            tile.dispose();
             tileCounter.onLoad();
             textureRequested = false;
-        } else if (tile != null && texture != null) {
+        } else if (tile != null) {
             texture.dispose();
             texture = new Texture(tile);
+            tile.dispose();
             textureRequested = false;
         }
     }

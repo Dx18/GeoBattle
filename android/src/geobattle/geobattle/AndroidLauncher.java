@@ -68,21 +68,23 @@ public class AndroidLauncher extends AndroidApplication {
             finish();
         }
 
+        OSAPI oSAPI = new OSAPI() {
+            @Override
+            public void showMessage(final String message) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        };
+
         externalAPI = new ExternalAPI(
-                new SocketServer("localhost", 12000),
+                new SocketServer("78.47.182.60", 12000, oSAPI),
                 geolocationAPI,
                 new TileRequestPool("D66l1mTahRCaumS4HXmh", "7uAxlwVnWG_2fKJ4yxApbw", "/", 10),
-                new OSAPI() {
-                    @Override
-                    public void showMessage(final String message) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                            }
-                        });
-                    }
-                }
+                oSAPI
         );
 
         super.onCreate(savedInstanceState);

@@ -28,6 +28,7 @@ import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.AuthorizationResult;
 import geobattle.geobattle.server.Callback;
 import geobattle.geobattle.server.CancelHandle;
+import geobattle.geobattle.server.OSAPI;
 import geobattle.geobattle.server.RegistrationResult;
 import geobattle.geobattle.server.Server;
 import geobattle.geobattle.server.events.AuthorizationEvent;
@@ -40,10 +41,13 @@ public final class SocketServer implements Server {
 
     private JsonParser parser;
 
-    public SocketServer(String ip, int port) {
+    private OSAPI oSAPI;
+
+    public SocketServer(String ip, int port, OSAPI oSAPI) {
         this.ip = ip;
         this.port = port;
         this.parser = new JsonParser();
+        this.oSAPI = oSAPI;
     }
 
     @Override
@@ -52,6 +56,16 @@ public final class SocketServer implements Server {
             this.ip = ip;
             this.port = port;
         }
+    }
+
+    @Override
+    public String getIPAddress() {
+        return ip;
+    }
+
+    @Override
+    public int getPort() {
+        return port;
     }
 
     private String request(String json) {
@@ -117,11 +131,18 @@ public final class SocketServer implements Server {
             public void run() {
                 String resultStr = request(new RegistrationEvent(playerName, email, password, color).toJson().toString());
 
-                if (resultStr == null)
+                if (resultStr == null) {
+                    oSAPI.showMessage("RegisterEvent failed: probable problems with connection");
                     return;
+                }
 
-                JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                callback.onResult(RegistrationResult.fromJson(result));
+                try {
+                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
+                    callback.onResult(RegistrationResult.fromJson(result));
+                } catch (Exception e) {
+                    oSAPI.showMessage("RegisterEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
+                }
             }
         }).start();
 
@@ -135,11 +156,18 @@ public final class SocketServer implements Server {
             public void run() {
                 String resultStr = request(new AuthorizationEvent(playerName, password).toJson().toString());
 
-                if (resultStr == null)
+                if (resultStr == null) {
+                    oSAPI.showMessage("AuthorizationEvent failed: probable problems with connection");
                     return;
+                }
 
-                JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                callback.onResult(AuthorizationResult.fromJson(result));
+                try {
+                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
+                    callback.onResult(AuthorizationResult.fromJson(result));
+                } catch (Exception e) {
+                    oSAPI.showMessage("RegisterEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
+                }
             }
         }).start();
 
@@ -165,11 +193,18 @@ public final class SocketServer implements Server {
             public void run() {
                 String resultStr = request(new StateRequestEvent(authInfo).toJson().toString());
 
-                if (resultStr == null)
+                if (resultStr == null) {
+                    oSAPI.showMessage("StateRequestEvent failed: probable problems with connection");
                     return;
+                }
 
-                JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                callback.onResult(StateRequestResult.fromJson(result));
+                try {
+                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
+                    callback.onResult(StateRequestResult.fromJson(result));
+                } catch (Exception e) {
+                    oSAPI.showMessage("RegisterEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
+                }
             }
         }).start();
 
@@ -188,11 +223,18 @@ public final class SocketServer implements Server {
             public void run() {
                 String resultStr = request(new BuildEvent(authInfo, type.toString(), x, y).toJson().toString());
 
-                if (resultStr == null)
+                if (resultStr == null) {
+                    oSAPI.showMessage("BuildEvent failed: probable problems with connection");
                     return;
+                }
 
-                JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                callback.onResult(BuildResult.fromJson(result));
+                try {
+                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
+                    callback.onResult(BuildResult.fromJson(result));
+                } catch (Exception e) {
+                    oSAPI.showMessage("RegisterEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
+                }
             }
         }).start();
 
@@ -206,11 +248,18 @@ public final class SocketServer implements Server {
             public void run() {
                 String resultStr = request(new SectorBuildEvent(authInfo, x, y).toJson().toString());
 
-                if (resultStr == null)
+                if (resultStr == null) {
+                    oSAPI.showMessage("SectorBuildEvent failed: probable problems with connection");
                     return;
+                }
 
-                JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                callback.onResult(SectorBuildResult.fromJson(result));
+                try {
+                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
+                    callback.onResult(SectorBuildResult.fromJson(result));
+                } catch (Exception e) {
+                    oSAPI.showMessage("RegisterEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
+                }
             }
         }).start();
 
@@ -224,11 +273,18 @@ public final class SocketServer implements Server {
             public void run() {
                 String resultStr = request(new DestroyEvent(authInfo, id).toJson().toString());
 
-                if (resultStr == null)
+                if (resultStr == null) {
+                    oSAPI.showMessage("DestroyEvent failed: probable problems with connection");
                     return;
+                }
 
-                JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                callback.onResult(DestroyResult.fromJson(result));
+                try {
+                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
+                    callback.onResult(DestroyResult.fromJson(result));
+                } catch (Exception e) {
+                    oSAPI.showMessage("RegisterEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
+                }
             }
         }).start();
 

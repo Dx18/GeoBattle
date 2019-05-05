@@ -51,8 +51,19 @@ public final class SettingsScreen implements Screen {
         guiStage.draw();
     }
 
+    // Saves IP address and port
     public void setAddress(String ip, int port) {
         externalAPI.server.setAddress(ip, port);
+    }
+
+    // Returns IP address of server
+    public String getIPAddress() {
+        return externalAPI.server.getIPAddress();
+    }
+
+    // Returns port of server
+    public int getPort() {
+        return externalAPI.server.getPort();
     }
 
     public void exit() {
