@@ -13,9 +13,13 @@ public class ExternalAPI {
     // Tile request pool
     public final TileRequestPool tileRequestPool;
 
-    public ExternalAPI(Server server, GeolocationAPI geolocationAPI, TileRequestPool tileRequestPool) {
+    // OS API which contains some OS-specific functions
+    public final OSAPI oSAPI;
+
+    public ExternalAPI(Server server, GeolocationAPI geolocationAPI, TileRequestPool tileRequestPool, OSAPI oSAPI) {
         this.server = server;
         this.geolocationAPI = geolocationAPI;
         this.tileRequestPool = tileRequestPool;
+        this.oSAPI = oSAPI;
     }
 }

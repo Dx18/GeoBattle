@@ -1,16 +1,19 @@
 package geobattle.geobattle.desktop;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Scanner;
 
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.server.ExternalAPI;
+import geobattle.geobattle.server.OSAPI;
 import geobattle.geobattle.server.implementation.FixedGeolocationAPI;
 import geobattle.geobattle.server.implementation.SocketServer;
 import geobattle.geobattle.server.implementation.TileRequestPool;
@@ -30,7 +33,18 @@ public class DesktopLauncher {
             return new ExternalAPI(
                     new SocketServer("localhost", 12000),
                     new FixedGeolocationAPI(longitude, latitude),
-                    new TileRequestPool(appId, appCode, cachePath, 10)
+                    new TileRequestPool(appId, appCode, cachePath, 10),
+                    new OSAPI() {
+                        @Override
+                        public void showMessage(String message) {
+                            try {
+                                Runtime.getRuntime().exec("/usr/bin/notify-send", new String[] { message });
+                            } catch (IOException e) {
+                                // Fallback
+                                Gdx.app.log("GeoBattle", "Failed to send message, so: " + message);
+                            }
+                        }
+                    }
             );
         } catch (FileNotFoundException e) {
             System.out.println("File tileAPI not found. You should add it to ./android/assets/tileAPI");

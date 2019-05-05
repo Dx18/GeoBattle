@@ -88,7 +88,8 @@ public final class LoginScreen implements Screen {
                 new MatchBranch<AuthorizationResult.PairNotFound>() {
                     @Override
                     public void onMatch(AuthorizationResult.PairNotFound pairNotFound) {
-                        Gdx.app.log("GeoBattle", "Cannot login");
+                        externalAPI.oSAPI.showMessage("Cannot login: pair not found");
+                        // Gdx.app.log("GeoBattle", "Cannot login: pair not found");
                     }
                 }
         );
@@ -127,37 +128,43 @@ public final class LoginScreen implements Screen {
                 new MatchBranch<RegistrationResult.InvalidEmail>() {
                     @Override
                     public void onMatch(RegistrationResult.InvalidEmail invalidEmail) {
-                        Gdx.app.log("GeoBattle", "Cannot register: invalid email");
+                        externalAPI.oSAPI.showMessage("Cannot register: invalid email");
+                        // Gdx.app.log("GeoBattle", "Cannot register: invalid email");
                     }
                 },
                 new MatchBranch<RegistrationResult.EmailExists>() {
                     @Override
                     public void onMatch(RegistrationResult.EmailExists emailExists) {
-                        Gdx.app.log("GeoBattle", "Cannot register: player with same email exists");
+                        externalAPI.oSAPI.showMessage("Cannot register: player with same email exists");
+                        // Gdx.app.log("GeoBattle", "Cannot register: player with same email exists");
                     }
                 },
                 new MatchBranch<RegistrationResult.InvalidNameLength>() {
                     @Override
                     public void onMatch(RegistrationResult.InvalidNameLength invalidNameLength) {
-                        Gdx.app.log("GeoBattle", "Cannot register: invalid name length");
+                        externalAPI.oSAPI.showMessage("Cannot register: invalid name length");
+                        // Gdx.app.log("GeoBattle", "Cannot register: invalid name length");
                     }
                 },
                 new MatchBranch<RegistrationResult.InvalidPasswordLength>() {
                     @Override
                     public void onMatch(RegistrationResult.InvalidPasswordLength invalidPasswordLength) {
-                        Gdx.app.log("GeoBattle", "Cannot register: invalid password length");
+                        externalAPI.oSAPI.showMessage("Cannot register: invalid password length");
+                        // Gdx.app.log("GeoBattle", "Cannot register: invalid password length");
                     }
                 },
                 new MatchBranch<RegistrationResult.InvalidNameSymbols>() {
                     @Override
-                    public void onMatch(RegistrationResult.InvalidNameSymbols match) {
-                        Gdx.app.log("GeoBattle", "Cannot register: invalid symbols in name");
+                    public void onMatch(RegistrationResult.InvalidNameSymbols invalidNameSymbols) {
+                        externalAPI.oSAPI.showMessage("Cannot register: invalid symbols in name");
+                        // Gdx.app.log("GeoBattle", "Cannot register: invalid symbols in name");
                     }
                 },
                 new MatchBranch<RegistrationResult.NameExists>() {
                     @Override
-                    public void onMatch(RegistrationResult.NameExists match) {
-                        Gdx.app.log("GeoBattle", "Cannot register: player with same name exists");
+                    public void onMatch(RegistrationResult.NameExists nameExists) {
+                        externalAPI.oSAPI.showMessage("Cannot register: player with same name exists");
+                        // Gdx.app.log("GeoBattle", "Cannot register: player with same name exists");
                     }
                 }
         );

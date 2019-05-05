@@ -58,6 +58,10 @@ public final class GeoBattle extends Game {
         setScreen(new LoginScreen(externalAPI, assetManager, this));
 	}
 
+	public void switchToLoginScreen() {
+        setScreen(new LoginScreen(externalAPI, assetManager, this));
+    }
+
 	public void onAuthInfoObtained(final AuthInfo authInfo) {
         externalAPI.server.requestState(authInfo, new Callback<StateRequestResult>() {
             @Override

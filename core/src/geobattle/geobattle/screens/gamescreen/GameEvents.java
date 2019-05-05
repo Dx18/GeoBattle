@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.IntIntMap;
 
 import java.util.Iterator;
 
+import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.GameStateUpdate;
 import geobattle.geobattle.game.PlayerState;
@@ -27,6 +28,7 @@ import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.Callback;
+import geobattle.geobattle.server.OSAPI;
 import geobattle.geobattle.server.Server;
 import geobattle.geobattle.util.IntPoint;
 
@@ -34,6 +36,8 @@ import geobattle.geobattle.util.IntPoint;
 public class GameEvents {
     // Game server
     public final Server server;
+
+    public final OSAPI oSAPI;
 
     // Game state
     public final GameState gameState;
@@ -48,13 +52,17 @@ public class GameEvents {
 
     private double lastUpdateTime;
 
-    public GameEvents(Server server, GameState gameState, AuthInfo authInfo, GameScreen screen, GeoBattleMap map, BuildingType buildingType) {
+    public final GeoBattle game;
+
+    public GameEvents(Server server, OSAPI oSAPI, GameState gameState, AuthInfo authInfo, GameScreen screen, GeoBattleMap map, BuildingType buildingType, GeoBattle game) {
         this.server = server;
+        this.oSAPI = oSAPI;
         this.gameState = gameState;
         this.authInfo = authInfo;
         this.screen = screen;
         this.map = map;
         this.buildingType = buildingType;
+        this.game = game;
         this.lastUpdateTime = gameState.getTime();
     }
 
@@ -109,14 +117,31 @@ public class GameEvents {
                         screen.switchToNormalMode();
                     }
                 },
-                null,
-                null,
-                null,
+                new MatchBranch<SectorBuildResult.NotEnoughResources>() {
+                    @Override
+                    public void onMatch(SectorBuildResult.NotEnoughResources notEnoughResources) {
+                        oSAPI.showMessage("Cannot build sector: not enough resources");
+                    }
+                },
+                new MatchBranch<SectorBuildResult.IntersectsWithEnemy>() {
+                    @Override
+                    public void onMatch(SectorBuildResult.IntersectsWithEnemy intersectsWithEnemy) {
+                        oSAPI.showMessage("Cannot build sector: not enough resources");
+                    }
+                },
+                new MatchBranch<SectorBuildResult.WrongPosition>() {
+                    @Override
+                    public void onMatch(SectorBuildResult.WrongPosition wrongPosition) {
+                        oSAPI.showMessage("Cannot build sector: wrong position of sector");
+                    }
+                },
                 new MatchBranch<SectorBuildResult.WrongAuthInfo>() {
                     @Override
-                    public void onMatch(SectorBuildResult.WrongAuthInfo match) {
-                        Gdx.app.error("GeoBattle", "Not authorized!");
-                        Gdx.app.exit();
+                    public void onMatch(SectorBuildResult.WrongAuthInfo wrongAuthInfo) {
+                        oSAPI.showMessage("Not authorized!");
+                        game.switchToLoginScreen();
+                        // Gdx.app.error("GeoBattle", "Not authorized!");
+                        // Gdx.app.exit();
                     }
                 }
         );
@@ -203,26 +228,28 @@ public class GameEvents {
                 new MatchBranch<BuildResult.CollisionFound>() {
                     @Override
                     public void onMatch(BuildResult.CollisionFound collisionFound) {
-                        Gdx.app.log("GeoBattle", "Cannot build: collision found");
+                        oSAPI.showMessage("Cannot build: collision found");
                     }
                 },
                 new MatchBranch<BuildResult.NotEnoughResources>() {
                     @Override
                     public void onMatch(BuildResult.NotEnoughResources notEnoughResources) {
-                        Gdx.app.log("GeoBattle", "Cannot build: not enough resources");
+                        oSAPI.showMessage("Cannot build: not enough resources");
                     }
                 },
                 new MatchBranch<BuildResult.NotInTerritory>() {
                     @Override
                     public void onMatch(BuildResult.NotInTerritory notInTerritory) {
-                        Gdx.app.log("GeoBattle", "Cannot build: not in territory");
+                        oSAPI.showMessage("Cannot build: not in territory");
                     }
                 },
                 new MatchBranch<BuildResult.WrongAuthInfo>() {
                     @Override
-                    public void onMatch(BuildResult.WrongAuthInfo match) {
-                        Gdx.app.log("GeoBattle", "Not authorized!");
-                        Gdx.app.exit();
+                    public void onMatch(BuildResult.WrongAuthInfo wrongAuthInfo) {
+                        oSAPI.showMessage("Not authorized!");
+                        game.switchToLoginScreen();
+                        // Gdx.app.error("GeoBattle", "Not authorized!");
+                        // Gdx.app.exit();
                     }
                 }
         );
@@ -259,9 +286,11 @@ public class GameEvents {
                 },
                 new MatchBranch<DestroyResult.WrongAuthInfo>() {
                     @Override
-                    public void onMatch(DestroyResult.WrongAuthInfo match) {
-                        Gdx.app.error("GeoBattle", "Not authorized!");
-                        Gdx.app.exit();
+                    public void onMatch(DestroyResult.WrongAuthInfo wrongAuthInfo) {
+                        oSAPI.showMessage("Not authorized!");
+                        game.switchToLoginScreen();
+                        // Gdx.app.error("GeoBattle", "Not authorized!");
+                        // Gdx.app.exit();
                     }
                 }
         );
@@ -292,15 +321,37 @@ public class GameEvents {
                         gameState.setResources(gameState.getResources() - built.cost);
                     }
                 },
-                null,
-                null,
-                null,
-                null,
+                new MatchBranch<UnitBuildResult.NotEnoughResources>() {
+                    @Override
+                    public void onMatch(UnitBuildResult.NotEnoughResources notEnoughResources) {
+                        oSAPI.showMessage("Cannot build: not in territory");
+                    }
+                },
+                new MatchBranch<UnitBuildResult.NotHangar>() {
+                    @Override
+                    public void onMatch(UnitBuildResult.NotHangar notHangar) {
+                        oSAPI.showMessage("Cannot build: not a hangar");
+                    }
+                },
+                new MatchBranch<UnitBuildResult.NoPlaceInHangar>() {
+                    @Override
+                    public void onMatch(UnitBuildResult.NoPlaceInHangar noPlaceInHangar) {
+                        oSAPI.showMessage("Cannot build: no place in hangar");
+                    }
+                },
+                new MatchBranch<UnitBuildResult.DoesNotExist>() {
+                    @Override
+                    public void onMatch(UnitBuildResult.DoesNotExist doesNotExist) {
+                        oSAPI.showMessage("Cannot build: does not exist");
+                    }
+                },
                 new MatchBranch<UnitBuildResult.WrongAuthInfo>() {
                     @Override
                     public void onMatch(UnitBuildResult.WrongAuthInfo match) {
-                        Gdx.app.error("GeoBattle", "Not authorized!");
-                        Gdx.app.exit();
+                        oSAPI.showMessage("Not authorized!");
+                        game.switchToLoginScreen();
+                        // Gdx.app.error("GeoBattle", "Not authorized!");
+                        // Gdx.app.exit();
                     }
                 }
         );
@@ -337,8 +388,10 @@ public class GameEvents {
                 new MatchBranch<StateRequestResult.WrongAuthInfo>() {
                     @Override
                     public void onMatch(StateRequestResult.WrongAuthInfo match) {
-                        Gdx.app.error("GeoBattle", "Not authorized");
-                        Gdx.app.exit();
+                        oSAPI.showMessage("Not authorized!");
+                        game.switchToLoginScreen();
+                        // Gdx.app.error("GeoBattle", "Not authorized!");
+                        // Gdx.app.exit();
                     }
                 }
         );
@@ -356,8 +409,10 @@ public class GameEvents {
                 new MatchBranch<UpdateRequestResult.WrongAuthInfo>() {
                     @Override
                     public void onMatch(UpdateRequestResult.WrongAuthInfo wrongAuthInfo) {
-                        Gdx.app.error("GeoBattle", "Not authorized!");
-                        Gdx.app.exit();
+                        oSAPI.showMessage("Not authorized!");
+                        game.switchToLoginScreen();
+                        // Gdx.app.error("GeoBattle", "Not authorized!");
+                        // Gdx.app.exit();
                     }
                 }
         );

@@ -5,11 +5,13 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 
 import geobattle.geobattle.server.ExternalAPI;
+import geobattle.geobattle.server.OSAPI;
 import geobattle.geobattle.server.implementation.FixedGeolocationAPI;
 import geobattle.geobattle.server.implementation.SocketServer;
 import geobattle.geobattle.server.implementation.TileRequestPool;
@@ -69,7 +71,18 @@ public class AndroidLauncher extends AndroidApplication {
         externalAPI = new ExternalAPI(
                 new SocketServer("localhost", 12000),
                 geolocationAPI,
-                new TileRequestPool("D66l1mTahRCaumS4HXmh", "7uAxlwVnWG_2fKJ4yxApbw", "/", 10)
+                new TileRequestPool("D66l1mTahRCaumS4HXmh", "7uAxlwVnWG_2fKJ4yxApbw", "/", 10),
+                new OSAPI() {
+                    @Override
+                    public void showMessage(final String message) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                }
         );
 
         super.onCreate(savedInstanceState);

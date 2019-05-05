@@ -80,7 +80,7 @@ public final class GameScreen implements Screen {
         );
         tilesStage.addActor(map);
 
-        this.gameEvents = new GameEvents(externalAPI.server, gameState, authInfo, this, map, BuildingType.GENERATOR);
+        this.gameEvents = new GameEvents(externalAPI.server, externalAPI.oSAPI, gameState, authInfo, this, map, BuildingType.GENERATOR, game);
 
         this.debugMode = true;
     }
