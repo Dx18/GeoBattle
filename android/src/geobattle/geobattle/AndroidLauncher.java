@@ -1,9 +1,14 @@
 package geobattle.geobattle;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -26,13 +31,16 @@ public class AndroidLauncher extends AndroidApplication {
     LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            geolocationAPI.setLongitude((float)location.getLongitude());
-            geolocationAPI.setLatitude((float)location.getLatitude());
+            geolocationAPI.setLongitude((float) location.getLongitude());
+            geolocationAPI.setLatitude((float) location.getLatitude());
         }
 
+        @SuppressLint("MissingPermission")
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-
+            String newProvider = getBestGeolocationProvider();
+            locationManager.removeUpdates(locationListener);
+            locationManager.requestLocationUpdates(newProvider, 0, 0, this);
         }
 
         @Override
@@ -46,27 +54,70 @@ public class AndroidLauncher extends AndroidApplication {
         }
     };
 
+    private final int PERMISSIONS_REQUEST_GEOLOCATION = 100;
+
+    private final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 101;
+
+    private final char[] APP_ID = new char[] {
+            '_', '_', '_', '_', '_', '_', '_', '_', '_', '_',
+            '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'
+    };
+
+    private final char[] APP_CODE = new char[] {
+            '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_',
+            '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'
+    };
+
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        try {
+        startGame();
+
+        requestGeolocation();
+    }
+
+    private String getBestGeolocationProvider() {
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+
+        return locationManager.getBestProvider(criteria, true);
+    }
+
+    private void requestGeolocation() {
+        if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, PERMISSIONS_REQUEST_GEOLOCATION);
+        } else {
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            Location initial = locationManager.getLastKnownLocation(getBestGeolocationProvider());
 
-            Location initial = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (initial != null) {
+                geolocationAPI.setLongitude((float) initial.getLongitude());
+                geolocationAPI.setLatitude((float) initial.getLatitude());
+            }
 
-            if (initial != null)
-                geolocationAPI = new FixedGeolocationAPI(
-                        (float)initial.getLongitude(),
-                        (float)initial.getLatitude()
-                );
-            else
-                geolocationAPI = new FixedGeolocationAPI(0, 0);
+            // locationManager.requestLocationUpdates(getBestGeolocationProvider(), 0, 0, locationListener);
 
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, locationListener);
-        } catch (SecurityException e) {
-            finish();
+            requestExternalStorage();
         }
+    }
+
+    private void requestExternalStorage() {
+        if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+        } else {
+            // startGame();
+        }
+    }
+
+    private void startGame() throws SecurityException {
+        geolocationAPI = new FixedGeolocationAPI(0, 0);
 
         OSAPI oSAPI = new OSAPI() {
             @Override
@@ -83,28 +134,60 @@ public class AndroidLauncher extends AndroidApplication {
         externalAPI = new ExternalAPI(
                 new SocketServer("78.47.182.60", 12000, oSAPI),
                 geolocationAPI,
-                new TileRequestPool("D66l1mTahRCaumS4HXmh", "7uAxlwVnWG_2fKJ4yxApbw", "/", 10),
+                new TileRequestPool(new String(APP_ID), new String(APP_CODE), "/", 10),
                 oSAPI
         );
-
-        super.onCreate(savedInstanceState);
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
         initialize(new GeoBattle(externalAPI), config);
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_GEOLOCATION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    requestExternalStorage();
+                } else {
+                    Toast.makeText(this, "Some needed permissions were not granted", Toast.LENGTH_LONG).show();
+                    finish();
+                    return;
+                }
+                break;
+            case PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // startGame();
+                } else {
+                    Toast.makeText(this, "Some needed permissions were not granted", Toast.LENGTH_LONG).show();
+                    finish();
+                    return;
+                }
+                break;
+            default:
+                Toast.makeText(this, "Unknown activity result with request code " + requestCode, Toast.LENGTH_LONG).show();
+                break;
+        }
+    }
+
+    @Override
     protected void onResume() {
-        super.onResume();
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            super.onResume();
+            locationManager.requestLocationUpdates(getBestGeolocationProvider(), 0, 0, locationListener);
         } catch (SecurityException e) {
             finish();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     @Override
     protected void onPause() {
-        super.onPause();
-        locationManager.removeUpdates(locationListener);
+        try {
+            super.onPause();
+            locationManager.removeUpdates(locationListener);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
