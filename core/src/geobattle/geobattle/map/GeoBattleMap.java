@@ -216,7 +216,7 @@ public class GeoBattleMap extends Actor {
             }
     }
 
-    public void drawTexture(Batch batch, int subTileX, int subTileY, int subTileWidth, int subTileHeight, float subTilePadding, Texture texture, Color color) {
+    public void drawTexture(Batch batch, int subTileX, int subTileY, int subTileWidth, int subTileHeight, float subTilePadding, TextureRegion texture, Color color) {
         if (texture == null)
             return;
 
@@ -524,30 +524,29 @@ public class GeoBattleMap extends Actor {
 
         // Draws territory
         for (PlayerState player : gameState.getPlayers()) {
-            Color mainColor = new Color(player.getColor());
-            mainColor.a = 0.2f;
-            Color borderColor = new Color(player.getColor());
-            borderColor.a = 1;
-
             Iterator<Sector> sectors = player.getAllSectors();
             while (sectors.hasNext()) {
                 Sector next = sectors.next();
 
                 drawNormalSector(batch, next, player);
-                // next.draw(batch, this, buildingTextures, mainColor);
             }
         }
 
         // Draws buildings
         for (PlayerState player : gameState.getPlayers()) {
-            Iterator<Building> buildings = player.getAllBuildings();
-            while (buildings.hasNext()) {
-                Building next = buildings.next();
+            Iterator<Sector> sectors = player.getAllSectors();
+            while (sectors.hasNext()) {
+                Sector nextSector = sectors.next();
 
-                if (screenMode == GameScreenMode.DESTROY && next == pointedBuilding)
-                    drawToBeDestroyedBuilding(batch);
-                else
-                    drawNormalBuilding(batch, next, player);
+                Iterator<Building> buildings = nextSector.getAllBuildings();
+                while (buildings.hasNext()) {
+                    Building nextBuilding = buildings.next();
+
+                    if (screenMode == GameScreenMode.DESTROY && nextBuilding == pointedBuilding)
+                        drawToBeDestroyedBuilding(batch);
+                    else
+                        drawNormalBuilding(batch, nextBuilding, player);
+                }
             }
         }
 
@@ -565,10 +564,6 @@ public class GeoBattleMap extends Actor {
                         drawNormalUnit(batch, next, player.getColor());
                 }
             }
-//            Iterator<Unit> units = player.getAllUnits();
-//            while (units.hasNext()) {
-//                Unit next = units.next();
-//            }
         }
 
         if (screenMode == GameScreenMode.BUILD) {
@@ -628,14 +623,6 @@ public class GeoBattleMap extends Actor {
                     Sector.SECTOR_SIZE, Sector.SECTOR_SIZE,
                     mainColor, borderColor, 0x2222
             );
-//            drawRegionRectAdvanced(
-//                    batch,
-//                    CoordinateConverter.subTilesToWorld(pointedTile.x - ((pointedTile.x - sector.x) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE, xOffset, GeoBattleConst.SUBDIVISION),
-//                    CoordinateConverter.subTilesToWorld(pointedTile.y - ((pointedTile.y - sector.y) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE, yOffset, GeoBattleConst.SUBDIVISION),
-//                    CoordinateConverter.subTilesToRealWorld(Sector.SECTOR_SIZE, GeoBattleConst.SUBDIVISION),
-//                    CoordinateConverter.subTilesToRealWorld(Sector.SECTOR_SIZE, GeoBattleConst.SUBDIVISION),
-//                    mainColor, borderColor, 0x2222
-//            );
         }
 
         // Draws player

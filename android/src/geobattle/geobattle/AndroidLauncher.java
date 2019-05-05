@@ -69,7 +69,7 @@ public class AndroidLauncher extends AndroidApplication {
         externalAPI = new ExternalAPI(
                 new SocketServer("localhost", 12000),
                 geolocationAPI,
-                new TileRequestPool("_", "_", "/", 10)
+                new TileRequestPool("D66l1mTahRCaumS4HXmh", "7uAxlwVnWG_2fKJ4yxApbw", "/", 10)
         );
 
         super.onCreate(savedInstanceState);

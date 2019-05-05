@@ -85,44 +85,7 @@ public final class Sector {
     public void draw(Batch batch, GeoBattleMap map, BuildingTextures textures, Color color) {
         Color mainColor = new Color(color.r, color.g, color.b, 0.2f);
 
-        // map.drawRegionRectSubTiles(batch, x, y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE, new Color(color.r, color.g, color.b, 0.2f));
-
-        int cornerSize = Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2;
-        int middleSize = Sector.BEACON_SIZE;
-
-        map.drawRegionRectAdvancedSubTiles(
-                batch, x, y,
-                cornerSize - 1, cornerSize - 1, mainColor, color, 0x1100
-        );
-        map.drawRegionRectAdvancedSubTiles(
-                batch, x, y + cornerSize + Sector.BEACON_SIZE + 1,
-                cornerSize - 1, cornerSize - 1, mainColor, color, 0x1001
-        );
-        map.drawRegionRectAdvancedSubTiles(
-                batch, x + cornerSize + Sector.BEACON_SIZE + 1, y + cornerSize + Sector.BEACON_SIZE + 1,
-                cornerSize - 1, cornerSize - 1, mainColor, color, 0x0011
-        );
-        map.drawRegionRectAdvancedSubTiles(
-                batch, x + cornerSize + Sector.BEACON_SIZE + 1, y,
-                cornerSize - 1, cornerSize - 1, mainColor, color, 0x0110
-        );
-
-        map.drawRegionRectAdvancedSubTiles(
-                batch, x, y + cornerSize - 1,
-                cornerSize - 1, middleSize + 2, mainColor, color, 0x1010
-        );
-        map.drawRegionRectAdvancedSubTiles(
-                batch, x + cornerSize - 1, y + cornerSize + middleSize + 1,
-                middleSize + 2, cornerSize - 1, mainColor, color, 0x0101
-        );
-        map.drawRegionRectAdvancedSubTiles(
-                batch, x + cornerSize + middleSize + 1, y + cornerSize - 1,
-                cornerSize - 1, middleSize + 2, mainColor, color, 0x1010
-        );
-        map.drawRegionRectAdvancedSubTiles(
-                batch, x + cornerSize - 1, y,
-                middleSize + 2, cornerSize - 1, mainColor, color, 0x0101
-        );
+        map.drawRegionRectSubTiles(batch, x, y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE, new Color(color.r, color.g, color.b, 0.2f));
 
         map.drawTexture(
                 batch,

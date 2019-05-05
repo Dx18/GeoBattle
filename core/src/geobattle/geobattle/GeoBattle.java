@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.TextureLoader;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import geobattle.geobattle.game.actionresults.MatchBranch;
@@ -43,21 +44,7 @@ public final class GeoBattle extends Game {
 
         assetManager.load(GeoBattleAssets.GUI_SKIN, Skin.class);
 
-        assetManager.load(GeoBattleAssets.COMMAND_CENTER, Texture.class, param);
-        assetManager.load(GeoBattleAssets.BEACON, Texture.class, param);
-        assetManager.load(GeoBattleAssets.RESEARCH_CENTER, Texture.class, param);
-        assetManager.load(GeoBattleAssets.TURRET, Texture.class, param);
-        assetManager.load(GeoBattleAssets.GENERATOR, Texture.class, param);
-        assetManager.load(GeoBattleAssets.MINE, Texture.class, param);
-        assetManager.load(GeoBattleAssets.HANGAR, Texture.class, param);
-
-        assetManager.load(GeoBattleAssets.COMMAND_CENTER_TEAM_COLOR, Texture.class, param);
-        assetManager.load(GeoBattleAssets.BEACON_TEAM_COLOR, Texture.class, param);
-        assetManager.load(GeoBattleAssets.RESEARCH_CENTER_TEAM_COLOR, Texture.class, param);
-        assetManager.load(GeoBattleAssets.TURRET_TEAM_COLOR, Texture.class, param);
-        assetManager.load(GeoBattleAssets.GENERATOR_TEAM_COLOR, Texture.class, param);
-        assetManager.load(GeoBattleAssets.MINE_TEAM_COLOR, Texture.class, param);
-        assetManager.load(GeoBattleAssets.HANGAR_TEAM_COLOR, Texture.class, param);
+        assetManager.load(GeoBattleAssets.BUILDINGS_ATLAS, TextureAtlas.class);
 
         assetManager.load(GeoBattleAssets.BOMBER, Texture.class, param);
         assetManager.load(GeoBattleAssets.SPOTTER, Texture.class, param);
