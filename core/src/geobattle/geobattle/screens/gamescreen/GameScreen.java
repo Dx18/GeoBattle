@@ -20,6 +20,7 @@ import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
+import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.map.GeoBattleCamera;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.server.AuthInfo;
@@ -210,7 +211,21 @@ public final class GameScreen implements Screen {
         tilesStage.act(delta);
         guiStage.act(delta);
 
-        gui.resourcesLabel.setText(String.format(Locale.US, "%d", (int) gameState.getResources()));
+        StringBuilder infoText = new StringBuilder();
+        infoText.append("$ ");
+        infoText.append((int) gameState.getResources());
+
+        if (map.getPointedSector() != null) {
+            Sector pointedSector = map.getPointedSector();
+            infoText.append("\nE: ");
+            infoText.append(pointedSector.getEnergy());
+            infoText.append("\nH: ");
+            infoText.append(pointedSector.getHealth());
+            infoText.append(" / ");
+            infoText.append(pointedSector.getMaxHealth());
+        }
+
+        gui.resourcesLabel.setText(infoText);
 
         BuildingType selectedBuildingType = gameEvents.getBuildingType();
 
@@ -243,18 +258,6 @@ public final class GameScreen implements Screen {
                     map.getTileCounter().getRequestedCount(),
                     map.getTileCounter().getLoadedCount()
             ));
-        } else {
-            if (map.getPointedSector() == null) {
-                gui.debugInfo.setText("");
-            } else {
-                gui.debugInfo.setText(String.format(
-                        Locale.US,
-                        "H: %.1f / %.1f\nE: %d",
-                        map.getPointedSector().getHealth(),
-                        map.getPointedSector().getMaxHealth(),
-                        map.getPointedSector().getEnergy()
-                ));
-            }
         }
 
         tilesStage.draw();
