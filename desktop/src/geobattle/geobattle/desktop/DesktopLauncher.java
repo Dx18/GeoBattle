@@ -30,21 +30,23 @@ public class DesktopLauncher {
             float longitude = scanner.nextFloat();
             float latitude = scanner.nextFloat();
 
+            OSAPI oSAPI = new OSAPI() {
+                @Override
+                public void showMessage(String message) {
+                    try {
+                        Runtime.getRuntime().exec("/usr/bin/notify-send", new String[] { message });
+                    } catch (IOException e) {
+                        // Fallback
+                        Gdx.app.log("GeoBattle", "Failed to send message, so: " + message);
+                    }
+                }
+            };
+
             return new ExternalAPI(
-                    new SocketServer("localhost", 12000),
+                    new SocketServer("localhost", 12000, oSAPI),
                     new FixedGeolocationAPI(longitude, latitude),
                     new TileRequestPool(appId, appCode, cachePath, 10),
-                    new OSAPI() {
-                        @Override
-                        public void showMessage(String message) {
-                            try {
-                                Runtime.getRuntime().exec("/usr/bin/notify-send", new String[] { message });
-                            } catch (IOException e) {
-                                // Fallback
-                                Gdx.app.log("GeoBattle", "Failed to send message, so: " + message);
-                            }
-                        }
-                    }
+                    oSAPI
             );
         } catch (FileNotFoundException e) {
             System.out.println("File tileAPI not found. You should add it to ./android/assets/tileAPI");

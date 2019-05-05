@@ -75,6 +75,7 @@ public final class SocketServer implements Server {
 
         try {
             synchronized (this) {
+                Gdx.app.log("GeoBattle", "Creating socket: " + ip + ":" + port);
                 socket = new Socket(ip, port);
             }
             socket.setSoTimeout(5000);
@@ -165,7 +166,7 @@ public final class SocketServer implements Server {
                     JsonObject result = parser.parse(resultStr).getAsJsonObject();
                     callback.onResult(AuthorizationResult.fromJson(result));
                 } catch (Exception e) {
-                    oSAPI.showMessage("RegisterEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    oSAPI.showMessage("AuthorizationEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
@@ -202,7 +203,7 @@ public final class SocketServer implements Server {
                     JsonObject result = parser.parse(resultStr).getAsJsonObject();
                     callback.onResult(StateRequestResult.fromJson(result));
                 } catch (Exception e) {
-                    oSAPI.showMessage("RegisterEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    oSAPI.showMessage("StateRequestEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
@@ -232,7 +233,7 @@ public final class SocketServer implements Server {
                     JsonObject result = parser.parse(resultStr).getAsJsonObject();
                     callback.onResult(BuildResult.fromJson(result));
                 } catch (Exception e) {
-                    oSAPI.showMessage("RegisterEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    oSAPI.showMessage("BuildEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
@@ -257,7 +258,7 @@ public final class SocketServer implements Server {
                     JsonObject result = parser.parse(resultStr).getAsJsonObject();
                     callback.onResult(SectorBuildResult.fromJson(result));
                 } catch (Exception e) {
-                    oSAPI.showMessage("RegisterEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    oSAPI.showMessage("SectorBuildEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
@@ -282,7 +283,7 @@ public final class SocketServer implements Server {
                     JsonObject result = parser.parse(resultStr).getAsJsonObject();
                     callback.onResult(DestroyResult.fromJson(result));
                 } catch (Exception e) {
-                    oSAPI.showMessage("RegisterEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    oSAPI.showMessage("DestroyEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
