@@ -586,13 +586,13 @@ public class GeoBattleMap extends Actor {
         } else if (screenMode == GameScreenMode.BUILD_SECTOR) {
             Iterator<Sector> sectors = gameState.getCurrentPlayer().getAllSectors();
 
-            boolean isNeighbour = false;
-            boolean exists = false;
-
             Sector sector = gameState.getCurrentPlayer().getAllSectors().next();
 
             int newSectorX = pointedTile.x - ((pointedTile.x - sector.x) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;
             int newSectorY = pointedTile.y - ((pointedTile.y - sector.y) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;
+
+            boolean isNeighbour = false;
+            boolean exists = false;
 
             while (sectors.hasNext()) {
                 Sector next = sectors.next();
@@ -606,9 +606,31 @@ public class GeoBattleMap extends Actor {
                     exists = true;
             }
 
+            boolean intersectsEnemy = false;
+            for (PlayerState enemy : gameState.getPlayers()) {
+                if (enemy == gameState.getCurrentPlayer())
+                    continue;
+
+                Iterator<Sector> enemySectors = enemy.getAllSectors();
+                while (enemySectors.hasNext()) {
+                    Sector next = enemySectors.next();
+
+                    if (GeoBattleMath.tileRectanglesIntersect(
+                            next.x, next.y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE,
+                            newSectorX, newSectorY, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE
+                    )) {
+                        intersectsEnemy = true;
+                        break;
+                    }
+                }
+
+                if (intersectsEnemy)
+                    break;
+            }
+
             Color mainColor;
             Color borderColor;
-            if (isNeighbour && !exists) {
+            if (isNeighbour && !exists && !intersectsEnemy) {
                 mainColor = new Color(gameState.getCurrentPlayer().getColor());
                 mainColor.a = 0.1f;
                 borderColor = new Color(gameState.getCurrentPlayer().getColor());
@@ -667,6 +689,10 @@ public class GeoBattleMap extends Actor {
     // Sets selected type of building
     public void setSelectedBuildingType(BuildingType selectedBuildingType) {
         this.selectedBuildingType = selectedBuildingType;
+    }
+
+    public BuildingType getSelectedBuildingType() {
+        return selectedBuildingType;
     }
 
     public TileCounter getTileCounter() {

@@ -25,6 +25,7 @@ import geobattle.geobattle.map.GeoBattleCamera;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.ExternalAPI;
+import geobattle.geobattle.util.IntPoint;
 
 // Game screen
 public final class GameScreen implements Screen {
@@ -82,6 +83,7 @@ public final class GameScreen implements Screen {
         tilesStage.addActor(map);
 
         this.gameEvents = new GameEvents(externalAPI.server, externalAPI.oSAPI, gameState, authInfo, this, map, BuildingType.GENERATOR, game);
+        map.setSelectedBuildingType(BuildingType.GENERATOR);
 
         this.debugMode = true;
     }
@@ -198,6 +200,50 @@ public final class GameScreen implements Screen {
             game.onExitGame(gameEvents.authInfo);
     }
 
+    public boolean canBuildBuilding() {
+        IntPoint coords = map.getPointedTile();
+        BuildingType buildingType = map.getSelectedBuildingType();
+        coords.x -= buildingType.sizeX;
+        coords.y -= buildingType.sizeY;
+
+        // Prevent BuildResult.NotEnoughResources
+        if (gameState.getResources() < buildingType.cost) return false;
+
+        // Prevent BuildResult.CollisionFound
+        if (gameState.getCurrentPlayer().getBuildingsInRect(
+                coords.x - 1, coords.y - 1,
+                buildingType.sizeX + 2, buildingType.sizeY + 2
+        ).hasNext()) return false;
+
+        // Prevent BuildResult.BuildingLimitExceeded
+        if (buildingType.maxCount != Integer.MAX_VALUE) {
+            Iterator<Building> buildings = gameState.getCurrentPlayer().getAllBuildings();
+            int count = 0;
+            while (buildings.hasNext() && count < buildingType.maxCount) {
+                Building next = buildings.next();
+                if (next.getBuildingType() == buildingType) {
+                    count++;
+                    if (count >= buildingType.maxCount)
+                        return false;
+                }
+            }
+        }
+
+        // Prevent BuildResult.NotInTerritory
+        Iterator<Sector> sectors = gameState.getCurrentPlayer().getAllSectors();
+        while (sectors.hasNext()) {
+            Sector next = sectors.next();
+            if (next.containsRect(
+                    coords.x - 1, coords.y - 1,
+                    buildingType.sizeX + 2, buildingType.sizeY + 2
+            )) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     // Renders game screen
     @Override
     public void render(float delta) {
@@ -227,7 +273,7 @@ public final class GameScreen implements Screen {
 
         gui.resourcesLabel.setText(infoText);
 
-        BuildingType selectedBuildingType = gameEvents.getBuildingType();
+        BuildingType selectedBuildingType = gameEvents.getSelectedBuildingType();
 
         if (mode != GameScreenMode.BUILD || selectedBuildingType.maxCount == Integer.MAX_VALUE) {
             gui.maxBuildingCountLabel.setText("");

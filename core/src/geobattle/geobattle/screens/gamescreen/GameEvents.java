@@ -30,6 +30,7 @@ import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.Callback;
 import geobattle.geobattle.server.OSAPI;
 import geobattle.geobattle.server.Server;
+import geobattle.geobattle.util.GeoBattleMath;
 import geobattle.geobattle.util.IntPoint;
 
 // Game events
@@ -48,20 +49,20 @@ public class GameEvents {
 
     public final GeoBattleMap map;
 
-    private BuildingType buildingType;
+    private BuildingType selectedBuildingType;
 
     private double lastUpdateTime;
 
     public final GeoBattle game;
 
-    public GameEvents(Server server, OSAPI oSAPI, GameState gameState, AuthInfo authInfo, GameScreen screen, GeoBattleMap map, BuildingType buildingType, GeoBattle game) {
+    public GameEvents(Server server, OSAPI oSAPI, GameState gameState, AuthInfo authInfo, GameScreen screen, GeoBattleMap map, BuildingType selectedBuildingType, GeoBattle game) {
         this.server = server;
         this.oSAPI = oSAPI;
         this.gameState = gameState;
         this.authInfo = authInfo;
         this.screen = screen;
         this.map = map;
-        this.buildingType = buildingType;
+        this.selectedBuildingType = selectedBuildingType;
         this.game = game;
         this.lastUpdateTime = gameState.getTime();
     }
@@ -90,6 +91,40 @@ public class GameEvents {
         IntPoint coords = map.getPointedTile();
         coords.x -= ((coords.x - sector.x) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;
         coords.y -= ((coords.y - sector.y) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;
+
+        boolean isNeighbour = false;
+        boolean exists = false;
+
+        Iterator<Sector> sectors = gameState.getCurrentPlayer().getAllSectors();
+        while (sectors.hasNext()) {
+            Sector next = sectors.next();
+
+            if (
+                    Math.abs(next.x - coords.x) == Sector.SECTOR_SIZE && next.y == coords.y ||
+                    Math.abs(next.y - coords.y) == Sector.SECTOR_SIZE && next.x == coords.x
+            ) {
+                isNeighbour = true;
+                break;
+            }
+            if (next.x == coords.x && next.y == coords.y)
+                return;
+        }
+
+        for (PlayerState enemy : gameState.getPlayers()) {
+            if (enemy == gameState.getCurrentPlayer())
+                continue;
+
+            Iterator<Sector> enemySectors = enemy.getAllSectors();
+            while (enemySectors.hasNext()) {
+                Sector next = enemySectors.next();
+
+                if (GeoBattleMath.tileRectanglesIntersect(
+                        next.x, next.y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE,
+                        coords.x, coords.y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE
+                ))
+                    return;
+            }
+        }
 
         server.requestSectorBuild(authInfo, coords.x, coords.y, new Callback<SectorBuildResult>() {
             @Override
@@ -149,49 +184,11 @@ public class GameEvents {
 
     // Invokes when user requests building
     public void onRequestBuild() {
-        IntPoint coords = map.getPointedTile();
-
-        // Prevent BuildResult.CollisionFound
-        if (gameState.getCurrentPlayer().getBuildingsInRect(
-                coords.x - buildingType.sizeX / 2 - 1, coords.y - buildingType.sizeY / 2 - 1,
-                buildingType.sizeX + 2, buildingType.sizeY + 2
-        ).hasNext()) return;
-
-        // Prevent BuildResult.NotEnoughResources
-        if (gameState.getResources() < buildingType.cost) return;
-
-        // Prevent BuildResult.BuildingLimitExceeded
-        if (buildingType.maxCount != Integer.MAX_VALUE) {
-            Iterator<Building> buildings = gameState.getCurrentPlayer().getAllBuildings();
-            int count = 0;
-            while (buildings.hasNext() && count < buildingType.maxCount) {
-                Building next = buildings.next();
-                if (next.getBuildingType() == buildingType) {
-                    count++;
-                    if (count >= buildingType.maxCount)
-                        return;
-                }
-            }
-        }
-
-        Iterator<Sector> sectors = gameState.getCurrentPlayer().getAllSectors();
-        boolean inSector = false;
-        while (sectors.hasNext()) {
-            Sector next = sectors.next();
-            if (next.containsRect(
-                    coords.x - buildingType.sizeX / 2 - 1, coords.y - buildingType.sizeY / 2 - 1,
-                    buildingType.sizeX + 2, buildingType.sizeY + 2
-            )) {
-                inSector = true;
-                break;
-            }
-        }
-
-        // Prevent BuildResult.NotInTerritory
-        if (!inSector)
+        if (!screen.canBuildBuilding())
             return;
 
-        server.requestBuild(authInfo, buildingType, coords.x - buildingType.sizeX / 2, coords.y - buildingType.sizeY / 2, new Callback<BuildResult>() {
+        IntPoint coords = map.getPointedTile();
+        server.requestBuild(authInfo, selectedBuildingType, coords.x - selectedBuildingType.sizeX / 2, coords.y - selectedBuildingType.sizeY / 2, new Callback<BuildResult>() {
             @Override
             public void onResult(final BuildResult result) {
                 Gdx.app.postRunnable(new Runnable() {
@@ -205,12 +202,12 @@ public class GameEvents {
     }
 
     public void setSelectedBuildingType(BuildingType type) {
-        buildingType = type;
+        selectedBuildingType = type;
         map.setSelectedBuildingType(type);
     }
 
-    public BuildingType getBuildingType() {
-        return buildingType;
+    public BuildingType getSelectedBuildingType() {
+        return selectedBuildingType;
     }
 
     // Invokes when user receives build result
