@@ -85,7 +85,7 @@ public final class GameScreen implements Screen {
         this.gameEvents = new GameEvents(externalAPI.server, externalAPI.oSAPI, gameState, authInfo, this, map, BuildingType.GENERATOR, game);
         map.setSelectedBuildingType(BuildingType.GENERATOR);
 
-        this.debugMode = true;
+        this.debugMode = false;
     }
 
     // Initializes game screen
@@ -304,6 +304,8 @@ public final class GameScreen implements Screen {
                     map.getTileCounter().getRequestedCount(),
                     map.getTileCounter().getLoadedCount()
             ));
+        } else {
+            gui.debugInfo.setText("");
         }
 
         tilesStage.draw();
