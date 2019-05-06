@@ -203,8 +203,8 @@ public final class GameScreen implements Screen {
     public boolean canBuildBuilding() {
         IntPoint coords = map.getPointedTile();
         BuildingType buildingType = map.getSelectedBuildingType();
-        coords.x -= buildingType.sizeX;
-        coords.y -= buildingType.sizeY;
+        coords.x -= buildingType.sizeX / 2;
+        coords.y -= buildingType.sizeY / 2;
 
         // Prevent BuildResult.NotEnoughResources
         if (gameState.getResources() < buildingType.cost) return false;
