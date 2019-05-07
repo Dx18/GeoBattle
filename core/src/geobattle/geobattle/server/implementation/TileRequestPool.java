@@ -224,7 +224,8 @@ public final class TileRequestPool {
                     Pixmap result = requestCache(next);
                     if (result == null) {
                         result = requestHTTP(next);
-                        writeToCache(result, next);
+                        if (result != null)
+                            writeToCache(result, next);
                     }
                     onLoad(result, next);
                 }

@@ -69,18 +69,16 @@ public class TileTree {
             texture.dispose();
             texture = null;
             tileCounter.onUnload();
-            textureRequested = false;
         } else if (tile != null && texture == null) {
             texture = new Texture(tile);
             tile.dispose();
             tileCounter.onLoad();
-            textureRequested = false;
         } else if (tile != null) {
             texture.dispose();
             texture = new Texture(tile);
             tile.dispose();
-            textureRequested = false;
         }
+        textureRequested = false;
     }
 
     // Removes texture of tile and decrements tree counter if needed
