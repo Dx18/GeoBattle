@@ -45,6 +45,7 @@ public final class GeoBattle extends Game {
         assetManager.load(GeoBattleAssets.GUI_SKIN, Skin.class);
 
         assetManager.load(GeoBattleAssets.BUILDINGS_ATLAS, TextureAtlas.class);
+        assetManager.load(GeoBattleAssets.BUILDING_ICONS_ATLAS, TextureAtlas.class);
 
         assetManager.load(GeoBattleAssets.BOMBER, Texture.class, param);
         assetManager.load(GeoBattleAssets.SPOTTER, Texture.class, param);

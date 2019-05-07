@@ -1,4 +1,4 @@
-atlas/buildingIcons_{n}.png/buildingIcons.png
+buildingIcons.png
 size: 512, 512
 format: RGBA8888
 filter: Linear,Linear
