@@ -11,6 +11,9 @@ public final class GeoBattleAssets {
     // Atlas with building textures
     public static final String BUILDINGS_ATLAS = "buildings/atlas/buildings.atlas";
 
+    // Atlas with building icon textures
+    public static final String BUILDING_ICONS_ATLAS = "buildingIcons/atlas/buildingIcons.atlas";
+
     // Beacon texture
     public static final String BEACON = "beacon";
 

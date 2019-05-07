@@ -48,11 +48,32 @@ public final class BuildingTextures {
     // Team color texture of hangar
     public final TextureRegion hangarTeamColorTexture;
 
+    // Texture of beacon icon
+    public final TextureRegion beaconIconTexture;
+
+    // Texture of research icon
+    public final TextureRegion researchCenterIconTexture;
+
+    // Texture of turret icon
+    public final TextureRegion turretIconTexture;
+
+    // Texture of generator icon
+    public final TextureRegion generatorIconTexture;
+
+    // Texture of mine icon
+    public final TextureRegion mineIconTexture;
+
+    // Texture of hangar icon
+    public final TextureRegion hangarIconTexture;
+
     // Map "building type" -> "texture of building type"
     private final HashMap<BuildingType, TextureRegion> buildingTypeToTexture;
 
     // Map "building type" -> "team color texture of building type"
     private final HashMap<BuildingType, TextureRegion> buildingTypeToTeamColorTexture;
+
+    // Map "building type" -> "icon texture of building type"
+    private final HashMap<BuildingType, TextureRegion> buildingTypeToIconTexture;
 
     // Creates BuildingTextures
     // Building textures must be loaded in `assetManager`
@@ -61,6 +82,8 @@ public final class BuildingTextures {
 
         for (Texture texture : buildingsAtlas.getTextures())
             texture.setFilter(Texture.TextureFilter.MipMap, Texture.TextureFilter.Nearest);
+
+        TextureAtlas buildingIconsAtlas = assetManager.get(GeoBattleAssets.BUILDING_ICONS_ATLAS);
 
         beaconTexture = buildingsAtlas.findRegion(GeoBattleAssets.BEACON);
         researchCenterTexture = buildingsAtlas.findRegion(GeoBattleAssets.RESEARCH_CENTER);
@@ -89,6 +112,20 @@ public final class BuildingTextures {
         buildingTypeToTeamColorTexture.put(BuildingType.GENERATOR, generatorTeamColorTexture);
         buildingTypeToTeamColorTexture.put(BuildingType.MINE, mineTeamColorTexture);
         buildingTypeToTeamColorTexture.put(BuildingType.HANGAR, hangarTeamColorTexture);
+
+        beaconIconTexture = buildingsAtlas.findRegion(GeoBattleAssets.BEACON);
+        researchCenterIconTexture = buildingsAtlas.findRegion(GeoBattleAssets.RESEARCH_CENTER);
+        turretIconTexture = buildingsAtlas.findRegion(GeoBattleAssets.TURRET);
+        generatorIconTexture = buildingsAtlas.findRegion(GeoBattleAssets.GENERATOR);
+        mineIconTexture = buildingsAtlas.findRegion(GeoBattleAssets.MINE);
+        hangarIconTexture = buildingsAtlas.findRegion(GeoBattleAssets.HANGAR);
+
+        buildingTypeToIconTexture = new HashMap<BuildingType, TextureRegion>();
+        buildingTypeToIconTexture.put(BuildingType.RESEARCH_CENTER, researchCenterIconTexture);
+        buildingTypeToIconTexture.put(BuildingType.TURRET, turretIconTexture);
+        buildingTypeToIconTexture.put(BuildingType.GENERATOR, generatorIconTexture);
+        buildingTypeToIconTexture.put(BuildingType.MINE, mineIconTexture);
+        buildingTypeToIconTexture.put(BuildingType.HANGAR, hangarIconTexture);
     }
 
     // Returns texture of building
@@ -99,5 +136,10 @@ public final class BuildingTextures {
     // Returns team color texture of building
     public TextureRegion getTeamColorTexture(BuildingType buildingType) {
         return buildingTypeToTeamColorTexture.get(buildingType);
+    }
+
+    // Returns icon texture of building
+    public TextureRegion getIconTexture(BuildingType buildingType) {
+        return buildingTypeToIconTexture.get(buildingType);
     }
 }
