@@ -78,7 +78,7 @@
         <key>webpQualityLevel</key>
         <uint>101</uint>
         <key>textureSubPath</key>
-        <string>atlas/buildingIcons_{n}.png</string>
+        <string></string>
         <key>atfFormats</key>
         <string></string>
         <key>textureFormat</key>

@@ -101,8 +101,8 @@ public class GameEvents {
 
             if (
                     Math.abs(next.x - coords.x) == Sector.SECTOR_SIZE && next.y == coords.y ||
-                    Math.abs(next.y - coords.y) == Sector.SECTOR_SIZE && next.x == coords.x
-            ) {
+                            Math.abs(next.y - coords.y) == Sector.SECTOR_SIZE && next.x == coords.x
+                    ) {
                 isNeighbour = true;
                 break;
             }
@@ -184,11 +184,15 @@ public class GameEvents {
 
     // Invokes when user requests building
     public void onRequestBuild() {
-        if (!screen.canBuildBuilding())
+        BuildingType buildingType = map.getSelectedBuildingType();
+        IntPoint coords = map.getPointedTile();
+        coords.x -= buildingType.sizeX / 2;
+        coords.y -= buildingType.sizeY / 2;
+
+        if (!gameState.canBuildBuilding(map.getSelectedBuildingType(), coords.x, coords.y))
             return;
 
-        IntPoint coords = map.getPointedTile();
-        server.requestBuild(authInfo, selectedBuildingType, coords.x - selectedBuildingType.sizeX / 2, coords.y - selectedBuildingType.sizeY / 2, new Callback<BuildResult>() {
+        server.requestBuild(authInfo, buildingType, coords.x, coords.y, new Callback<BuildResult>() {
             @Override
             public void onResult(final BuildResult result) {
                 Gdx.app.postRunnable(new Runnable() {

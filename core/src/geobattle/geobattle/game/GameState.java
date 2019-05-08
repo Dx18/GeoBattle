@@ -5,10 +5,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import geobattle.geobattle.game.attacking.AttackEvent;
+import geobattle.geobattle.game.buildings.Building;
+import geobattle.geobattle.game.buildings.BuildingType;
+import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.game.gamestatediff.GameStateDiff;
 import geobattle.geobattle.game.gamestatediff.PlayerStateDiff;
+import geobattle.geobattle.util.GeoBattleMath;
+import geobattle.geobattle.util.IntPoint;
 
 // State of game
 public class GameState {
@@ -133,5 +139,90 @@ public class GameState {
         applyDiff(diff);
 
         attackEvents = other.attackEvents;
+    }
+
+    public boolean canBuildBuilding(BuildingType buildingType, int x, int y) {
+        // Prevent BuildResult.NotEnoughResources
+        if (getResources() < buildingType.cost) return false;
+
+        // Prevent BuildResult.CollisionFound
+        if (getCurrentPlayer().getBuildingsInRect(
+                x - 1, y - 1,
+                buildingType.sizeX + 2, buildingType.sizeY + 2
+        ).hasNext()) return false;
+
+        // Prevent BuildResult.BuildingLimitExceeded
+        if (buildingType.maxCount != Integer.MAX_VALUE) {
+            Iterator<Building> buildings = getCurrentPlayer().getAllBuildings();
+            int count = 0;
+            while (buildings.hasNext() && count < buildingType.maxCount) {
+                Building next = buildings.next();
+                if (next.getBuildingType() == buildingType) {
+                    count++;
+                    if (count >= buildingType.maxCount)
+                        return false;
+                }
+            }
+        }
+
+        // Prevent BuildResult.NotInTerritory
+        Iterator<Sector> sectors = getCurrentPlayer().getAllSectors();
+        while (sectors.hasNext()) {
+            Sector next = sectors.next();
+            if (next.containsRect(
+                    x - 1, y - 1,
+                    buildingType.sizeX + 2, buildingType.sizeY + 2
+            )) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean canBuildSector(int x, int y) {
+        if (getCurrentPlayer().getAllSectors().hasNext()) {
+            Sector sector = getCurrentPlayer().getAllSectors().next();
+
+            if ((x - sector.x) % Sector.SECTOR_SIZE != 0 || (y - sector.y) % Sector.SECTOR_SIZE != 0)
+                return false;
+
+            boolean isNeighbour = false;
+
+            Iterator<Sector> sectors = getCurrentPlayer().getAllSectors();
+            while (sectors.hasNext()) {
+                Sector next = sectors.next();
+
+                if (
+                        Math.abs(next.x - x) == Sector.SECTOR_SIZE && next.y == y ||
+                        Math.abs(next.y - y) == Sector.SECTOR_SIZE && next.x == x
+                ) {
+                    isNeighbour = true;
+                    break;
+                }
+                if (next.x == x && next.y == y)
+                    return false;
+            }
+
+            if (!isNeighbour)
+                return false;
+        }
+
+        for (PlayerState enemy : getPlayers()) {
+            if (enemy == getCurrentPlayer())
+                continue;
+
+            Iterator<Sector> enemySectors = enemy.getAllSectors();
+            while (enemySectors.hasNext()) {
+                Sector next = enemySectors.next();
+
+                if (GeoBattleMath.tileRectanglesIntersect(
+                        next.x, next.y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE,
+                        x, y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE
+                )) return false;
+            }
+        }
+
+        return true;
     }
 }

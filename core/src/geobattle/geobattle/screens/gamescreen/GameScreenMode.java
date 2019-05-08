@@ -1,5 +1,7 @@
 package geobattle.geobattle.screens.gamescreen;
 
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.GameScreenModeData;
+
 // Current mode of game screen
 public enum GameScreenMode {
     // Normal mode with main tool bar

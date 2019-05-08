@@ -82,25 +82,31 @@ public final class Sector {
         }
     }
 
-    public void draw(Batch batch, GeoBattleMap map, BuildingTextures textures, Color color) {
-        Color mainColor = new Color(color.r, color.g, color.b, 0.2f);
-
-        map.drawRegionRectSubTiles(batch, x, y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE, new Color(color.r, color.g, color.b, 0.2f));
-
-        map.drawTexture(
-                batch,
-                x + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2,
-                y + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2,
-                Sector.BEACON_SIZE, Sector.BEACON_SIZE, 0.5f,
-                textures.beaconTexture, Color.WHITE
-        );
-        map.drawTexture(
-                batch,
-                x + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2,
-                y + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2,
-                Sector.BEACON_SIZE, Sector.BEACON_SIZE, 0.5f,
-                textures.beaconTeamColorTexture, color
-        );
+    public void drawBeacon(Batch batch, GeoBattleMap map, BuildingTextures textures, Color color, boolean drawIcons) {
+        if (drawIcons) {
+            map.drawTexture(
+                    batch,
+                    x + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2,
+                    y + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2,
+                    Sector.BEACON_SIZE, Sector.BEACON_SIZE, 0,
+                    textures.beaconIconTexture, color
+            );
+        } else {
+            map.drawTexture(
+                    batch,
+                    x + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2,
+                    y + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2,
+                    Sector.BEACON_SIZE, Sector.BEACON_SIZE, 0.5f,
+                    textures.beaconTexture, Color.WHITE
+            );
+            map.drawTexture(
+                    batch,
+                    x + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2,
+                    y + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2,
+                    Sector.BEACON_SIZE, Sector.BEACON_SIZE, 0.5f,
+                    textures.beaconTeamColorTexture, color
+            );
+        }
     }
 
     public boolean containsPoint(int x, int y) {

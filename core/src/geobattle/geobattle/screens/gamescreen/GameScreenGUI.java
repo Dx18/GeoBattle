@@ -14,9 +14,16 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 import geobattle.geobattle.GeoBattleAssets;
+import geobattle.geobattle.game.actionresults.DestroyResult;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.units.UnitType;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildFirstSectorMode;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildMode;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildSectorMode;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.DestroyMode;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.GameScreenModeData;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.NormalMode;
 
 // GUI for game screen
 final class GameScreenGUI {
@@ -395,30 +402,23 @@ final class GameScreenGUI {
         hangarToolBar.right().padRight(20).top().padTop(20);
     }
 
-    // Sets screen mode
-    public void setMode(GameScreenMode mode) {
+    // Sets mode of game screen
+    public void setMode(GameScreenModeData modeData) {
         toolBar.setVisible(false);
         buildToolBar.setVisible(false);
         destroyToolBar.setVisible(false);
         buildFirstSectorToolBar.setVisible(false);
         buildSectorToolBar.setVisible(false);
-        switch (mode) {
-            case NORMAL:
-                toolBar.setVisible(true);
-                break;
-            case BUILD:
-                buildToolBar.setVisible(true);
-                break;
-            case DESTROY:
-                destroyToolBar.setVisible(true);
-                break;
-            case BUILD_FIRST_SECTOR:
-                buildFirstSectorToolBar.setVisible(true);
-                break;
-            case BUILD_SECTOR:
-                buildSectorToolBar.setVisible(true);
-                break;
-        }
+        if (modeData instanceof NormalMode)
+            toolBar.setVisible(true);
+        else if (modeData instanceof BuildMode)
+            buildToolBar.setVisible(true);
+        else if (modeData instanceof DestroyMode)
+            destroyToolBar.setVisible(true);
+        else if (modeData instanceof BuildFirstSectorMode)
+            buildFirstSectorToolBar.setVisible(true);
+        else if (modeData instanceof BuildSectorMode)
+            buildSectorToolBar.setVisible(true);
     }
 
     public void onBuildingSelected(Building building) {

@@ -66,23 +66,37 @@ public abstract class Building {
     public void update(float delta, GameState gameState) {}
 
     // Draws building
-    public void draw(Batch batch, GeoBattleMap map, BuildingTextures buildingTextures, Color color) {
-        map.drawTexture(
-                batch, x, y, getSizeX(), getSizeY(), 0.5f,
-                buildingTextures.getTexture(buildingType), Color.WHITE
-        );
-        map.drawTexture(
-                batch, x, y, getSizeX(), getSizeY(), 0.5f,
-                buildingTextures.getTeamColorTexture(buildingType), color
-        );
+    public void draw(Batch batch, GeoBattleMap map, BuildingTextures buildingTextures, Color color, boolean drawIcons) {
+        if (drawIcons) {
+            map.drawTexture(
+                    batch, x, y, getSizeX(), getSizeY(), 0,
+                    buildingTextures.getIconTexture(buildingType), color
+            );
+        } else {
+            map.drawTexture(
+                    batch, x, y, getSizeX(), getSizeY(), 0.5f,
+                    buildingTextures.getTexture(buildingType), Color.WHITE
+            );
+            map.drawTexture(
+                    batch, x, y, getSizeX(), getSizeY(), 0.5f,
+                    buildingTextures.getTeamColorTexture(buildingType), color
+            );
+        }
     }
 
     // Draws building without player's color
-    public void drawColorless(Batch batch, GeoBattleMap map, BuildingTextures buildingTextures, Color color) {
-        map.drawTexture(
-                batch, x, y, getSizeX(), getSizeY(), 0.5f,
-                buildingTextures.getTexture(buildingType), color
-        );
+    public void drawColorless(Batch batch, GeoBattleMap map, BuildingTextures buildingTextures, Color color, boolean drawIcons) {
+        if (drawIcons) {
+            map.drawTexture(
+                    batch, x, y, getSizeX(), getSizeY(), 0,
+                    buildingTextures.getIconTexture(buildingType), color
+            );
+        } else {
+            map.drawTexture(
+                    batch, x, y, getSizeX(), getSizeY(), 0.5f,
+                    buildingTextures.getTexture(buildingType), color
+            );
+        }
     }
 
     // Creates building from JSON

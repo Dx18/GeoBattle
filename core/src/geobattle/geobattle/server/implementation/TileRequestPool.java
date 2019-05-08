@@ -237,8 +237,8 @@ public final class TileRequestPool {
     public void put(TileRequest request) {
         synchronized (this) {
             requests.push(request);
+            if (loadingCount.get() < maxLoadingCount)
+                next();
         }
-        if (loadingCount.get() < maxLoadingCount)
-            next();
     }
 }

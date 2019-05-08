@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -13,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
+import java.lang.management.ManagementFactory;
 import java.util.Iterator;
 import java.util.Locale;
 
@@ -23,6 +25,12 @@ import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.map.GeoBattleCamera;
 import geobattle.geobattle.map.GeoBattleMap;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildFirstSectorMode;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildMode;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildSectorMode;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.DestroyMode;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.GameScreenModeData;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.NormalMode;
 import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.ExternalAPI;
 import geobattle.geobattle.util.IntPoint;
@@ -51,7 +59,9 @@ public final class GameScreen implements Screen {
     private GameScreenGUI gui;
 
     // Current mode
-    private GameScreenMode mode;
+    // private GameScreenMode mode;
+
+    private GameScreenModeData modeData;
 
     // Game instance
     private GeoBattle game;
@@ -72,7 +82,7 @@ public final class GameScreen implements Screen {
         int width = Gdx.graphics.getWidth();
         int height = Gdx.graphics.getHeight();
         camera = new GeoBattleCamera(width, height);
-        tilesStage = new Stage(new ScalingViewport(Scaling.stretch, width, height, camera));
+        tilesStage = new Stage(new ScalingViewport(Scaling.stretch, width, height, camera), new SpriteBatch(8191));
         map = new GeoBattleMap(
                 externalAPI.tileRequestPool,
                 externalAPI.geolocationAPI,
@@ -85,7 +95,9 @@ public final class GameScreen implements Screen {
         this.gameEvents = new GameEvents(externalAPI.server, externalAPI.oSAPI, gameState, authInfo, this, map, BuildingType.GENERATOR, game);
         map.setSelectedBuildingType(BuildingType.GENERATOR);
 
-        this.debugMode = false;
+        this.debugMode = true;
+
+        tilesStage.setDebugAll(true);
     }
 
     // Initializes game screen
@@ -96,8 +108,8 @@ public final class GameScreen implements Screen {
         gui = new GameScreenGUI(assetManager, this, guiStage);
 
         switchTo(gameState.getPlayers().get(gameState.getPlayerId()).getSectorCount() == 0
-                ? GameScreenMode.BUILD_FIRST_SECTOR
-                : GameScreenMode.NORMAL
+                ? new BuildFirstSectorMode(map.getPointedTileX(), map.getPointedTileY())
+                : new NormalMode(map.getPointedTileX(), map.getPointedTileY(), gameState)
         );
 
         // Input handling
@@ -107,50 +119,38 @@ public final class GameScreen implements Screen {
         Gdx.input.setInputProcessor(input);
     }
 
-    // Switches to specified mode
-    private void switchTo(GameScreenMode mode) {
-        this.mode = mode;
-        map.setScreenMode(mode);
-        gui.setMode(mode);
+    private void switchTo(GameScreenModeData modeData) {
+        this.modeData = modeData;
+        map.setScreenMode(modeData);
+        gui.setMode(modeData);
     }
 
     public void switchToNormalMode() {
-        switchTo(GameScreenMode.NORMAL);
+        switchTo(new NormalMode(map.getPointedTileX(), map.getPointedTileY(), gameState));
     }
 
     public void onBuildSectorMode() {
-        switch (mode) {
-            case NORMAL:
-                switchTo(GameScreenMode.BUILD_SECTOR);
-                break;
-            case BUILD_SECTOR:
-                switchTo(GameScreenMode.NORMAL);
-                break;
-        }
+        if (modeData instanceof NormalMode)
+            switchTo(new BuildSectorMode(map.getPointedTileX(), map.getPointedTileY()));
+        else if (modeData instanceof BuildSectorMode)
+            switchTo(new NormalMode(map.getPointedTileX(), map.getPointedTileY(), gameState));
     }
 
     // Invokes when user wants to switch build mode
     public void onBuildMode() {
-        switch (mode) {
-            case NORMAL:
-                switchTo(GameScreenMode.BUILD);
-                break;
-            case BUILD:
-                switchTo(GameScreenMode.NORMAL);
-                break;
-        }
+        if (modeData instanceof NormalMode) {
+            IntPoint pointedTile = map.getPointedTile();
+            switchTo(new BuildMode(pointedTile.x, pointedTile.y, BuildingType.GENERATOR));
+        } else if (modeData instanceof BuildMode)
+            switchTo(new NormalMode(map.getPointedTileX(), map.getPointedTileY(), gameState));
     }
 
     // Invokes when user wants to switch destroy mode
     public void onDestroyMode() {
-        switch (mode) {
-            case NORMAL:
-                switchTo(GameScreenMode.DESTROY);
-                break;
-            case DESTROY:
-                switchTo(GameScreenMode.NORMAL);
-                break;
-        }
+        if (modeData instanceof NormalMode)
+            switchTo(new DestroyMode(map.getPointedTileX(), map.getPointedTileY(), gameState));
+        else if (modeData instanceof DestroyMode)
+            switchTo(new NormalMode(map.getPointedTileX(), map.getPointedTileY(), gameState));
     }
 
     // Invokes when player wants to move to its geolocation
@@ -200,50 +200,6 @@ public final class GameScreen implements Screen {
             game.onExitGame(gameEvents.authInfo);
     }
 
-    public boolean canBuildBuilding() {
-        IntPoint coords = map.getPointedTile();
-        BuildingType buildingType = map.getSelectedBuildingType();
-        coords.x -= buildingType.sizeX / 2;
-        coords.y -= buildingType.sizeY / 2;
-
-        // Prevent BuildResult.NotEnoughResources
-        if (gameState.getResources() < buildingType.cost) return false;
-
-        // Prevent BuildResult.CollisionFound
-        if (gameState.getCurrentPlayer().getBuildingsInRect(
-                coords.x - 1, coords.y - 1,
-                buildingType.sizeX + 2, buildingType.sizeY + 2
-        ).hasNext()) return false;
-
-        // Prevent BuildResult.BuildingLimitExceeded
-        if (buildingType.maxCount != Integer.MAX_VALUE) {
-            Iterator<Building> buildings = gameState.getCurrentPlayer().getAllBuildings();
-            int count = 0;
-            while (buildings.hasNext() && count < buildingType.maxCount) {
-                Building next = buildings.next();
-                if (next.getBuildingType() == buildingType) {
-                    count++;
-                    if (count >= buildingType.maxCount)
-                        return false;
-                }
-            }
-        }
-
-        // Prevent BuildResult.NotInTerritory
-        Iterator<Sector> sectors = gameState.getCurrentPlayer().getAllSectors();
-        while (sectors.hasNext()) {
-            Sector next = sectors.next();
-            if (next.containsRect(
-                    coords.x - 1, coords.y - 1,
-                    buildingType.sizeX + 2, buildingType.sizeY + 2
-            )) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     // Renders game screen
     @Override
     public void render(float delta) {
@@ -275,7 +231,7 @@ public final class GameScreen implements Screen {
 
         BuildingType selectedBuildingType = gameEvents.getSelectedBuildingType();
 
-        if (mode != GameScreenMode.BUILD || selectedBuildingType.maxCount == Integer.MAX_VALUE) {
+        if (!(modeData instanceof BuildMode) || selectedBuildingType.maxCount == Integer.MAX_VALUE) {
             gui.maxBuildingCountLabel.setText("");
         } else {
             int count = 0;
@@ -294,7 +250,7 @@ public final class GameScreen implements Screen {
         if (debugMode) {
             gui.debugInfo.setText(String.format(
                     Locale.US,
-                    "%d FPS\nPointed tile: %s, %s\nPointed object: %s\nLoading tiles:%d\nLoaded tiles: %d",
+                    "%d FPS\nPointed tile: %s, %s\nPointed object: %s\nLoading tiles:%d\nLoaded tiles: %d\nMemory used: %d MB",
                     Gdx.graphics.getFramesPerSecond(),
                     map.getPointedTile() == null ? "<null>" : map.getPointedTile().x,
                     map.getPointedTile() == null ? "<null>" : map.getPointedTile().y,
@@ -302,13 +258,15 @@ public final class GameScreen implements Screen {
                             ? (map.getPointedSector() == null ? "<null>" : "sector")
                             : map.getPointedBuilding().getBuildingType().toString(),
                     map.getTileCounter().getRequestedCount(),
-                    map.getTileCounter().getLoadedCount()
+                    map.getTileCounter().getLoadedCount(),
+                    ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() >> 20
             ));
         } else {
             gui.debugInfo.setText("");
         }
 
         tilesStage.draw();
+
         guiStage.draw();
     }
 
