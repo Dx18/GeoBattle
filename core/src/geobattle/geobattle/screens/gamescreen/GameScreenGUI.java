@@ -4,17 +4,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
 
 import geobattle.geobattle.GeoBattleAssets;
-import geobattle.geobattle.game.actionresults.DestroyResult;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.units.UnitType;
@@ -264,42 +264,104 @@ final class GameScreenGUI {
         selectBuildingTypeDialog.getContentTable().clear();
         selectBuildingTypeDialog.getButtonTable().clear();
 
-        selectBuildingTypeDialog.pad(20);
-
-        Table buildingTypes = new Table();
-        buildingTypes.setFillParent(true);
-        for (final BuildingType type : BuildingType.values()) {
-            TextButton button = new TextButton(type.toString(), skin);
-            button.addListener(new ChangeListener() {
-                @Override
-                public void changed(ChangeEvent event, Actor actor) {
-                    screen.getGameEvents().setSelectedBuildingType(type);
-                    selectBuildingTypeDialog.hide();
-                }
-            });
-            buildingTypes.add(button)
-                    .expandX()
-                    .fillX()
-                    .height(Gdx.graphics.getPpcY())
-                    .padTop(5);
-            buildingTypes.row();
-        }
-
-        selectBuildingTypeDialog.getContentTable().add("Select building type...")
+        Label title = new Label("Building", skin);
+        selectBuildingTypeDialog.getContentTable().add(title)
                 .expandX()
+                .colspan(2)
                 .height(Gdx.graphics.getPpcY());
         selectBuildingTypeDialog.getContentTable().row();
-        selectBuildingTypeDialog.getContentTable().add(buildingTypes)
-                .fillX();
 
-        Button close = new TextButton("Close", skin);
-        close.addListener(new ChangeListener() {
+        selectBuildingTypeDialog.getContentTable().pad(20);
+
+        Table buildingInfo = new Table(skin);
+        final Label buildingName = new Label("", skin);
+        buildingName.setAlignment(Align.left, Align.left);
+        buildingInfo.add(buildingName)
+                .expandX()
+                .fillX();
+        buildingInfo.row();
+        final Label description = new Label("", skin);
+        description.setAlignment(Align.left, Align.left);
+        buildingInfo.add(description)
+                .expandX()
+                .fillX();
+        buildingInfo.row();
+        final Label size = new Label("", skin);
+        size.setAlignment(Align.left, Align.left);
+        buildingInfo.add(size)
+                .expandX()
+                .fillX();
+        buildingInfo.row();
+        final Label strength = new Label("", skin);
+        strength.setAlignment(Align.left, Align.left);
+        buildingInfo.add(strength)
+                .expandX()
+                .fillX();
+        buildingInfo.row();
+        final Label energy = new Label("", skin);
+        energy.setAlignment(Align.left, Align.left);
+        buildingInfo.add(energy)
+                .expandX()
+                .fillX();
+        buildingInfo.row();
+        final Label maxCount = new Label("", skin);
+        maxCount.setAlignment(Align.left, Align.left);
+        buildingInfo.add(maxCount)
+                .expandX()
+                .fillX();
+        buildingInfo.row();
+        final TextButton buildButton = new TextButton("", skin);
+        buildingInfo.add(buildButton)
+                .expandX()
+                .height(Gdx.graphics.getPpcY())
+                .bottom()
+                .right();
+        buildingInfo.top();
+
+        final List<BuildingType> buildingTypes = new List<BuildingType>(skin);
+        buildingTypes.setItems(BuildingType.values());
+
+        buildingTypes.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                BuildingType buildingType = buildingTypes.getSelected();
+                buildingName.setText(buildingType.toString());
+                description.setText("Just " + buildingType.toString());
+                size.setText("Size: " + buildingType.sizeX + " x " + buildingType.sizeY);
+                strength.setText("Strength: " + buildingType.healthBonus);
+                energy.setText("Energy: " + buildingType.energyDelta);
+                if (buildingType.maxCount != Integer.MAX_VALUE)
+                    maxCount.setText("Max count: " + buildingType.maxCount);
+                else
+                    maxCount.setText("");
+                buildButton.setText("Build: " + buildingType.cost);
+            }
+        });
+
+        buildingTypes.setSelected(BuildingType.GENERATOR);
+
+        buildButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                screen.getGameEvents().setSelectedBuildingType(buildingTypes.getSelected());
                 selectBuildingTypeDialog.hide();
             }
         });
-        selectBuildingTypeDialog.button(close);
+
+        selectBuildingTypeDialog.getContentTable().add(buildingTypes)
+                .fillX()
+                .expandX()
+                .pad(5);
+        selectBuildingTypeDialog.getContentTable().row();
+        selectBuildingTypeDialog.getContentTable().add(buildingInfo)
+                .fill()
+                .expand()
+                .width(Gdx.graphics.getWidth() - 40)
+                .pad(5);
+
+        selectBuildingTypeDialog.getContentTable().setFillParent(true);
+
+        selectBuildingTypeDialog.center();
     }
 
     // Shows dialog where player must select type of building he wants to build
@@ -409,6 +471,7 @@ final class GameScreenGUI {
         destroyToolBar.setVisible(false);
         buildFirstSectorToolBar.setVisible(false);
         buildSectorToolBar.setVisible(false);
+        hangarToolBar.setVisible(false);
         if (modeData instanceof NormalMode)
             toolBar.setVisible(true);
         else if (modeData instanceof BuildMode)
