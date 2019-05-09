@@ -259,7 +259,7 @@ public final class GameScreen implements Screen {
                             : map.getPointedBuilding().getBuildingType().toString(),
                     map.getTileCounter().getRequestedCount(),
                     map.getTileCounter().getLoadedCount(),
-                    ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() >> 20
+                    Gdx.app.getJavaHeap() >> 20
             ));
         } else {
             gui.debugInfo.setText("");
