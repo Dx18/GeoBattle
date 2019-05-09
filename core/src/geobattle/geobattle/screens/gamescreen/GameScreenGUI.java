@@ -2,9 +2,12 @@ package geobattle.geobattle.screens.gamescreen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
@@ -17,6 +20,8 @@ import com.badlogic.gdx.utils.Align;
 import geobattle.geobattle.GeoBattleAssets;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
+import geobattle.geobattle.game.research.ResearchInfo;
+import geobattle.geobattle.game.research.ResearchType;
 import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildFirstSectorMode;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildMode;
@@ -68,8 +73,13 @@ final class GameScreenGUI {
     // Tool bar for hangar
     public final Table hangarToolBar;
 
+    // "Research" dialog
+    public final Dialog researchDialog;
+
     // Initializes GUI
     public GameScreenGUI(AssetManager assetManager, final GameScreen screen, final Stage guiStage) {
+        Gdx.app.log("GeoBattle", "Initializing GUI...");
+
         skin = assetManager.get(GeoBattleAssets.GUI_SKIN);
         this.guiStage = guiStage;
 
@@ -101,7 +111,8 @@ final class GameScreenGUI {
 
         hangarToolBar = new Table();
         guiStage.addActor(hangarToolBar);
-        hangarToolBar.setVisible(true);
+
+        researchDialog = new Dialog("", skin);
 
         reset(screen);
     }
@@ -126,6 +137,7 @@ final class GameScreenGUI {
         initBuildSectorToolBar(screen);
         initSelectBuildingTypeDialog(screen);
         initHangarToolBar(screen);
+        initResearchDialog(screen);
     }
 
     // Initializes navigation tool bar
@@ -189,7 +201,7 @@ final class GameScreenGUI {
     private void initToolBar(final GameScreen screen) {
         toolBar.reset();
         toolBar.setFillParent(true);
-        ImageTextButton buildMode = new ImageTextButton("B", skin);
+        TextButton buildMode = new TextButton("B", skin);
         buildMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -199,7 +211,7 @@ final class GameScreenGUI {
         toolBar.add(buildMode)
                 .width(Gdx.graphics.getPpcX())
                 .height(Gdx.graphics.getPpcY());
-        ImageTextButton destroyMode = new ImageTextButton("D", skin);
+        TextButton destroyMode = new TextButton("D", skin);
         destroyMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -209,7 +221,7 @@ final class GameScreenGUI {
         toolBar.add(destroyMode)
                 .width(Gdx.graphics.getPpcX())
                 .height(Gdx.graphics.getPpcY());
-        ImageTextButton buildSectorMode = new ImageTextButton("S", skin);
+        TextButton buildSectorMode = new TextButton("S", skin);
         buildSectorMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -217,6 +229,16 @@ final class GameScreenGUI {
             }
         });
         toolBar.add(buildSectorMode)
+                .width(Gdx.graphics.getPpcX())
+                .height(Gdx.graphics.getPpcY());
+        TextButton research = new TextButton("R", skin);
+        research.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                showResearchDialog();
+            }
+        });
+        toolBar.add(research)
                 .width(Gdx.graphics.getPpcX())
                 .height(Gdx.graphics.getPpcY());
         toolBar.right().padRight(20).bottom().padBottom(20);
@@ -267,6 +289,7 @@ final class GameScreenGUI {
         Label title = new Label("Building", skin);
         selectBuildingTypeDialog.getContentTable().add(title)
                 .expandX()
+                .width(Gdx.graphics.getWidth() - 40)
                 .colspan(2)
                 .height(Gdx.graphics.getPpcY());
         selectBuildingTypeDialog.getContentTable().row();
@@ -349,14 +372,14 @@ final class GameScreenGUI {
         });
 
         selectBuildingTypeDialog.getContentTable().add(buildingTypes)
-                .fillX()
-                .expandX()
-                .pad(5);
-        selectBuildingTypeDialog.getContentTable().row();
-        selectBuildingTypeDialog.getContentTable().add(buildingInfo)
+                .width((Gdx.graphics.getWidth() - 60) * 0.4f)
                 .fill()
                 .expand()
-                .width(Gdx.graphics.getWidth() - 40)
+                .pad(5);
+        selectBuildingTypeDialog.getContentTable().add(buildingInfo)
+                .width((Gdx.graphics.getWidth() - 60) * 0.6f)
+                .fill()
+                .expand()
                 .pad(5);
 
         selectBuildingTypeDialog.getContentTable().setFillParent(true);
@@ -462,6 +485,115 @@ final class GameScreenGUI {
         }
 
         hangarToolBar.right().padRight(20).top().padTop(20);
+    }
+
+    private void initResearchDialog(final GameScreen screen) {
+        researchDialog.getContentTable().clear();
+        researchDialog.getButtonTable().clear();
+        researchDialog.getContentTable().setFillParent(true);
+
+        Label title = new Label("Research", skin);
+        researchDialog.getContentTable().add(title)
+                .expandX()
+                .width(Gdx.graphics.getWidth() - 40)
+                .height(Gdx.graphics.getPpcY());
+        researchDialog.getContentTable().row();
+
+        final ResearchInfo researchInfo = screen.getGameEvents().gameState.getResearchInfo();
+        for (final ResearchType researchType : ResearchType.values()) {
+            final int currentLevel = researchInfo.getLevel(researchType);
+
+            Table researchTypeTable = new Table();
+
+            Label researchName = new Label(researchType.name, skin);
+            researchTypeTable.add(researchName)
+                    .expandX()
+                    .fillX()
+                    .colspan(researchType.getLevelCount());
+
+            final Label researchValue = new Label("", skin);
+            researchTypeTable.add(researchValue);
+
+            researchTypeTable.row();
+
+            final Image[] indicators = new Image[researchType.getLevelCount()];
+            for (int level = 0; level < researchType.getLevelCount(); level++) {
+                indicators[level] = new Image(skin, "rect");
+                indicators[level].setColor(researchInfo.getLevel(researchType) > level
+                        ? new Color(0.4f, 0.4f, 0.4f, 1)
+                        : new Color(1, 1, 1, 1)
+                );
+                researchTypeTable.add(indicators[level])
+                        .width(Gdx.graphics.getPpcX() / 3)
+                        .padLeft(5)
+                        .padRight(5)
+                        .expand(level == researchType.getLevelCount() - 1, false)
+                        .align(Align.left);
+            }
+
+            int cost = researchType.getCost(currentLevel + 1);
+            final TextButton research = new TextButton("", skin);
+            if (cost == Integer.MAX_VALUE) {
+                research.setDisabled(true);
+                research.setText("");
+                researchValue.setText(researchType.getValue(currentLevel) + "");
+            } else {
+                research.setText(cost + "");
+                researchValue.setText(
+                        researchType.getValue(currentLevel) + " > " + researchType.getValue(currentLevel + 1)
+                );
+            }
+            research.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    researchInfo.incrementLevel(researchType);
+
+                    int newLevel = researchInfo.getLevel(researchType);
+                    indicators[newLevel - 1].setColor(0.4f, 0.4f, 0.4f, 1);
+                    int newCost = researchType.getCost(newLevel + 1);
+                    if (newCost == Integer.MAX_VALUE) {
+                        research.setDisabled(true);
+                        research.setText("");
+                        researchValue.setText(researchType.getValue(newLevel) + "");
+                    } else {
+                        research.setText(newCost + "");
+                        researchValue.setText(
+                                researchType.getValue(newLevel) +
+                                " > " +
+                                researchType.getValue(newLevel + 1)
+                        );
+                    }
+                }
+            });
+            GlyphLayout glyphLayout = new GlyphLayout();
+            glyphLayout.setText(skin.getFont("default"), "16000");
+            researchTypeTable.add(research)
+                .width(glyphLayout.width + 40)
+                .align(Align.right);
+
+            researchDialog.getContentTable().add(researchTypeTable)
+                    .expandX()
+                    .fillX()
+                    .width(Gdx.graphics.getWidth() - 40);
+            researchDialog.getContentTable().row();
+        }
+
+        TextButton close = new TextButton("Close", skin);
+        close.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                researchDialog.hide();
+            }
+        });
+        researchDialog.getContentTable().add(close);
+
+        researchDialog.getContentTable().pad(20);
+        researchDialog.center();
+    }
+
+    // Shows research dialog
+    private void showResearchDialog() {
+        researchDialog.show(guiStage);
     }
 
     // Sets mode of game screen
