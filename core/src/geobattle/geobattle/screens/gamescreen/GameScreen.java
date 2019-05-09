@@ -92,7 +92,7 @@ public final class GameScreen implements Screen {
         );
         tilesStage.addActor(map);
 
-        this.gameEvents = new GameEvents(externalAPI.server, externalAPI.oSAPI, gameState, authInfo, this, map, BuildingType.GENERATOR, game);
+        this.gameEvents = new GameEvents(externalAPI.server, externalAPI.oSAPI, gameState, authInfo, this, map, game);
         map.setSelectedBuildingType(BuildingType.GENERATOR);
 
         this.debugMode = true;
@@ -229,7 +229,7 @@ public final class GameScreen implements Screen {
 
         gui.resourcesLabel.setText(infoText);
 
-        BuildingType selectedBuildingType = gameEvents.getSelectedBuildingType();
+        BuildingType selectedBuildingType = map.getSelectedBuildingType();
 
         if (!(modeData instanceof BuildMode) || selectedBuildingType.maxCount == Integer.MAX_VALUE) {
             gui.maxBuildingCountLabel.setText("");

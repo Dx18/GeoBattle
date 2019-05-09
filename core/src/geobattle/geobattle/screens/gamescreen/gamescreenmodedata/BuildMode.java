@@ -41,4 +41,8 @@ public final class BuildMode extends GameScreenModeData {
                 map.getBuildingTextures().getTexture(buildingType), color
         );
     }
+
+    public BuildingType getBuildingType() {
+        return buildingType;
+    }
 }

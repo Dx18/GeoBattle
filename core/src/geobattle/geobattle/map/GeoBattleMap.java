@@ -67,17 +67,11 @@ public class GeoBattleMap extends Actor {
     // Textures of units
     private UnitTextures unitTextures;
 
-    // Current screenMode of game screen
-    // private GameScreenMode screenMode;
-
     // Data of screen mode
     private GameScreenModeData screenModeData;
 
     // Tile where player pointed to
     private IntPoint pointedTile;
-
-    // Current building type which selected in build screen mode
-    private BuildingType selectedBuildingType;
 
     // Shape renderer
     private ShapeRenderer shapeRenderer;
@@ -534,13 +528,14 @@ public class GeoBattleMap extends Actor {
 
     // Sets selected type of building
     public void setSelectedBuildingType(BuildingType selectedBuildingType) {
-        this.selectedBuildingType = selectedBuildingType;
         if (screenModeData instanceof BuildMode)
             ((BuildMode) screenModeData).setBuildingType(selectedBuildingType);
     }
 
     public BuildingType getSelectedBuildingType() {
-        return selectedBuildingType;
+        if (screenModeData instanceof BuildMode)
+            return ((BuildMode) screenModeData).getBuildingType();
+        return null;
     }
 
     public TileCounter getTileCounter() {
