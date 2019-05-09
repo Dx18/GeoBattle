@@ -1,5 +1,6 @@
 package geobattle.geobattle.game.research;
 
+import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.ResearchCenter;
 
 public enum ResearchType {
@@ -55,6 +56,14 @@ public enum ResearchType {
     // Returns value of research level
     public float getValue(int level) {
         return values[level];
+    }
+
+    // Parses ResearchType by name
+    public static ResearchType from(String string) {
+        for (ResearchType type : ResearchType.values())
+            if (string.equals(type.name))
+                return type;
+        return null;
     }
 
     // Returns name of research type

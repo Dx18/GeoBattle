@@ -167,6 +167,10 @@ public final class GameScreen implements Screen {
         return gameEvents;
     }
 
+    public void updateGUI() {
+        gui.researchDialog.setResearchInfo(gameState.getResearchInfo());
+    }
+
     // Handles keyboard input
     private void handleInput(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1))

@@ -13,6 +13,7 @@ import java.net.Socket;
 
 import geobattle.geobattle.game.actionresults.BuildResult;
 import geobattle.geobattle.game.actionresults.DestroyResult;
+import geobattle.geobattle.game.actionresults.ResearchResult;
 import geobattle.geobattle.game.actionresults.SectorBuildResult;
 import geobattle.geobattle.game.actionresults.StateRequestResult;
 import geobattle.geobattle.game.actionresults.UnitBuildResult;
@@ -21,8 +22,10 @@ import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.events.BuildEvent;
 import geobattle.geobattle.game.events.DestroyEvent;
+import geobattle.geobattle.game.events.ResearchEvent;
 import geobattle.geobattle.game.events.SectorBuildEvent;
 import geobattle.geobattle.game.events.StateRequestEvent;
+import geobattle.geobattle.game.research.ResearchType;
 import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.AuthorizationResult;
@@ -294,6 +297,31 @@ public final class SocketServer implements Server {
 
     @Override
     public CancelHandle requestUnitBuild(AuthInfo authInfo, UnitType type, Building building, Callback<UnitBuildResult> callback) {
+        return null;
+    }
+
+    @Override
+    public CancelHandle requestResearch(final AuthInfo authInfo, final ResearchType researchType, final Callback<ResearchResult> callback) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String resultStr = request(new ResearchEvent(authInfo, researchType.toString()).toJson().toString());
+
+                if (resultStr == null) {
+                    oSAPI.showMessage("ResearchEvent failed: probable problems with connection");
+                    return;
+                }
+
+                try {
+                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
+                    callback.onResult(ResearchResult.fromJson(result));
+                } catch (Exception e) {
+                    oSAPI.showMessage("ResearchEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
+                }
+            }
+        }).start();
+
         return null;
     }
 }

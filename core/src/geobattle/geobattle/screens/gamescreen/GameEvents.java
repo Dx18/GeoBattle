@@ -12,6 +12,7 @@ import geobattle.geobattle.game.PlayerState;
 import geobattle.geobattle.game.actionresults.BuildResult;
 import geobattle.geobattle.game.actionresults.DestroyResult;
 import geobattle.geobattle.game.actionresults.MatchBranch;
+import geobattle.geobattle.game.actionresults.ResearchResult;
 import geobattle.geobattle.game.actionresults.SectorBuildResult;
 import geobattle.geobattle.game.actionresults.StateRequestResult;
 import geobattle.geobattle.game.actionresults.UnitBuildResult;
@@ -23,6 +24,7 @@ import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
+import geobattle.geobattle.game.research.ResearchType;
 import geobattle.geobattle.game.units.Unit;
 import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.map.GeoBattleMap;
@@ -30,7 +32,6 @@ import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.Callback;
 import geobattle.geobattle.server.OSAPI;
 import geobattle.geobattle.server.Server;
-import geobattle.geobattle.util.GeoBattleMath;
 import geobattle.geobattle.util.IntPoint;
 
 // Game events
@@ -379,6 +380,58 @@ public class GameEvents {
                         game.switchToLoginScreen();
                         // Gdx.app.error("GeoBattle", "Not authorized!");
                         // Gdx.app.exit();
+                    }
+                }
+        );
+    }
+
+    public void onResearch(ResearchType researchType) {
+        server.requestResearch(authInfo, researchType, new Callback<ResearchResult>() {
+            @Override
+            public void onResult(ResearchResult result) {
+                onResearchResult(result);
+            }
+        });
+    }
+
+    private void onResearchResult(ResearchResult result) {
+        result.match(
+                new MatchBranch<ResearchResult.Researched>() {
+                    @Override
+                    public void onMatch(ResearchResult.Researched researched) {
+                        gameState.getResearchInfo().incrementLevel(ResearchType.from(researched.researchType));
+                        screen.updateGUI();
+                    }
+                },
+                new MatchBranch<ResearchResult.NotEnoughResources>() {
+                    @Override
+                    public void onMatch(ResearchResult.NotEnoughResources notEnoughResources) {
+                        oSAPI.showMessage("Cannot research: not enough resources");
+                    }
+                },
+                new MatchBranch<ResearchResult.MaxLevel>() {
+                    @Override
+                    public void onMatch(ResearchResult.MaxLevel maxLevel) {
+                        oSAPI.showMessage("Cannot research: max level reached");
+                    }
+                },
+                new MatchBranch<ResearchResult.WrongAuthInfo>() {
+                    @Override
+                    public void onMatch(ResearchResult.WrongAuthInfo wrongAuthInfo) {
+                        oSAPI.showMessage("Not authorized!");
+                        game.switchToLoginScreen();
+                    }
+                },
+                new MatchBranch<ResearchResult.MalformedJson>() {
+                    @Override
+                    public void onMatch(ResearchResult.MalformedJson malformedJson) {
+                        oSAPI.showMessage("Cannot build: malformed JSON");
+                    }
+                },
+                new MatchBranch<ResearchResult.IncorrectData>() {
+                    @Override
+                    public void onMatch(ResearchResult.IncorrectData incorrectData) {
+                        oSAPI.showMessage("Cannot build: incorrect data");
                     }
                 }
         );

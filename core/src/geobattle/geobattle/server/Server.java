@@ -4,12 +4,14 @@ import com.badlogic.gdx.graphics.Color;
 
 import geobattle.geobattle.game.actionresults.BuildResult;
 import geobattle.geobattle.game.actionresults.DestroyResult;
+import geobattle.geobattle.game.actionresults.ResearchResult;
 import geobattle.geobattle.game.actionresults.SectorBuildResult;
 import geobattle.geobattle.game.actionresults.StateRequestResult;
 import geobattle.geobattle.game.actionresults.UnitBuildResult;
 import geobattle.geobattle.game.actionresults.UpdateRequestResult;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
+import geobattle.geobattle.game.research.ResearchType;
 import geobattle.geobattle.game.units.UnitType;
 
 // Game server
@@ -49,4 +51,6 @@ public interface Server {
 
     // Requests unit build action
     CancelHandle requestUnitBuild(AuthInfo authInfo, UnitType type, Building building, Callback<UnitBuildResult> callback);
+
+    CancelHandle requestResearch(AuthInfo authInfo, ResearchType researchType, Callback<ResearchResult> callback);
 }

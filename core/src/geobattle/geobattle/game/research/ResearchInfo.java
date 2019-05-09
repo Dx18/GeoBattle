@@ -1,6 +1,7 @@
 package geobattle.geobattle.game.research;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.google.gson.JsonObject;
 
 // Info about player's research
 public final class ResearchInfo {
@@ -43,5 +44,19 @@ public final class ResearchInfo {
     // Increments level of research
     public void incrementLevel(ResearchType researchType) {
         setLevel(researchType, getLevel(researchType) + 1);
+    }
+
+    // Clones ResearchInfo
+    public ResearchInfo clone() {
+        return new ResearchInfo(turretDamageLevel, unitDamageLevel, generatorEfficiencyLevel);
+    }
+
+    // Creates ResearchInfo from JSON
+    public static ResearchInfo fromJson(JsonObject object) {
+        return new ResearchInfo(
+                object.getAsJsonPrimitive("turretDamageLevel").getAsInt(),
+                object.getAsJsonPrimitive("unitDamageLevel").getAsInt(),
+                object.getAsJsonPrimitive("generatorEfficiencyLevel").getAsInt()
+        );
     }
 }

@@ -37,18 +37,18 @@ public class GameState {
     // Research info of current player
     private ResearchInfo researchInfo;
 
-    public GameState(float resources, int playerId, double time) {
+    public GameState(float resources, int playerId, double time, ResearchInfo researchInfo) {
         this.resources = resources;
         this.playerId = playerId;
         this.time = time;
         this.players = new ArrayList<PlayerState>();
         this.attackEvents = new ArrayList<AttackEvent>();
-        this.researchInfo = new ResearchInfo(0, 0, 0);
+        this.researchInfo = researchInfo;
     }
 
     // Clones GameState
     public GameState clone() {
-        GameState cloned = new GameState(resources, playerId, time);
+        GameState cloned = new GameState(resources, playerId, time, researchInfo.clone());
 
         for (PlayerState player : players)
             cloned.players.add(player.clone());
@@ -113,8 +113,9 @@ public class GameState {
         float resources = object.getAsJsonPrimitive("resources").getAsFloat();
         int playerId = object.getAsJsonPrimitive("playerId").getAsInt();
         double time = object.getAsJsonPrimitive("time").getAsDouble();
+        ResearchInfo researchInfo = ResearchInfo.fromJson(object.getAsJsonObject("researchInfo"));
 
-        GameState gameState = new GameState(resources, playerId, time);
+        GameState gameState = new GameState(resources, playerId, time, researchInfo);
 
         JsonArray jsonPlayers = object.getAsJsonArray("players");
         for (JsonElement jsonPlayer : jsonPlayers)
