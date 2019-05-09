@@ -13,6 +13,7 @@ import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.game.gamestatediff.GameStateDiff;
 import geobattle.geobattle.game.gamestatediff.PlayerStateDiff;
+import geobattle.geobattle.game.research.ResearchInfo;
 import geobattle.geobattle.util.GeoBattleMath;
 import geobattle.geobattle.util.IntPoint;
 
@@ -33,12 +34,16 @@ public class GameState {
     // Attack events
     private ArrayList<AttackEvent> attackEvents;
 
+    // Research info of current player
+    private ResearchInfo researchInfo;
+
     public GameState(float resources, int playerId, double time) {
         this.resources = resources;
         this.playerId = playerId;
         this.time = time;
         this.players = new ArrayList<PlayerState>();
         this.attackEvents = new ArrayList<AttackEvent>();
+        this.researchInfo = new ResearchInfo(0, 0, 0);
     }
 
     // Clones GameState
@@ -50,6 +55,8 @@ public class GameState {
 
         for (AttackEvent event : attackEvents)
             cloned.attackEvents.add(event.clone());
+
+        cloned.researchInfo = new ResearchInfo(0, 0, 0);
 
         return cloned;
     }
@@ -224,5 +231,10 @@ public class GameState {
         }
 
         return true;
+    }
+
+    // Returns research info of current player
+    public ResearchInfo getResearchInfo() {
+        return researchInfo;
     }
 }
