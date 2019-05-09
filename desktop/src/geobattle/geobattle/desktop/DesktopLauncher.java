@@ -43,7 +43,7 @@ public class DesktopLauncher {
             };
 
             return new ExternalAPI(
-                    new SocketServer("localhost", 12000, oSAPI),
+                    new SocketServer("78.47.182.60", 12000, oSAPI),
                     new FixedGeolocationAPI(longitude, latitude),
                     new TileRequestPool(appId, appCode, cachePath, 10),
                     oSAPI
