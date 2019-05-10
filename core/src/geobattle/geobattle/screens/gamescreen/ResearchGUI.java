@@ -30,6 +30,8 @@ public final class ResearchGUI {
 
         private final TextButton researchButton;
 
+        private boolean researched;
+
         public ResearchTypeItem(final GameScreen screen, final ResearchInfo researchInfo, final ResearchType researchType, Table itemsTable) {
             root = new Table();
 
@@ -97,6 +99,7 @@ public final class ResearchGUI {
                 researchButton.setDisabled(true);
                 researchButton.setText("");
                 valueChange.setText(researchType.getValue(level) + "");
+                researched = true;
             } else {
                 researchButton.setText(newCost + "");
                 valueChange.setText(
@@ -104,6 +107,7 @@ public final class ResearchGUI {
                         " > " +
                         researchType.getValue(level + 1)
                 );
+                researched = false;
             }
         }
     }
@@ -169,5 +173,18 @@ public final class ResearchGUI {
     public void setResearchInfo(ResearchInfo researchInfo) {
         for (ResearchTypeItem researchTypeItem : researchTypes)
             researchTypeItem.setResearchLevel(researchInfo.getLevel(researchTypeItem.researchType));
+    }
+
+    // Locks research buttons
+    public void lockButtons() {
+        for (ResearchTypeItem researchTypeItem : researchTypes)
+            researchTypeItem.researchButton.setDisabled(true);
+    }
+
+    // Unlocks research buttons
+    public void unlockButtons() {
+        for (ResearchTypeItem researchTypeItem : researchTypes)
+            if (!researchTypeItem.researched)
+                researchTypeItem.researchButton.setDisabled(false);
     }
 }

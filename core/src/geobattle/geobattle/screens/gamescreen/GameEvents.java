@@ -454,8 +454,13 @@ public class GameEvents {
     public void onResearch(ResearchType researchType) {
         server.requestResearch(authInfo, researchType, new Callback<ResearchResult>() {
             @Override
-            public void onResult(ResearchResult result) {
-                onResearchResult(result);
+            public void onResult(final ResearchResult result) {
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        onResearchResult(result);
+                    }
+                });
             }
         });
     }
@@ -466,7 +471,6 @@ public class GameEvents {
                     @Override
                     public void onMatch(ResearchResult.Researched researched) {
                         gameState.getResearchInfo().incrementLevel(ResearchType.from(researched.researchType));
-                        screen.updateGUI();
                     }
                 },
                 new MatchBranch<ResearchResult.NotEnoughResources>() {
