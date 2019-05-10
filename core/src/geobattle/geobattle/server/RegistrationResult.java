@@ -102,6 +102,30 @@ public abstract class RegistrationResult {
         }
     }
 
+    // JSON request is not well-formed
+    public static final class MalformedJson extends RegistrationResult {
+        public MalformedJson() {}
+
+        public static MalformedJson fromJson(JsonObject object) {
+            return new MalformedJson();
+        }
+    }
+
+    // Value of field is not valid
+    public static final class IncorrectData extends RegistrationResult {
+        // Field with error
+        public final String field;
+
+        public IncorrectData(String field) {
+            this.field = field;
+        }
+
+        public static IncorrectData fromJson(JsonObject object) {
+            String field = object.getAsJsonPrimitive("field").getAsString();
+            return new IncorrectData(field);
+        }
+    }
+
     // Creates RegistrationResult from JSON
     public static RegistrationResult fromJson(JsonObject object) {
         String type = object.getAsJsonPrimitive("type").getAsString();
@@ -120,6 +144,10 @@ public abstract class RegistrationResult {
             return InvalidNameSymbols.fromJson(object);
         else if (type.equals("NameExists"))
             return NameExists.fromJson(object);
+        else if (type.equals("MalformedJson"))
+            return MalformedJson.fromJson(object);
+        else if (type.equals("IncorrectData"))
+            return IncorrectData.fromJson(object);
         return null;
     }
 
@@ -131,7 +159,9 @@ public abstract class RegistrationResult {
             MatchBranch<InvalidNameLength> invalidNameLength,
             MatchBranch<InvalidPasswordLength> invalidPasswordLength,
             MatchBranch<InvalidNameSymbols> invalidNameSymbols,
-            MatchBranch<NameExists> nameExists
+            MatchBranch<NameExists> nameExists,
+            MatchBranch<MalformedJson> malformedJson,
+            MatchBranch<IncorrectData> incorrectData
     ) {
         if (success != null && this instanceof Success)
             success.onMatch((Success) this);
@@ -147,5 +177,9 @@ public abstract class RegistrationResult {
             invalidNameSymbols.onMatch((InvalidNameSymbols) this);
         else if (nameExists != null && this instanceof NameExists)
             nameExists.onMatch((NameExists) this);
+        else if (malformedJson != null && this instanceof MalformedJson)
+            malformedJson.onMatch((MalformedJson) this);
+        else if (incorrectData != null && this instanceof IncorrectData)
+            incorrectData.onMatch((IncorrectData) this);
     }
 }

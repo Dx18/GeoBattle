@@ -91,6 +91,18 @@ public final class LoginScreen implements Screen {
                         externalAPI.oSAPI.showMessage("Cannot login: pair not found");
                         // Gdx.app.log("GeoBattle", "Cannot login: pair not found");
                     }
+                },
+                new MatchBranch<AuthorizationResult.MalformedJson>() {
+                    @Override
+                    public void onMatch(AuthorizationResult.MalformedJson malformedJson) {
+                        externalAPI.oSAPI.showMessage("Cannot login: JSON request is not well-formed. Probable bug. Tell the developers");
+                    }
+                },
+                new MatchBranch<AuthorizationResult.IncorrectData>() {
+                    @Override
+                    public void onMatch(AuthorizationResult.IncorrectData incorrectData) {
+                        externalAPI.oSAPI.showMessage("Cannot login: value of field in request is not valid. Probable bug. Tell the developers");
+                    }
                 }
         );
     }
@@ -165,6 +177,18 @@ public final class LoginScreen implements Screen {
                     public void onMatch(RegistrationResult.NameExists nameExists) {
                         externalAPI.oSAPI.showMessage("Cannot register: player with same name exists");
                         // Gdx.app.log("GeoBattle", "Cannot register: player with same name exists");
+                    }
+                },
+                new MatchBranch<RegistrationResult.MalformedJson>() {
+                    @Override
+                    public void onMatch(RegistrationResult.MalformedJson malformedJson) {
+                        externalAPI.oSAPI.showMessage("Cannot register: JSON request is not well-formed. Probable bug. Tell the developers");
+                    }
+                },
+                new MatchBranch<RegistrationResult.IncorrectData>() {
+                    @Override
+                    public void onMatch(RegistrationResult.IncorrectData incorrectData) {
+                        externalAPI.oSAPI.showMessage("Cannot register: value of field in request is not valid. Probable bug. Tell the developers");
                     }
                 }
         );

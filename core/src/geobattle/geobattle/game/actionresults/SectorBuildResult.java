@@ -69,6 +69,30 @@ public abstract class SectorBuildResult {
         }
     }
 
+    // JSON request is not well-formed
+    public static final class MalformedJson extends SectorBuildResult {
+        public MalformedJson() {}
+
+        public static MalformedJson fromJson(JsonObject object) {
+            return new MalformedJson();
+        }
+    }
+
+    // Value of field is not valid
+    public static final class IncorrectData extends SectorBuildResult {
+        // Field with error
+        public final String field;
+
+        public IncorrectData(String field) {
+            this.field = field;
+        }
+
+        public static IncorrectData fromJson(JsonObject object) {
+            String field = object.getAsJsonPrimitive("field").getAsString();
+            return new IncorrectData(field);
+        }
+    }
+
     // Creates SectorBuildResult from JSON
     public static SectorBuildResult fromJson(JsonObject object) {
         String type = object.getAsJsonPrimitive("type").getAsString();
@@ -83,6 +107,10 @@ public abstract class SectorBuildResult {
             return WrongPosition.fromJson(object);
         else if (type.equals("WrongAuthInfo"))
             return WrongAuthInfo.fromJson(object);
+        else if (type.equals("MalformedJson"))
+            return MalformedJson.fromJson(object);
+        else if (type.equals("IncorrectData"))
+            return IncorrectData.fromJson(object);
         return null;
     }
 
@@ -92,7 +120,9 @@ public abstract class SectorBuildResult {
             MatchBranch<NotEnoughResources> notEnoughResources,
             MatchBranch<IntersectsWithEnemy> intersectsWithEnemy,
             MatchBranch<WrongPosition> wrongPosition,
-            MatchBranch<WrongAuthInfo> wrongAuthInfo
+            MatchBranch<WrongAuthInfo> wrongAuthInfo,
+            MatchBranch<MalformedJson> malformedJson,
+            MatchBranch<IncorrectData> incorrectData
     ) {
         if (sectorBuilt != null && this instanceof SectorBuilt)
             sectorBuilt.onMatch((SectorBuilt) this);
@@ -104,6 +134,9 @@ public abstract class SectorBuildResult {
             wrongPosition.onMatch((WrongPosition) this);
         else if (wrongAuthInfo != null && this instanceof WrongAuthInfo)
             wrongAuthInfo.onMatch((WrongAuthInfo) this);
+        else if (malformedJson != null && this instanceof MalformedJson)
+            malformedJson.onMatch((MalformedJson) this);
+        else if (incorrectData != null && this instanceof IncorrectData)
+            incorrectData.onMatch((IncorrectData) this);
     }
 }
-

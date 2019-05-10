@@ -93,6 +93,12 @@ public final class GeoBattle extends Game {
                         Gdx.app.log("GeoBattle", "Not authorized!");
                         Gdx.app.exit();
                     }
+                },
+                new MatchBranch<StateRequestResult.MalformedJson>() {
+                    @Override
+                    public void onMatch(StateRequestResult.MalformedJson malformedJson) {
+                        externalAPI.oSAPI.showMessage("Cannot build: JSON request is not well-formed. Probable bug. Tell the developers");
+                    }
                 }
         );
     }
