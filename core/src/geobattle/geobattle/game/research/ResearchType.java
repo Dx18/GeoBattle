@@ -53,9 +53,19 @@ public enum ResearchType {
         return costs[level - 1];
     }
 
+    // Returns cost of research level
+    public int getCost(ResearchInfo researchInfo) {
+        return getCost(researchInfo.getLevel(this));
+    }
+
     // Returns value of research level
     public float getValue(int level) {
         return values[level];
+    }
+
+    // Returns value of research level
+    public float getValue(ResearchInfo researchInfo) {
+        return getValue(researchInfo.getLevel(this));
     }
 
     // Parses ResearchType by name

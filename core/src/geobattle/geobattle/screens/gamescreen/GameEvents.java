@@ -87,8 +87,7 @@ public class GameEvents {
     }
 
     public void onRequestBuildSector() {
-        Sector sector = gameState.getPlayers().get(gameState.getPlayerId()).getAllSectors().next();
-
+        Sector sector = gameState.getCurrentPlayer().getAllSectors().next();
 
         IntPoint coords = map.getPointedTile();
         coords.x -= ((coords.x - sector.x) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;
@@ -115,10 +114,11 @@ public class GameEvents {
                 new MatchBranch<SectorBuildResult.SectorBuilt>() {
                     @Override
                     public void onMatch(SectorBuildResult.SectorBuilt sectorBuilt) {
-                        gameState.getPlayers().get(sectorBuilt.info.playerIndex).addSector(new Sector(
+                        gameState.getPlayer(sectorBuilt.info.playerIndex).addSector(new Sector(
                                 sectorBuilt.info.x,
                                 sectorBuilt.info.y,
-                                sectorBuilt.info.id
+                                sectorBuilt.info.id,
+                                gameState.getCurrentPlayer().getResearchInfo()
                         ));
                         screen.switchToNormalMode();
                     }
@@ -198,7 +198,7 @@ public class GameEvents {
                 new MatchBranch<BuildResult.Built>() {
                     @Override
                     public void onMatch(BuildResult.Built built) {
-                        gameState.getPlayers().get(built.info.playerIndex).addBuilding(built.info.building);
+                        gameState.getPlayer(built.info.playerIndex).addBuilding(built.info.building);
                         gameState.setResources(gameState.getResources() - built.cost);
 
                         screen.switchToNormalMode();
@@ -284,7 +284,7 @@ public class GameEvents {
                 new MatchBranch<DestroyResult.Destroyed>() {
                     @Override
                     public void onMatch(DestroyResult.Destroyed destroyed) {
-                        gameState.getPlayers().get(destroyed.info.playerIndex).removeBuilding(destroyed.info.building);
+                        gameState.getPlayer(destroyed.info.playerIndex).removeBuilding(destroyed.info.building);
                     }
                 },
                 new MatchBranch<DestroyResult.NotOwningBuilding>() {
@@ -344,7 +344,7 @@ public class GameEvents {
                 new MatchBranch<UnitBuildResult.Built>() {
                     @Override
                     public void onMatch(UnitBuildResult.Built built) {
-                        gameState.getPlayers().get(built.info.playerIndex).addUnit(built.info.unit);
+                        gameState.getPlayer(built.info.playerIndex).addUnit(built.info.unit);
                         gameState.setResources(gameState.getResources() - built.cost);
                     }
                 },
@@ -470,7 +470,7 @@ public class GameEvents {
                 new MatchBranch<ResearchResult.Researched>() {
                     @Override
                     public void onMatch(ResearchResult.Researched researched) {
-                        gameState.getResearchInfo().incrementLevel(ResearchType.from(researched.researchType));
+                        gameState.getCurrentPlayer().getResearchInfo().incrementLevel(ResearchType.from(researched.researchType));
                     }
                 },
                 new MatchBranch<ResearchResult.NotEnoughResources>() {
@@ -527,15 +527,15 @@ public class GameEvents {
             if (attackEvent.startArriveTime > gameState.getTime())
                 continue;
 
-            PlayerState attacker = gameState.getPlayers().get(attackEvent.attackerId);
-            PlayerState victim = gameState.getPlayers().get(attackEvent.victimId);
+            PlayerState attacker = gameState.getPlayer(attackEvent.attackerId);
+            PlayerState victim = gameState.getPlayer(attackEvent.victimId);
 
             IntIntMap hangarIds = new IntIntMap(attackEvent.unitGroupMoving.length);
             for (int index = 0; index < attackEvent.unitGroupMoving.length; index++)
                 hangarIds.put(attackEvent.unitGroupMoving[index].hangarId, index);
 
-            TimePoint prev = attackEvent.getTimePointBefore(gameState.getTime());
-            TimePoint curr = attackEvent.getTimePointAfter(gameState.getTime());
+            TimePoint prevTimePoint = attackEvent.getTimePointBefore(gameState.getTime());
+            TimePoint nextTimePoint = attackEvent.getTimePointAfter(gameState.getTime());
 
             Iterator<Hangar> hangars = attacker.getHangars();
             while (hangars.hasNext()) {
@@ -544,7 +544,15 @@ public class GameEvents {
                 if (!hangarIds.containsKey(next.id))
                     continue;
 
+                double prevHealth = prevTimePoint.unitGroupHealth.get(next.id, Float.NaN);
+                double nextHealth = nextTimePoint.unitGroupHealth.get(next.id, Float.NaN);
+
+                // double currentHealth = prevHealth + ();
+
                 UnitGroupMovingInfo unitGroupMovingInfo = attackEvent.unitGroupMoving[hangarIds.get(next.id, -1)];
+
+                double hangarCenterX = next.x + next.getSizeX() / 2.0;
+                double hangarCenterY = next.y + next.getSizeY() / 2.0;
 
                 double realPosX;
                 double realPosY;
@@ -552,11 +560,11 @@ public class GameEvents {
                 if (gameState.getTime() < unitGroupMovingInfo.arriveTime) {
                     double factor = (gameState.getTime() - attackEvent.startArriveTime) / (unitGroupMovingInfo.arriveTime - attackEvent.startArriveTime);
 
-                    double deltaX = (unitGroupMovingInfo.arriveX - next.x) * factor;
-                    double deltaY = (unitGroupMovingInfo.arriveY - next.y) * factor;
+                    double deltaX = (unitGroupMovingInfo.arriveX - hangarCenterX) * factor;
+                    double deltaY = (unitGroupMovingInfo.arriveY - hangarCenterY) * factor;
 
-                    realPosX = next.x + deltaX;
-                    realPosY = next.y + deltaY;
+                    realPosX = hangarCenterX + deltaX;
+                    realPosY = hangarCenterY + deltaY;
 
                     double cosDirection = deltaX / Math.sqrt(deltaX * deltaX + deltaY * deltaY);
                     direction = Math.acos(cosDirection);
@@ -566,8 +574,8 @@ public class GameEvents {
                 } else if (gameState.getTime() > attackEvent.startReturnTime) {
                     double factor = (gameState.getTime() - attackEvent.startReturnTime) / (unitGroupMovingInfo.returnTime - attackEvent.startReturnTime);
 
-                    double deltaX = (next.x - unitGroupMovingInfo.arriveX) * factor;
-                    double deltaY = (next.y - unitGroupMovingInfo.arriveY) * factor;
+                    double deltaX = (hangarCenterX - unitGroupMovingInfo.arriveX) * factor;
+                    double deltaY = (hangarCenterY - unitGroupMovingInfo.arriveY) * factor;
 
                     realPosX = unitGroupMovingInfo.arriveX + deltaX;
                     realPosY = unitGroupMovingInfo.arriveY + deltaY;

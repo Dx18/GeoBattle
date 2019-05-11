@@ -34,10 +34,7 @@ public class GameState {
     // Attack events
     private ArrayList<AttackEvent> attackEvents;
 
-    // Research info of current player
-    private ResearchInfo researchInfo;
-
-    public GameState(float resources, int playerId, double time, ResearchInfo researchInfo) {
+    public GameState(float resources, int playerId, double time) {
         this.resources = resources;
         this.playerId = playerId;
         this.time = time;
@@ -48,15 +45,13 @@ public class GameState {
 
     // Clones GameState
     public GameState clone() {
-        GameState cloned = new GameState(resources, playerId, time, researchInfo.clone());
+        GameState cloned = new GameState(resources, playerId, time);
 
         for (PlayerState player : players)
             cloned.players.add(player.clone());
 
         for (AttackEvent event : attackEvents)
             cloned.attackEvents.add(event.clone());
-
-        cloned.researchInfo = new ResearchInfo(0, 0, 0);
 
         return cloned;
     }
@@ -96,13 +91,34 @@ public class GameState {
         this.time += time;
     }
 
-    // Returns players in game state
-    public ArrayList<PlayerState> getPlayers() {
-        return players;
+    // Returns iterator over players
+    public Iterator<PlayerState> getPlayers() {
+        return players.iterator();
     }
 
+    // Returns player by ID
+    public PlayerState getPlayer(int id) {
+        int left = 0;
+        int right = players.size() - 1;
+
+        while (left <= right) {
+            int mid = (left + right) >> 1;
+
+            PlayerState midPlayer = players.get(mid);
+            if (midPlayer.getPlayerId() < id)
+                left = mid + 1;
+            else if (midPlayer.getPlayerId() > id)
+                right = mid - 1;
+            else
+                return midPlayer;
+        }
+
+        return null;
+    }
+
+    // Returns current player
     public PlayerState getCurrentPlayer() {
-        return players.get(getPlayerId());
+        return getPlayer(playerId);
     }
 
     public ArrayList<AttackEvent> getAttackEvents() {
@@ -113,9 +129,9 @@ public class GameState {
         float resources = object.getAsJsonPrimitive("resources").getAsFloat();
         int playerId = object.getAsJsonPrimitive("playerId").getAsInt();
         double time = object.getAsJsonPrimitive("time").getAsDouble();
-        ResearchInfo researchInfo = ResearchInfo.fromJson(object.getAsJsonObject("researchInfo"));
+        // ResearchInfo researchInfo = ResearchInfo.fromJson(object.getAsJsonObject("researchInfo"));
 
-        GameState gameState = new GameState(resources, playerId, time, researchInfo);
+        GameState gameState = new GameState(resources, playerId, time);
 
         JsonArray jsonPlayers = object.getAsJsonArray("players");
         for (JsonElement jsonPlayer : jsonPlayers)
@@ -216,7 +232,7 @@ public class GameState {
                 return false;
         }
 
-        for (PlayerState enemy : getPlayers()) {
+        for (PlayerState enemy : players) {
             if (enemy == getCurrentPlayer())
                 continue;
 
@@ -232,10 +248,5 @@ public class GameState {
         }
 
         return true;
-    }
-
-    // Returns research info of current player
-    public ResearchInfo getResearchInfo() {
-        return researchInfo;
     }
 }

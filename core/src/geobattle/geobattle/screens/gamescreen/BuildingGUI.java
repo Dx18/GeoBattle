@@ -3,7 +3,6 @@ package geobattle.geobattle.screens.gamescreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
@@ -15,6 +14,7 @@ import com.badlogic.gdx.utils.Align;
 
 import geobattle.geobattle.GeoBattleAssets;
 import geobattle.geobattle.game.buildings.BuildingType;
+import geobattle.geobattle.game.research.ResearchInfo;
 
 public final class BuildingGUI {
     private final Skin skin;
@@ -145,7 +145,7 @@ public final class BuildingGUI {
         description.setText("Just " + buildingType.toString());
         size.setText("Size: " + buildingType.sizeX + " x " + buildingType.sizeY);
         strength.setText("Strength: " + buildingType.healthBonus);
-        energy.setText("Energy: " + buildingType.energyDelta);
+        energy.setText("Energy: " + buildingType.getEnergyDelta(new ResearchInfo(0, 0, 0)));
         if (buildingType.maxCount != Integer.MAX_VALUE)
             maxCount.setText("Max count: " + buildingType.maxCount);
         else

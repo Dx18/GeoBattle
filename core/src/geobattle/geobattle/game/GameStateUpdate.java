@@ -28,7 +28,7 @@ public abstract class GameStateUpdate {
         // Performs update
         @Override
         public void update(GameState gameState) {
-            gameState.getPlayers().get(info.playerIndex).addBuilding(info.building);
+            gameState.getPlayer(info.playerIndex).addBuilding(info.building);
         }
     }
 
@@ -52,7 +52,7 @@ public abstract class GameStateUpdate {
         // Performs update
         @Override
         public void update(GameState gameState) {
-            gameState.getPlayers().get(info.playerIndex).removeBuilding(info.building);
+            gameState.getPlayer(info.playerIndex).removeBuilding(info.building);
         }
     }
 

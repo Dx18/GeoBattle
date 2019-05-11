@@ -371,7 +371,9 @@ public class GeoBattleMap extends Actor {
 
     private void drawSectorsAndSelections(IntRect visible) {
         // Drawing sectors...
-        for (PlayerState player : gameState.getPlayers()) {
+        Iterator<PlayerState> players = gameState.getPlayers();
+        while (players.hasNext()) {
+            PlayerState player = players.next();
             Color playerSectorColor = player.getColor().cpy();
             playerSectorColor.a = 0.2f;
 
@@ -406,7 +408,9 @@ public class GeoBattleMap extends Actor {
         boolean drawIcons = visibleTiles >= 100;
 
         // Draws buildings
-        for (PlayerState player : gameState.getPlayers()) {
+        Iterator<PlayerState> players = gameState.getPlayers();
+        while (players.hasNext()) {
+            PlayerState player = players.next();
             Iterator<Sector> sectors = player.getAllSectors();
             while (sectors.hasNext()) {
                 Sector nextSector = sectors.next();
@@ -495,7 +499,9 @@ public class GeoBattleMap extends Actor {
             screenModeData.draw(batch, this, gameState, visible);
 
         // Draws units (on top of buildings)
-        for (PlayerState player : gameState.getPlayers()) {
+        Iterator<PlayerState> players = gameState.getPlayers();
+        while (players.hasNext()) {
+            PlayerState player = players.next();
             Iterator<Hangar> hangars = player.getHangars();
             while (hangars.hasNext()) {
                 Hangar nextHangar = hangars.next();

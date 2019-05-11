@@ -128,7 +128,7 @@ public final class ResearchGUI {
         for (ResearchType researchType : ResearchType.values()) {
             researchTypes[index] = new ResearchTypeItem(
                     screen,
-                    screen.getGameEvents().gameState.getResearchInfo(),
+                    screen.getGameEvents().gameState.getCurrentPlayer().getResearchInfo(),
                     researchType,
                     root.getContentTable()
             );
@@ -150,7 +150,7 @@ public final class ResearchGUI {
                 .height(Gdx.graphics.getPpcY());
         root.getContentTable().row();
 
-        final ResearchInfo researchInfo = screen.getGameEvents().gameState.getResearchInfo();
+        final ResearchInfo researchInfo = screen.getGameEvents().gameState.getCurrentPlayer().getResearchInfo();
         int index = 0;
         for (final ResearchType ignored : ResearchType.values()) {
             researchTypes[index].init(researchInfo, root.getContentTable());

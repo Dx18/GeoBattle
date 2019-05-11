@@ -20,6 +20,7 @@ import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.game.buildings.Turret;
 import geobattle.geobattle.game.gamestatediff.PlayerStateDiff;
 import geobattle.geobattle.game.gamestatediff.SectorDiff;
+import geobattle.geobattle.game.research.ResearchInfo;
 import geobattle.geobattle.game.units.Bomber;
 import geobattle.geobattle.game.units.Spotter;
 import geobattle.geobattle.game.units.Unit;
@@ -35,8 +36,14 @@ public class PlayerState {
     // Name of player
     private final String name;
 
+    // ID of player
+    private final int playerId;
+
     // Color of player
     private final Color color;
+
+    // Player's research info
+    private final ResearchInfo researchInfo;
 
     // Sectors which player has
     private ArrayList<Sector> sectors;
@@ -60,9 +67,11 @@ public class PlayerState {
         }
     };
 
-    public PlayerState(String name, Color color) {
+    public PlayerState(String name, int playerId, Color color, ResearchInfo researchInfo) {
         this.name = name;
+        this.playerId = playerId;
         this.color = color;
+        this.researchInfo = researchInfo;
         this.sectors = new ArrayList<Sector>();
         this.units = new ArrayList<Unit>();
     }
@@ -71,8 +80,9 @@ public class PlayerState {
     public PlayerState clone() {
         String name = this.name;
         Color color = this.color.cpy();
+        ResearchInfo researchInfo = this.researchInfo.clone();
 
-        PlayerState cloned = new PlayerState(name, color);
+        PlayerState cloned = new PlayerState(name, this.playerId, color, researchInfo);
         for (Sector sector : sectors)
             cloned.addSector(sector.clone());
         for (Unit unit : units)
@@ -370,21 +380,33 @@ public class PlayerState {
         return name;
     }
 
+    // Returns player ID
+    public int getPlayerId() {
+        return playerId;
+    }
+
     // Returns color of player
     public Color getColor() {
         return color;
     }
 
+    // Returns research info
+    public ResearchInfo getResearchInfo() {
+        return researchInfo;
+    }
+
     // Creates PlayerState from JSON
     public static PlayerState fromJson(JsonObject object) {
         String name = object.getAsJsonPrimitive("name").getAsString();
+        int playerId = object.getAsJsonPrimitive("playerId").getAsInt();
         Color color = JsonObjects.fromJson(object.getAsJsonObject("color"));
+        ResearchInfo researchInfo = ResearchInfo.fromJson(object.getAsJsonObject("researchInfo"));
 
-        PlayerState player = new PlayerState(name, color);
+        PlayerState player = new PlayerState(name, playerId, color, researchInfo);
 
         JsonArray jsonSectors = object.getAsJsonArray("sectors");
         for (JsonElement jsonSector : jsonSectors)
-            player.addSector(Sector.fromJson(jsonSector.getAsJsonObject()));
+            player.addSector(Sector.fromJson(jsonSector.getAsJsonObject(), researchInfo));
 
         return player;
     }

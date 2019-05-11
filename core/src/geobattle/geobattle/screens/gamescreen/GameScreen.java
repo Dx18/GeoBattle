@@ -104,7 +104,7 @@ public final class GameScreen implements Screen {
         guiStage = new Stage();
         gui = new GameScreenGUI(assetManager, this, guiStage);
 
-        switchTo(gameState.getPlayers().get(gameState.getPlayerId()).getSectorCount() == 0
+        switchTo(gameState.getCurrentPlayer().getSectorCount() == 0
                 ? GameScreenMode.BUILD_FIRST_SECTOR
                 : GameScreenMode.NORMAL
         );
@@ -161,10 +161,6 @@ public final class GameScreen implements Screen {
 
     public GameEvents getGameEvents() {
         return gameEvents;
-    }
-
-    public void updateGUI() {
-        gui.researchDialog.setResearchInfo(gameState.getResearchInfo());
     }
 
     // Handles keyboard input

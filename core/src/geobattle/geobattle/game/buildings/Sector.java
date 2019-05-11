@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 
 import geobattle.geobattle.game.gamestatediff.SectorDiff;
+import geobattle.geobattle.game.research.ResearchInfo;
 import geobattle.geobattle.map.BuildingTextures;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.util.CastIterator;
@@ -54,6 +55,9 @@ public final class Sector {
     // Buildings in sector
     private ArrayList<Building> buildings;
 
+    // Info about research
+    private final ResearchInfo researchInfo;
+
     // Comparator for buildings
     private final static Comparator<Building> buildingComparator = new Comparator<Building>() {
         @Override
@@ -63,13 +67,14 @@ public final class Sector {
     };
 
     // Creates sector
-    public Sector(int x, int y, int sectorId) {
+    public Sector(int x, int y, int sectorId, ResearchInfo researchInfo) {
         this.x = x;
         this.y = y;
         this.sectorId = sectorId;
         this.buildings = new ArrayList<Building>();
         updateConstParameters();
         this.health = maxHealth;
+        this.researchInfo = researchInfo;
     }
 
     // Updates `maxHealth` and `energy`
@@ -78,7 +83,7 @@ public final class Sector {
         energy = BASE_ENERGY;
         for (Building building : buildings) {
             maxHealth += building.getBuildingType().healthBonus;
-            energy += building.getBuildingType().energyDelta;
+            energy += building.getBuildingType().getEnergyDelta(researchInfo);
         }
     }
 
@@ -241,7 +246,7 @@ public final class Sector {
 
     // Clones sector
     public Sector clone() {
-        Sector result = new Sector(x, y, sectorId);
+        Sector result = new Sector(x, y, sectorId, researchInfo.clone());
 
         for (Building building : buildings)
             result.addBuilding(building.clone());
@@ -250,12 +255,12 @@ public final class Sector {
     }
 
     // Creates Sector from JSON
-    public static Sector fromJson(JsonObject object) {
+    public static Sector fromJson(JsonObject object, ResearchInfo researchInfo) {
         int x = object.getAsJsonPrimitive("x").getAsInt();
         int y = object.getAsJsonPrimitive("y").getAsInt();
         int sectorId = object.getAsJsonPrimitive("sectorId").getAsInt();
 
-        Sector sector = new Sector(x, y, sectorId);
+        Sector sector = new Sector(x, y, sectorId, researchInfo);
 
         JsonArray jsonBuildings = object.getAsJsonArray("buildings");
         for (JsonElement jsonBuilding : jsonBuildings)
