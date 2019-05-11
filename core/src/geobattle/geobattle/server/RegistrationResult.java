@@ -8,16 +8,16 @@ import geobattle.geobattle.game.actionresults.MatchBranch;
 public abstract class RegistrationResult {
     // Successfully registered
     public static final class Success extends RegistrationResult {
-        // Auth info
-        public final AuthInfo authInfo;
+        // Name of player
+        public final String name;
 
-        public Success(AuthInfo authInfo) {
-            this.authInfo = authInfo;
+        public Success(String name) {
+            this.name = name;
         }
 
         public static Success fromJson(JsonObject object) {
-            AuthInfo authInfo = AuthInfo.fromJson(object.getAsJsonObject("authInfo"));
-            return new Success(authInfo);
+            String name = object.getAsJsonPrimitive("name").getAsString();
+            return new Success(name);
         }
     }
 

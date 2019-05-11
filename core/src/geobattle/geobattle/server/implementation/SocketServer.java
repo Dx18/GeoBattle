@@ -31,11 +31,15 @@ import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.AuthorizationResult;
 import geobattle.geobattle.server.Callback;
 import geobattle.geobattle.server.CancelHandle;
+import geobattle.geobattle.server.EmailConfirmationResult;
 import geobattle.geobattle.server.OSAPI;
 import geobattle.geobattle.server.RegistrationResult;
+import geobattle.geobattle.server.ResendEmailResult;
 import geobattle.geobattle.server.Server;
 import geobattle.geobattle.server.events.AuthorizationEvent;
+import geobattle.geobattle.server.events.EmailConfirmationEvent;
 import geobattle.geobattle.server.events.RegistrationEvent;
+import geobattle.geobattle.server.events.ResendEmailEvent;
 
 public final class SocketServer implements Server {
     private String ip;
@@ -317,6 +321,56 @@ public final class SocketServer implements Server {
                     callback.onResult(ResearchResult.fromJson(result));
                 } catch (Exception e) {
                     oSAPI.showMessage("ResearchEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
+                }
+            }
+        }).start();
+
+        return null;
+    }
+
+    @Override
+    public CancelHandle requestEmailConfirmation(final String name, final int code, final Callback<EmailConfirmationResult> callback) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String resultStr = request(new EmailConfirmationEvent(name, code).toJson().toString());
+
+                if (resultStr == null) {
+                    oSAPI.showMessage("EmailConfirmationEvent failed: probable problems with connection");
+                    return;
+                }
+
+                try {
+                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
+                    callback.onResult(EmailConfirmationResult.fromJson(result));
+                } catch (Exception e) {
+                    oSAPI.showMessage("EmailConfirmationEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
+                }
+            }
+        }).start();
+
+        return null;
+    }
+
+    @Override
+    public CancelHandle requestEmailResend(final String name, final Callback<ResendEmailResult> callback) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String resultStr = request(new ResendEmailEvent(name).toJson().toString());
+
+                if (resultStr == null) {
+                    oSAPI.showMessage("ResendEmailEvent failed: probable problems with connection");
+                    return;
+                }
+
+                try {
+                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
+                    callback.onResult(ResendEmailResult.fromJson(result));
+                } catch (Exception e) {
+                    oSAPI.showMessage("ResendEmailEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }

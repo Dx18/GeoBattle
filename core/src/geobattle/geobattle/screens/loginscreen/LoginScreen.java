@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.actionresults.MatchBranch;
+import geobattle.geobattle.screens.emailconfirmationscreen.EmailConfirmationScreen;
 import geobattle.geobattle.screens.settingsscreen.SettingsScreen;
 import geobattle.geobattle.server.AuthorizationResult;
 import geobattle.geobattle.server.Callback;
@@ -134,7 +135,8 @@ public final class LoginScreen implements Screen {
                 new MatchBranch<RegistrationResult.Success>() {
                     @Override
                     public void onMatch(RegistrationResult.Success success) {
-                        game.onAuthInfoObtained(success.authInfo);
+                        game.setScreen(new EmailConfirmationScreen(externalAPI, assetManager, game, success.name));
+                        // game.onAuthInfoObtained(success.authInfo);
                     }
                 },
                 new MatchBranch<RegistrationResult.InvalidEmail>() {
@@ -196,6 +198,10 @@ public final class LoginScreen implements Screen {
 
     public void onSettings() {
         game.setScreen(new SettingsScreen(externalAPI, assetManager, game));
+    }
+
+    public void onEmailConfirmation() {
+        game.setScreen(new EmailConfirmationScreen(externalAPI, assetManager, game, null));
     }
 
     // Invokes when window is resized

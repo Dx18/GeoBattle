@@ -145,7 +145,7 @@ final class LoginScreenGUI {
             }
         });
         loginRegisterSwitch.add(loginMode)
-                .width(Gdx.graphics.getWidth() / 3)
+                .width(Gdx.graphics.getWidth() / 2)
                 .height(Gdx.graphics.getPpcY());
 
         TextButton registerMode = new TextButton("REGISTER", skin);
@@ -156,8 +156,10 @@ final class LoginScreenGUI {
             }
         });
         loginRegisterSwitch.add(registerMode)
-                .width(Gdx.graphics.getWidth() / 3)
+                .width(Gdx.graphics.getWidth() / 2)
                 .height(Gdx.graphics.getPpcY());
+
+        loginRegisterSwitch.row();
 
         TextButton settings = new TextButton("SETTINGS", skin);
         settings.addListener(new ChangeListener() {
@@ -167,7 +169,18 @@ final class LoginScreenGUI {
             }
         });
         loginRegisterSwitch.add(settings)
-                .width(Gdx.graphics.getWidth() / 3)
+                .width(Gdx.graphics.getWidth() / 2)
+                .height(Gdx.graphics.getPpcY());
+
+        TextButton emailConfirmation = new TextButton("EMAIL CONF.", skin);
+        emailConfirmation.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                screen.onEmailConfirmation();
+            }
+        });
+        loginRegisterSwitch.add(emailConfirmation)
+                .width(Gdx.graphics.getWidth() / 2)
                 .height(Gdx.graphics.getPpcY());
 
         loginRegisterSwitch.center().bottom().padBottom(20);

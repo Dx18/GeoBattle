@@ -52,5 +52,12 @@ public interface Server {
     // Requests unit build action
     CancelHandle requestUnitBuild(AuthInfo authInfo, UnitType type, Building building, Callback<UnitBuildResult> callback);
 
+    // Requests research
     CancelHandle requestResearch(AuthInfo authInfo, ResearchType researchType, Callback<ResearchResult> callback);
+
+    // Requests email confirmation
+    CancelHandle requestEmailConfirmation(String name, int code, Callback<EmailConfirmationResult> callback);
+
+    // Requests email resend
+    CancelHandle requestEmailResend(String name, Callback<ResendEmailResult> callback);
 }
