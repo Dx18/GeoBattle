@@ -14,7 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
-import java.lang.management.ManagementFactory;
 import java.util.Iterator;
 import java.util.Locale;
 
@@ -59,9 +58,7 @@ public final class GameScreen implements Screen {
     private GameScreenGUI gui;
 
     // Current mode
-    // private GameScreenMode mode;
-
-    private GameScreenModeData modeData;
+    private GameScreenMode mode;
 
     // Game instance
     private GeoBattle game;
@@ -108,8 +105,8 @@ public final class GameScreen implements Screen {
         gui = new GameScreenGUI(assetManager, this, guiStage);
 
         switchTo(gameState.getPlayers().get(gameState.getPlayerId()).getSectorCount() == 0
-                ? new BuildFirstSectorMode(map.getPointedTileX(), map.getPointedTileY())
-                : new NormalMode(map.getPointedTileX(), map.getPointedTileY(), gameState)
+                ? GameScreenMode.BUILD_FIRST_SECTOR
+                : GameScreenMode.NORMAL
         );
 
         // Input handling
@@ -119,38 +116,37 @@ public final class GameScreen implements Screen {
         Gdx.input.setInputProcessor(input);
     }
 
-    private void switchTo(GameScreenModeData modeData) {
-        this.modeData = modeData;
-        map.setScreenMode(modeData);
-        gui.setMode(modeData);
+    private void switchTo(GameScreenMode mode) {
+        this.mode = mode;
+        map.setScreenMode(mode);
+        gui.setMode(mode);
     }
 
     public void switchToNormalMode() {
-        switchTo(new NormalMode(map.getPointedTileX(), map.getPointedTileY(), gameState));
+        switchTo(GameScreenMode.NORMAL);
     }
 
     public void onBuildSectorMode() {
-        if (modeData instanceof NormalMode)
-            switchTo(new BuildSectorMode(map.getPointedTileX(), map.getPointedTileY()));
-        else if (modeData instanceof BuildSectorMode)
-            switchTo(new NormalMode(map.getPointedTileX(), map.getPointedTileY(), gameState));
+        if (mode == GameScreenMode.NORMAL)
+            switchTo(GameScreenMode.BUILD_SECTOR);
+        else if (mode == GameScreenMode.BUILD_SECTOR)
+            switchTo(GameScreenMode.NORMAL);
     }
 
     // Invokes when user wants to switch build mode
     public void onBuildMode() {
-        if (modeData instanceof NormalMode) {
-            IntPoint pointedTile = map.getPointedTile();
-            switchTo(new BuildMode(pointedTile.x, pointedTile.y, BuildingType.GENERATOR));
-        } else if (modeData instanceof BuildMode)
-            switchTo(new NormalMode(map.getPointedTileX(), map.getPointedTileY(), gameState));
+        if (mode == GameScreenMode.NORMAL)
+            switchTo(GameScreenMode.BUILD);
+        else if (mode == GameScreenMode.BUILD)
+            switchTo(GameScreenMode.NORMAL);
     }
 
     // Invokes when user wants to switch destroy mode
     public void onDestroyMode() {
-        if (modeData instanceof NormalMode)
-            switchTo(new DestroyMode(map.getPointedTileX(), map.getPointedTileY(), gameState));
-        else if (modeData instanceof DestroyMode)
-            switchTo(new NormalMode(map.getPointedTileX(), map.getPointedTileY(), gameState));
+        if (mode == GameScreenMode.NORMAL)
+            switchTo(GameScreenMode.DESTROY);
+        else if (mode == GameScreenMode.DESTROY)
+            switchTo(GameScreenMode.NORMAL);
     }
 
     // Invokes when player wants to move to its geolocation
@@ -235,7 +231,7 @@ public final class GameScreen implements Screen {
 
         BuildingType selectedBuildingType = map.getSelectedBuildingType();
 
-        if (!(modeData instanceof BuildMode) || selectedBuildingType.maxCount == Integer.MAX_VALUE) {
+        if (mode != GameScreenMode.BUILD || selectedBuildingType.maxCount == Integer.MAX_VALUE) {
             gui.maxBuildingCountLabel.setText("");
         } else {
             int count = 0;

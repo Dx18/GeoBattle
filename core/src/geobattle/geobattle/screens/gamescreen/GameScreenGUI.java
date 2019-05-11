@@ -495,23 +495,20 @@ final class GameScreenGUI {
     }
 
     // Sets mode of game screen
-    public void setMode(GameScreenModeData modeData) {
+    public void setMode(GameScreenMode mode) {
         toolBar.setVisible(false);
         buildToolBar.setVisible(false);
         destroyToolBar.setVisible(false);
         buildFirstSectorToolBar.setVisible(false);
         buildSectorToolBar.setVisible(false);
         hangarToolBar.setVisible(false);
-        if (modeData instanceof NormalMode)
-            toolBar.setVisible(true);
-        else if (modeData instanceof BuildMode)
-            buildToolBar.setVisible(true);
-        else if (modeData instanceof DestroyMode)
-            destroyToolBar.setVisible(true);
-        else if (modeData instanceof BuildFirstSectorMode)
-            buildFirstSectorToolBar.setVisible(true);
-        else if (modeData instanceof BuildSectorMode)
-            buildSectorToolBar.setVisible(true);
+        switch (mode) {
+            case NORMAL: toolBar.setVisible(true); break;
+            case BUILD: buildToolBar.setVisible(true); break;
+            case DESTROY: destroyToolBar.setVisible(true); break;
+            case BUILD_FIRST_SECTOR: buildFirstSectorToolBar.setVisible(true); break;
+            case BUILD_SECTOR: buildSectorToolBar.setVisible(true); break;
+        }
     }
 
     public void onBuildingSelected(Building building) {

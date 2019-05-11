@@ -13,9 +13,9 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
+import java.util.HashMap;
 import java.util.Iterator;
 
-import geobattle.geobattle.GeoBattleAssets;
 import geobattle.geobattle.GeoBattleConst;
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.PlayerState;
@@ -24,7 +24,10 @@ import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.game.units.Unit;
+import geobattle.geobattle.screens.gamescreen.GameScreenMode;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildFirstSectorMode;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildMode;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildSectorMode;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.DestroyMode;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.GameScreenModeData;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.NormalMode;
@@ -76,6 +79,9 @@ public class GeoBattleMap extends Actor {
     // Shape renderer
     private ShapeRenderer shapeRenderer;
 
+    // Saved modes of game screen
+    private HashMap<GameScreenMode, GameScreenModeData> screenModes;
+
     // Constructor
     public GeoBattleMap(
             TileRequestPool tileRequestPool, GeolocationAPI geolocationAPI,
@@ -111,9 +117,16 @@ public class GeoBattleMap extends Actor {
         this.buildingTextures = new BuildingTextures(assetManager);
         this.unitTextures = new UnitTextures(assetManager);
 
-        this.screenModeData = new NormalMode((int) geolocation.x, (int) geolocation.y, gameState);
+        this.pointedTile = new IntPoint((int) geolocation.x, (int) geolocation.y);
 
-        setPointedTileSubTiles((int) geolocation.x, (int) geolocation.y);
+        this.screenModes = new HashMap<GameScreenMode, GameScreenModeData>();
+        this.screenModes.put(GameScreenMode.BUILD_FIRST_SECTOR, new BuildFirstSectorMode((int) geolocation.x, (int) geolocation.y));
+        this.screenModes.put(GameScreenMode.BUILD_SECTOR, new BuildSectorMode((int) geolocation.x, (int) geolocation.y));
+        this.screenModes.put(GameScreenMode.NORMAL, new NormalMode((int) geolocation.x, (int) geolocation.y, this.gameState));
+        this.screenModes.put(GameScreenMode.BUILD, new BuildMode((int) geolocation.x, (int) geolocation.y, BuildingType.GENERATOR));
+        this.screenModes.put(GameScreenMode.DESTROY, new DestroyMode((int) geolocation.x, (int) geolocation.y, this.gameState));
+
+        setScreenMode(GameScreenMode.NORMAL);
 
         // Resetting zoom of camera and moving it to initial point
         camera.resetZoom();
@@ -122,8 +135,10 @@ public class GeoBattleMap extends Actor {
         this.shapeRenderer = new ShapeRenderer();
     }
 
-    public void setScreenMode(GameScreenModeData modeData) {
-        this.screenModeData = modeData;
+    // Sets screen mode
+    public void setScreenMode(GameScreenMode mode) {
+        screenModeData = screenModes.get(mode);
+        screenModeData.setPointedTile(pointedTile.x, pointedTile.y);
     }
 
     // Returns building where player points to
