@@ -58,9 +58,4 @@ public final class NormalMode extends GameScreenModeData {
             );
         }
     }
-
-    @Override
-    public void draw(Batch batch, GeoBattleMap map, GameState gameState, IntRect visible) {
-
-    }
 }

@@ -34,9 +34,4 @@ public final class BuildFirstSectorMode extends GameScreenModeData {
                 mainColor, borderColor, 0x2222
         );
     }
-
-    @Override
-    public void draw(Batch batch, GeoBattleMap map, GameState gameState, IntRect visible) {
-
-    }
 }

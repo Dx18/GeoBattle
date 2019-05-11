@@ -37,8 +37,11 @@ public abstract class GameScreenModeData {
     }
 
     // Draws using ShapeRenderer
-    public abstract void draw(ShapeRenderer shapeRenderer, GeoBattleMap map, GameState gameState, IntRect visible);
+    public void draw(ShapeRenderer shapeRenderer, GeoBattleMap map, GameState gameState, IntRect visible) {}
 
     // Draws using Batch
-    public abstract void draw(Batch batch, GeoBattleMap map, GameState gameState, IntRect visible);
+    public void draw(Batch batch, GeoBattleMap map, GameState gameState, IntRect visible) {}
+
+    // Draws overlay using ShapeRenderer
+    public void drawOverlay(ShapeRenderer shapeRenderer, GeoBattleMap map, GameState gameState, IntRect visible) {}
 }

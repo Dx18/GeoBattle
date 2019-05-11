@@ -392,9 +392,6 @@ public class GeoBattleMap extends Actor {
                 );
             }
         }
-
-        if (screenModeData != null)
-            screenModeData.draw(shapeRenderer, this, gameState, visible);
     }
 
     private void drawBuildings(Batch batch, IntRect visible) {
@@ -432,9 +429,6 @@ public class GeoBattleMap extends Actor {
                 }
             }
         }
-
-        if (screenModeData != null)
-            screenModeData.draw(batch, this, gameState, visible);
     }
 
     @Override
@@ -480,6 +474,9 @@ public class GeoBattleMap extends Actor {
 
         drawSectorsAndSelections(visible);
 
+        if (screenModeData != null)
+            screenModeData.draw(shapeRenderer, this, gameState, visible);
+
         // Drawing player
         Vector2 playerCoords = GeoBattleMath.latLongToMercator(geolocationAPI.getCurrentCoordinates());
         drawRegionRect(
@@ -493,6 +490,9 @@ public class GeoBattleMap extends Actor {
         batch.begin();
 
         drawBuildings(batch, visible);
+
+        if (screenModeData != null)
+            screenModeData.draw(batch, this, gameState, visible);
 
         // Draws units (on top of buildings)
         for (PlayerState player : gameState.getPlayers()) {
@@ -509,6 +509,18 @@ public class GeoBattleMap extends Actor {
                 }
             }
         }
+
+        batch.end();
+        Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        if (screenModeData != null)
+            screenModeData.drawOverlay(shapeRenderer, this, gameState, visible);
+
+        shapeRenderer.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+        batch.begin();
     }
 
     // Draws debug
