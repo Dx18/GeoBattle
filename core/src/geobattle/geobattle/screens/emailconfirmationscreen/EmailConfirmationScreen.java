@@ -11,9 +11,9 @@ import java.util.Locale;
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.actionresults.MatchBranch;
 import geobattle.geobattle.server.Callback;
-import geobattle.geobattle.server.EmailConfirmationResult;
+import geobattle.geobattle.server.actionresults.EmailConfirmationResult;
 import geobattle.geobattle.server.ExternalAPI;
-import geobattle.geobattle.server.ResendEmailResult;
+import geobattle.geobattle.server.actionresults.ResendEmailResult;
 
 public final class EmailConfirmationScreen implements Screen {
     private final ExternalAPI externalAPI;

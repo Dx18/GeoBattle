@@ -1,4 +1,4 @@
-package geobattle.geobattle.server;
+package geobattle.geobattle.server.actionresults;
 
 import com.google.gson.JsonObject;
 

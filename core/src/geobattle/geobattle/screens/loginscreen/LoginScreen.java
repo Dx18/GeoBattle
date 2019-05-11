@@ -11,10 +11,10 @@ import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.actionresults.MatchBranch;
 import geobattle.geobattle.screens.emailconfirmationscreen.EmailConfirmationScreen;
 import geobattle.geobattle.screens.settingsscreen.SettingsScreen;
-import geobattle.geobattle.server.AuthorizationResult;
+import geobattle.geobattle.server.actionresults.AuthorizationResult;
 import geobattle.geobattle.server.Callback;
 import geobattle.geobattle.server.ExternalAPI;
-import geobattle.geobattle.server.RegistrationResult;
+import geobattle.geobattle.server.actionresults.RegistrationResult;
 
 // Login screen
 public final class LoginScreen implements Screen {

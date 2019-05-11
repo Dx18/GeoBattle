@@ -13,6 +13,10 @@ import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.research.ResearchType;
 import geobattle.geobattle.game.units.UnitType;
+import geobattle.geobattle.server.actionresults.AuthorizationResult;
+import geobattle.geobattle.server.actionresults.EmailConfirmationResult;
+import geobattle.geobattle.server.actionresults.RegistrationResult;
+import geobattle.geobattle.server.actionresults.ResendEmailResult;
 
 // Game server
 public interface Server {

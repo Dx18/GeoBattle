@@ -1,8 +1,9 @@
-package geobattle.geobattle.server;
+package geobattle.geobattle.server.actionresults;
 
 import com.google.gson.JsonObject;
 
 import geobattle.geobattle.game.actionresults.MatchBranch;
+import geobattle.geobattle.server.AuthInfo;
 
 // Result of email confirmation
 public abstract class EmailConfirmationResult {
