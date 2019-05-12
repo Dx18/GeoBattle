@@ -1,5 +1,6 @@
 package geobattle.geobattle.game;
 
+import com.badlogic.gdx.utils.IntFloatMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -8,12 +9,20 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import geobattle.geobattle.game.attacking.AttackEvent;
+import geobattle.geobattle.game.attacking.TimePoint;
+import geobattle.geobattle.game.attacking.UnitGroupMovingInfo;
 import geobattle.geobattle.game.buildings.Building;
+import geobattle.geobattle.game.buildings.BuildingParams;
 import geobattle.geobattle.game.buildings.BuildingType;
+import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.game.gamestatediff.GameStateDiff;
 import geobattle.geobattle.game.gamestatediff.PlayerStateDiff;
 import geobattle.geobattle.game.research.ResearchInfo;
+import geobattle.geobattle.game.units.Bomber;
+import geobattle.geobattle.game.units.Unit;
+import geobattle.geobattle.game.units.UnitGroup;
+import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.util.GeoBattleMath;
 import geobattle.geobattle.util.IntPoint;
 
@@ -40,7 +49,36 @@ public class GameState {
         this.time = time;
         this.players = new ArrayList<PlayerState>();
         this.attackEvents = new ArrayList<AttackEvent>();
-        this.researchInfo = researchInfo;
+
+        IntFloatMap unitHealth1 = new IntFloatMap();
+        unitHealth1.put(-1, UnitType.BOMBER.maxHealth * 4);
+        IntFloatMap unitHealth2 = new IntFloatMap();
+        unitHealth2.put(-1, UnitType.BOMBER.maxHealth * 2f);
+
+//        this.attackEvents.add(new AttackEvent(
+//                1, 0, 0,
+//                new UnitGroupMovingInfo[] {
+//                        new UnitGroupMovingInfo(-1, time + 20, 5234549, 5501466, time + 40)
+//                },
+//                new TimePoint[] {
+//                        new TimePoint(time + 10, 200, unitHealth1),
+//                        new TimePoint(time + 20, 200, unitHealth1),
+//                        new TimePoint(time + 30, 0, unitHealth2),
+//                        new TimePoint(time + 40, 0, unitHealth2)
+//                }
+//        ));
+//        this.attackEvents.add(new AttackEvent(
+//                1, 0, 6,
+//                new UnitGroupMovingInfo[] {
+//                        new UnitGroupMovingInfo(-1, time + 5, 5234546, 5501505, time + 25)
+//                },
+//                new TimePoint[] {
+//                        new TimePoint(time - 5, 200, unitHealth1),
+//                        new TimePoint(time + 5, 200, unitHealth1),
+//                        new TimePoint(time + 15, 0, unitHealth2),
+//                        new TimePoint(time + 25, 0, unitHealth2)
+//                }
+//        ));
     }
 
     // Clones GameState
@@ -141,6 +179,22 @@ public class GameState {
         for (JsonElement jsonAttackEvent : jsonAttackEvents)
             gameState.attackEvents.add(AttackEvent.fromJson(jsonAttackEvent.getAsJsonObject()));
 
+//        gameState.getCurrentPlayer().addBuilding(new Hangar(
+//                new BuildingParams(5234599, 5501449, -1, 0, 0)
+//        ));
+//        ((Hangar) gameState.getCurrentPlayer().getBuilding(-1)).units.addUnit(
+//                new Bomber(5234599 + 1.5, 5501449 + 1.5, 0, -1, -1, 0)
+//        );
+//        ((Hangar) gameState.getCurrentPlayer().getBuilding(-1)).units.addUnit(
+//                new Bomber(5234599 + 1.5, 5501449 + 5.5, 0, -2, -1, 1)
+//        );
+//        ((Hangar) gameState.getCurrentPlayer().getBuilding(-1)).units.addUnit(
+//                new Bomber(5234599 + 5.5, 5501449 + 5.5, 0, -3, -1, 2)
+//        );
+//        ((Hangar) gameState.getCurrentPlayer().getBuilding(-1)).units.addUnit(
+//                new Bomber(5234599 + 5.5, 5501449 + 1.5, 0, -4, -1, 3)
+//        );
+
         return gameState;
     }
 
@@ -162,7 +216,7 @@ public class GameState {
 
         applyDiff(diff);
 
-        attackEvents = other.attackEvents;
+        // attackEvents = other.attackEvents;
     }
 
     public boolean canBuildBuilding(BuildingType buildingType, int x, int y) {

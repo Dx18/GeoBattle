@@ -9,10 +9,10 @@ public final class GeoBattleAssets {
     public static final String COLOR = "color.png";
 
     // Atlas with building textures
-    public static final String BUILDINGS_ATLAS = "buildings/atlas/buildings.atlas";
+    public static final String BUILDINGS_ATLAS = "buildingsAtlas/buildings.atlas";
 
     // Atlas with building icon textures
-    public static final String BUILDING_ICONS_ATLAS = "buildingIcons/atlas/buildingIcons.atlas";
+    public static final String BUILDING_ICONS_ATLAS = "buildingIconsAtlas/buildingIcons.atlas";
 
     // Beacon texture
     public static final String BEACON = "beacon";

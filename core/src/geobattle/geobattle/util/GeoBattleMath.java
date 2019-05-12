@@ -1,5 +1,6 @@
 package geobattle.geobattle.util;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 // Some GeoBattle-specific math
@@ -70,5 +71,21 @@ public class GeoBattleMath {
         int width = Math.min(x1 + width1, x2 + width2) - x;
         int height = Math.min(y1 + height1, y2 + height2) - y;
         return new IntRect(x, y, width, height);
+    }
+
+    // Returns direction of vector
+    public static double getDirection(double dirX, double dirY) {
+        double cosDirection = dirX / Math.sqrt(dirX * dirX + dirY * dirY);
+        double direction = Math.acos(cosDirection);
+
+        if (dirY < 0)
+            direction = 2 * Math.PI - direction;
+
+        return direction;
+    }
+
+    // Normalizes angle to range [-PI; PI]
+    public static double normalizeAngle(double angle) {
+        return angle - 2 * MathUtils.PI * Math.floor((angle + Math.PI) / Math.PI / 2);
     }
 }

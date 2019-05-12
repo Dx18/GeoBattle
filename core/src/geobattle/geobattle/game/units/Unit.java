@@ -2,8 +2,18 @@ package geobattle.geobattle.game.units;
 
 import com.google.gson.JsonObject;
 
+import geobattle.geobattle.game.buildings.Building;
+import geobattle.geobattle.util.GeoBattleMath;
+
 // Base class for all units
 public abstract class Unit {
+    // Max speed of unit
+    public final double MAX_MOVE_SPEED = 12;
+
+    public final double MIN_MOVE_SPEED = 2;
+
+    public final double MAX_ROTATION_SPEED = Math.PI / 2;
+
     // X coordinate of unit
     public double x;
 
@@ -21,6 +31,9 @@ public abstract class Unit {
 
     // Slot of hangar this unit bound to
     public final int hangarSlot;
+
+    // Target
+    public Building targetBuilding;
 
     // Type of unit
     public final UnitType unitType;
@@ -69,6 +82,45 @@ public abstract class Unit {
         this.hangarId = hangarId;
         this.hangarSlot = hangarSlot;
         this.unitType = unitType;
+    }
+
+    // Updates unit
+    public void update(float delta, double destX, double destY) {
+        if (destX == x && destY == y)
+            return;
+
+        double maxAngleDelta = MAX_ROTATION_SPEED * delta;
+        double targetDirection = GeoBattleMath.getDirection(destX - x, destY - y);
+        double actualAngleDelta = GeoBattleMath.normalizeAngle(targetDirection - direction);
+
+        if (actualAngleDelta > maxAngleDelta) {
+            direction = ((direction + maxAngleDelta) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+
+            double minDistance = MIN_MOVE_SPEED * delta;
+
+            x += Math.cos(direction) * minDistance;
+            y += Math.sin(direction) * minDistance;
+        } else if (actualAngleDelta < -maxAngleDelta) {
+            direction = ((direction - maxAngleDelta) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+
+            double minDistance = MIN_MOVE_SPEED * delta;
+
+            x += Math.cos(direction) * minDistance;
+            y += Math.sin(direction) * minDistance;
+        } else {
+            direction = targetDirection;
+
+            double maxDistance = MAX_MOVE_SPEED * delta;
+            double actualDistance = Math.sqrt(Math.pow(destX - x, 2) + Math.pow(destY - y, 2));
+
+            if (actualDistance > maxDistance) {
+                x += maxDistance / actualDistance * (destX - x);
+                y += maxDistance / actualDistance * (destY - y);
+            } else {
+                x = destX;
+                y = destY;
+            }
+        }
     }
 
     // Returns width of unit

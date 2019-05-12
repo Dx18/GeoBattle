@@ -25,6 +25,7 @@ import geobattle.geobattle.game.events.DestroyEvent;
 import geobattle.geobattle.game.events.ResearchEvent;
 import geobattle.geobattle.game.events.SectorBuildEvent;
 import geobattle.geobattle.game.events.StateRequestEvent;
+import geobattle.geobattle.game.events.UnitBuildEvent;
 import geobattle.geobattle.game.research.ResearchType;
 import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.server.AuthInfo;
@@ -300,7 +301,27 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle requestUnitBuild(AuthInfo authInfo, UnitType type, Building building, Callback<UnitBuildResult> callback) {
+    public CancelHandle requestUnitBuild(final AuthInfo authInfo, final UnitType type, final Building building, final Callback<UnitBuildResult> callback) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String resultStr = request(new UnitBuildEvent(authInfo, type.toString(), building.id).toJson().toString());
+
+                if (resultStr == null) {
+                    oSAPI.showMessage("UnitBuildEvent failed: probable problems with connection");
+                    return;
+                }
+
+                try {
+                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
+                    callback.onResult(UnitBuildResult.fromJson(result));
+                } catch (Exception e) {
+                    oSAPI.showMessage("UnitBuildResult failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
+                }
+            }
+        }).start();
+
         return null;
     }
 

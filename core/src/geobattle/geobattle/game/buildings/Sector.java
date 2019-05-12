@@ -2,6 +2,7 @@ package geobattle.geobattle.game.buildings;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Predicate;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -145,8 +146,10 @@ public final class Sector {
     // Adds building. Keeps buildings sorted by ID
     public void addBuilding(Building building) {
         int index = Collections.binarySearch(buildings, building, buildingComparator);
-        if (index >= 0)
-            throw new IllegalArgumentException("Cannot add building with existing ID");
+        if (index >= 0) {
+            // throw new IllegalArgumentException("Cannot add building with existing ID");
+            return;
+        }
 
         buildings.add(-index - 1, building);
         health += building.getBuildingType().healthBonus;
@@ -271,6 +274,10 @@ public final class Sector {
 
     public float getHealth() {
         return health;
+    }
+
+    public void setHealth(float health) {
+        this.health = MathUtils.clamp(health, 0, getMaxHealth());
     }
 
     public float getMaxHealth() {

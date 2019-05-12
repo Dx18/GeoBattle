@@ -43,7 +43,7 @@ public final class AttackEvent {
         this.expirationTime = expirationTime;
 
         startArriveTime = timePoints[0].time;
-        startReturnTime = timePoints[timePoints.length - 1].time;
+        startReturnTime = timePoints[timePoints.length - 2].time;
     }
 
     public TimePoint getTimePointBefore(double time) {

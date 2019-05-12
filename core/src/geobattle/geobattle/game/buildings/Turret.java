@@ -23,7 +23,7 @@ public final class Turret extends Building {
     @Override
     public void update(float delta, GameState gameState) {
 //        if (target != null) {
-//            double dist2 = Math.pow(x + getSizeX() / 2.0 - target.x, 2) + Math.pow(y + getSizeY() / 2.0 - target.y, 2);
+//            double dist2 = Math.pow(x + getSizeX() / 2.0 - target.x, 2) + Math.pow(y + getSizeY() / 2.0 - target.y2, 2);
 //
 //            if (dist2 <= RANGE * RANGE)
 //                target.setHealth(target.getHealth() - DAMAGE * delta);
@@ -40,7 +40,7 @@ public final class Turret extends Building {
 //                    while (units.hasNext()) {
 //                        Unit next = units.next();
 //
-//                        double dist2 = Math.pow(x + getSizeX() / 2.0 - target.x, 2) + Math.pow(y + getSizeY() / 2.0 - target.y, 2);
+//                        double dist2 = Math.pow(x + getSizeX() / 2.0 - target.x, 2) + Math.pow(y + getSizeY() / 2.0 - target.y2, 2);
 //
 //                        if (dist2 <= RANGE * RANGE) {
 //                            target = next;

@@ -247,7 +247,7 @@ public class GeoBattleMap extends Actor {
         TextureRegion region = new TextureRegion(texture);
         batch.draw(
                 region, x - sizeX / 2, y - sizeY / 2,
-                sizeX / 2, sizeY / 2, sizeX, sizeY, 1, 1, (float) unit.direction
+                sizeX / 2, sizeY / 2, sizeX, sizeY, 1, 1, (float) Math.toDegrees(unit.direction)
         );
     }
 

@@ -25,7 +25,7 @@ import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.game.research.ResearchType;
-import geobattle.geobattle.game.units.Unit;
+import geobattle.geobattle.game.units.UnitGroupState;
 import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.server.AuthInfo;
@@ -354,31 +354,37 @@ public class GameEvents {
                         oSAPI.showMessage("Cannot build: not in territory");
                     }
                 },
-                new MatchBranch<UnitBuildResult.NotHangar>() {
-                    @Override
-                    public void onMatch(UnitBuildResult.NotHangar notHangar) {
-                        oSAPI.showMessage("Cannot build: not a hangar");
-                    }
-                },
                 new MatchBranch<UnitBuildResult.NoPlaceInHangar>() {
                     @Override
                     public void onMatch(UnitBuildResult.NoPlaceInHangar noPlaceInHangar) {
                         oSAPI.showMessage("Cannot build: no place in hangar");
                     }
                 },
-                new MatchBranch<UnitBuildResult.DoesNotExist>() {
+                new MatchBranch<UnitBuildResult.SectorBlocked>() {
                     @Override
-                    public void onMatch(UnitBuildResult.DoesNotExist doesNotExist) {
-                        oSAPI.showMessage("Cannot build: does not exist");
+                    public void onMatch(UnitBuildResult.SectorBlocked sectorBlocked) {
+                        oSAPI.showMessage("Cannot build: sector is blocked");
                     }
                 },
                 new MatchBranch<UnitBuildResult.WrongAuthInfo>() {
                     @Override
-                    public void onMatch(UnitBuildResult.WrongAuthInfo match) {
+                    public void onMatch(UnitBuildResult.WrongAuthInfo wrongAuthInfo) {
                         oSAPI.showMessage("Not authorized!");
                         game.switchToLoginScreen();
                         // Gdx.app.error("GeoBattle", "Not authorized!");
                         // Gdx.app.exit();
+                    }
+                },
+                new MatchBranch<UnitBuildResult.MalformedJson>() {
+                    @Override
+                    public void onMatch(UnitBuildResult.MalformedJson match) {
+                        oSAPI.showMessage("Cannot build: JSON request is not well-formed. Probable bug. Tell the developers");
+                    }
+                },
+                new MatchBranch<UnitBuildResult.IncorrectData>() {
+                    @Override
+                    public void onMatch(UnitBuildResult.IncorrectData match) {
+                        oSAPI.showMessage("Cannot build: value of field in request is not valid. Probable bug. Tell the developers");
                     }
                 }
         );
@@ -517,6 +523,24 @@ public class GameEvents {
 
         for (int eventIndex = 0; eventIndex < gameState.getAttackEvents().size();) {
             if (gameState.getAttackEvents().get(eventIndex).isExpired(gameState.getTime())) {
+                Gdx.app.log("GeoBattle", "Attack event expired");
+
+                AttackEvent attackEvent = gameState.getAttackEvents().get(eventIndex);
+                PlayerState attacker = gameState.getPlayer(attackEvent.attackerId);
+                IntIntMap hangarIds = new IntIntMap(attackEvent.unitGroupMoving.length);
+                for (int index = 0; index < attackEvent.unitGroupMoving.length; index++)
+                    hangarIds.put(attackEvent.unitGroupMoving[index].hangarId, index);
+                Iterator<Hangar> hangars = attacker.getHangars();
+                while (hangars.hasNext()) {
+                    Hangar next = hangars.next();
+
+                    if (!hangarIds.containsKey(next.id))
+                        continue;
+
+                    Gdx.app.log("GeoBattle", "Set Idle state");
+                    next.units.setState(new UnitGroupState.Idle(next));
+                }
+
                 gameState.getAttackEvents().remove(eventIndex);
             } else
                 eventIndex++;
@@ -529,6 +553,7 @@ public class GameEvents {
 
             PlayerState attacker = gameState.getPlayer(attackEvent.attackerId);
             PlayerState victim = gameState.getPlayer(attackEvent.victimId);
+            Sector victimSector = victim.getSector(attackEvent.sectorId);
 
             IntIntMap hangarIds = new IntIntMap(attackEvent.unitGroupMoving.length);
             for (int index = 0; index < attackEvent.unitGroupMoving.length; index++)
@@ -544,64 +569,69 @@ public class GameEvents {
                 if (!hangarIds.containsKey(next.id))
                     continue;
 
-                double prevHealth = prevTimePoint.unitGroupHealth.get(next.id, Float.NaN);
-                double nextHealth = nextTimePoint.unitGroupHealth.get(next.id, Float.NaN);
+                float factor = (float) ((gameState.getTime() - prevTimePoint.time) / (nextTimePoint.time - prevTimePoint.time));
 
-                // double currentHealth = prevHealth + ();
+                float prevHealth = prevTimePoint.unitGroupHealth.get(next.id, Float.NaN);
+                float nextHealth = nextTimePoint.unitGroupHealth.get(next.id, Float.NaN);
+
+                float currentHealth = prevHealth + factor * (nextHealth - prevHealth);
+
+                next.units.setHealth(currentHealth);
+
+                if (victimSector != null) {
+                    double prevSectorHealth = prevTimePoint.sectorHealth;
+                    double nextSectorHealth = nextTimePoint.sectorHealth;
+
+                    double currentSectorHealth = prevSectorHealth + factor * (nextSectorHealth - prevSectorHealth);
+
+                    victimSector.setHealth((float) currentSectorHealth);
+                    if (victimSector.getHealth() == 0) {
+                        victim.removeSector(victimSector);
+                        victimSector = null;
+                    }
+                }
 
                 UnitGroupMovingInfo unitGroupMovingInfo = attackEvent.unitGroupMoving[hangarIds.get(next.id, -1)];
 
                 double hangarCenterX = next.x + next.getSizeX() / 2.0;
                 double hangarCenterY = next.y + next.getSizeY() / 2.0;
 
-                double realPosX;
-                double realPosY;
-                double direction;
                 if (gameState.getTime() < unitGroupMovingInfo.arriveTime) {
-                    double factor = (gameState.getTime() - attackEvent.startArriveTime) / (unitGroupMovingInfo.arriveTime - attackEvent.startArriveTime);
-
-                    double deltaX = (unitGroupMovingInfo.arriveX - hangarCenterX) * factor;
-                    double deltaY = (unitGroupMovingInfo.arriveY - hangarCenterY) * factor;
-
-                    realPosX = hangarCenterX + deltaX;
-                    realPosY = hangarCenterY + deltaY;
-
-                    double cosDirection = deltaX / Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-                    direction = Math.acos(cosDirection);
-
-                    if (deltaY < 0)
-                        direction = 2 * Math.PI - direction;
+                    if (next.units.getLastUpdateTime() < attackEvent.startArriveTime)
+                        next.units.setState(new UnitGroupState.Moving(hangarCenterX, hangarCenterY, attackEvent.startArriveTime, unitGroupMovingInfo.arriveX, unitGroupMovingInfo.arriveY, unitGroupMovingInfo.arriveTime));
                 } else if (gameState.getTime() > attackEvent.startReturnTime) {
-                    double factor = (gameState.getTime() - attackEvent.startReturnTime) / (unitGroupMovingInfo.returnTime - attackEvent.startReturnTime);
-
-                    double deltaX = (hangarCenterX - unitGroupMovingInfo.arriveX) * factor;
-                    double deltaY = (hangarCenterY - unitGroupMovingInfo.arriveY) * factor;
-
-                    realPosX = unitGroupMovingInfo.arriveX + deltaX;
-                    realPosY = unitGroupMovingInfo.arriveY + deltaY;
-
-                    double cosDirection = deltaX / Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-                    direction = Math.acos(cosDirection);
-
-                    if (deltaY < 0)
-                        direction = 2 * Math.PI - direction;
+                    if (next.units.getLastUpdateTime() < attackEvent.startReturnTime) {
+                        next.units.setState(new UnitGroupState.Moving(unitGroupMovingInfo.arriveX, unitGroupMovingInfo.arriveY, attackEvent.startReturnTime, hangarCenterX, hangarCenterY, unitGroupMovingInfo.returnTime));
+                    }
                 } else {
-                    realPosX = unitGroupMovingInfo.arriveX;
-                    realPosY = unitGroupMovingInfo.arriveY;
-
-                    direction = 0;
+                    if (next.units.getLastUpdateTime() < unitGroupMovingInfo.arriveTime)
+                        next.units.setState(new UnitGroupState.Attacking(victimSector, new Building[4]));
                 }
 
-                double[] unitOffsetX = { 1, -1, -1, 1 };
-                double[] unitOffsetY = { 1, 1, -1, -1 };
-                double factor = 2 * Math.sqrt(2);
+//                next.units.update(delta, gameState.getTime());
 
-                Iterator<Unit> units = next.units.getAllUnits();
-                while (units.hasNext()) {
-                    Unit nextUnit = units.next();
-                    nextUnit.direction = Math.toDegrees(direction);
-                    nextUnit.x = realPosX + factor * (unitOffsetX[nextUnit.hangarSlot] * Math.cos(direction) - unitOffsetY[nextUnit.hangarSlot] * Math.sin(direction));
-                    nextUnit.y = realPosY + factor * (unitOffsetX[nextUnit.hangarSlot] * Math.sin(direction) + unitOffsetY[nextUnit.hangarSlot] * Math.cos(direction));
+//                double[] unitOffsetX = { 1, -1, -1, 1 };
+//                double[] unitOffsetY = { 1, 1, -1, -1 };
+//                double factor = 2 * Math.sqrt(2);
+//
+//                Iterator<Unit> units = next.units.getAllUnits();
+//                while (units.hasNext()) {
+//                    Unit nextUnit = units.next();
+//                    // nextUnit.direction = Math.toDegrees(direction);
+//                    double destX = realPosX + factor * (unitOffsetX[nextUnit.hangarSlot] * Math.cos(direction) - unitOffsetY[nextUnit.hangarSlot] * Math.sin(direction));
+//                    double destY = realPosY + factor * (unitOffsetX[nextUnit.hangarSlot] * Math.sin(direction) + unitOffsetY[nextUnit.hangarSlot] * Math.cos(direction));
+//                    nextUnit.update(delta, destX, destY);
+//                }
+            }
+        }
+
+        Iterator<PlayerState> players = gameState.getPlayers();
+        while (players.hasNext()) {
+            Iterator<Sector> sectors = players.next().getAllSectors();
+            while (sectors.hasNext()) {
+                Iterator<Hangar> hangars = sectors.next().getHangars();
+                while (hangars.hasNext()) {
+                    hangars.next().units.update(delta, gameState.getTime());
                 }
             }
         }
