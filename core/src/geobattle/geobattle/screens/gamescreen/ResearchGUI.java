@@ -13,6 +13,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import com.kotcrab.vis.ui.widget.VisDialog;
+import com.kotcrab.vis.ui.widget.VisImage;
+import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisTextButton;
 
 import geobattle.geobattle.GeoBattleAssets;
 import geobattle.geobattle.game.research.ResearchInfo;
@@ -20,34 +25,34 @@ import geobattle.geobattle.game.research.ResearchType;
 
 public final class ResearchGUI {
     public class ResearchTypeItem {
-        public final Table root;
+        public final VisTable root;
 
         public final ResearchType researchType;
 
-        private final Label valueChange;
+        private final VisLabel valueChange;
 
-        private final Image[] indicators;
+        private final VisImage[] indicators;
 
-        private final TextButton researchButton;
+        private final VisTextButton researchButton;
 
         private boolean researched;
 
         public ResearchTypeItem(final GameScreen screen, final ResearchInfo researchInfo, final ResearchType researchType, Table itemsTable) {
-            root = new Table();
+            root = new VisTable();
 
             this.researchType = researchType;
 
-            valueChange = new Label("", skin);
-            indicators = new Image[researchType.getLevelCount()];
+            valueChange = new VisLabel("");
+            indicators = new VisImage[researchType.getLevelCount()];
             for (int level = 0; level < researchType.getLevelCount(); level++)
-                indicators[level] = new Image(skin, "rect");
-            researchButton = new TextButton("", skin);
-            researchButton.addListener(new ChangeListener() {
+                indicators[level] = new VisImage("researchIndicatorOff");
+            researchButton = new VisTextButton("", new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
                     // researchInfo.incrementLevel(researchType);
                     // setResearchLevel(researchInfo.getLevel(researchType));
                     screen.getGameEvents().onResearch(researchType);
+                    Gdx.app.log("GeoBattle", "Research");
                 }
             });
 
@@ -57,17 +62,16 @@ public final class ResearchGUI {
         public void init(final ResearchInfo researchInfo, Table itemsTable) {
             root.clear();
 
-            Label researchName = new Label(researchType.name, skin);
+            VisLabel researchName = new VisLabel(researchType.toString());
             root.add(researchName)
-                    .expandX()
-                    .fillX()
+                    .growX()
                     .colspan(researchType.getLevelCount());
             root.add(valueChange);
             root.row();
 
             for (int level = 0; level < researchType.getLevelCount(); level++)
                 root.add(indicators[level])
-                        .width(Gdx.graphics.getPpcX() / 3)
+                        .width(indicators[level].getDrawable().getMinWidth())
                         .padLeft(5)
                         .padRight(5)
                         .expand(level == researchType.getLevelCount() - 1, false)
@@ -76,24 +80,23 @@ public final class ResearchGUI {
             GlyphLayout glyphLayout = new GlyphLayout();
             glyphLayout.setText(skin.getFont("default"), "16000");
             root.add(researchButton)
-                    .width(glyphLayout.width + 40)
                     .align(Align.right);
 
             itemsTable.add(root)
                     .expandX()
-                    .fillX()
-                    .width(Gdx.graphics.getWidth() - 40);
+                    .fillX();
             itemsTable.row();
 
             setResearchLevel(researchInfo.getLevel(researchType));
         }
 
         public void setResearchLevel(int level) {
-            for (int indicator = 0; indicator < indicators.length; indicator++)
-                indicators[indicator].setColor(level > indicator
-                        ? new Color(0.4f, 0.4f, 0.4f, 1)
-                        : new Color(1, 1, 1, 1)
+            for (int indicator = 0; indicator < indicators.length; indicator++) {
+                indicators[indicator].setDrawable(skin, level > indicator
+                        ? "researchIndicatorOn"
+                        : "researchIndicatorOff"
                 );
+            }
             int newCost = researchType.getCost(level + 1);
             if (newCost == Integer.MAX_VALUE) {
                 researchButton.setDisabled(true);
@@ -101,6 +104,7 @@ public final class ResearchGUI {
                 valueChange.setText(researchType.getValue(level) + "");
                 researched = true;
             } else {
+                researchButton.setDisabled(false);
                 researchButton.setText(newCost + "");
                 valueChange.setText(
                         researchType.getValue(level) +
@@ -114,14 +118,14 @@ public final class ResearchGUI {
 
     private final Skin skin;
 
-    public final Dialog root;
+    public final VisDialog root;
 
     private final ResearchTypeItem[] researchTypes;
 
     public ResearchGUI(AssetManager assetManager, final GameScreen screen) {
         skin = assetManager.get(GeoBattleAssets.GUI_SKIN);
 
-        root = new Dialog("", skin);
+        root = new VisDialog("RESEARCH");
 
         researchTypes = new ResearchTypeItem[ResearchType.values().length];
         int index = 0;
@@ -135,20 +139,14 @@ public final class ResearchGUI {
             index++;
         }
 
+        root.getContentTable().padTop(20);
+
         init(screen);
     }
 
     public void init(GameScreen screen) {
         root.getContentTable().clear();
-        root.getButtonTable().clear();
-        root.getContentTable().setFillParent(true);
-
-        Label title = new Label("Research", skin);
-        root.getContentTable().add(title)
-                .expandX()
-                .width(Gdx.graphics.getWidth() - 40)
-                .height(Gdx.graphics.getPpcY());
-        root.getContentTable().row();
+        root.getButtonsTable().clear();
 
         final ResearchInfo researchInfo = screen.getGameEvents().gameState.getCurrentPlayer().getResearchInfo();
         int index = 0;
@@ -157,16 +155,15 @@ public final class ResearchGUI {
             index++;
         }
 
-        TextButton close = new TextButton("Close", skin);
+        VisTextButton close = new VisTextButton("Close");
         close.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 root.hide();
             }
         });
-        root.getContentTable().add(close);
+        root.getButtonsTable().add(close);
 
-        root.getContentTable().pad(20);
         root.center();
     }
 

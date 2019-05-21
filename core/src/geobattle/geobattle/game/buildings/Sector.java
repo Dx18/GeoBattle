@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 
+import geobattle.geobattle.game.gamestatediff.HangarDiff;
 import geobattle.geobattle.game.gamestatediff.SectorDiff;
 import geobattle.geobattle.game.research.ResearchInfo;
 import geobattle.geobattle.map.BuildingTextures;
@@ -146,10 +147,8 @@ public final class Sector {
     // Adds building. Keeps buildings sorted by ID
     public void addBuilding(Building building) {
         int index = Collections.binarySearch(buildings, building, buildingComparator);
-        if (index >= 0) {
-            // throw new IllegalArgumentException("Cannot add building with existing ID");
-            return;
-        }
+        if (index >= 0)
+            throw new IllegalArgumentException("Cannot add building with existing ID");
 
         buildings.add(-index - 1, building);
         health += building.getBuildingType().healthBonus;
@@ -294,5 +293,7 @@ public final class Sector {
             removeBuilding(removed);
         for (Building added : diff.addedBuildings)
             addBuilding(added);
+        for (HangarDiff changed : diff.changedHangars)
+            ((Hangar) getBuilding(changed.hangarId)).setUnits(changed.newUnits);
     }
 }

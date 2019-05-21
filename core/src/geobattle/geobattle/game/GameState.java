@@ -8,23 +8,14 @@ import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import geobattle.geobattle.game.attacking.AttackEvent;
-import geobattle.geobattle.game.attacking.TimePoint;
-import geobattle.geobattle.game.attacking.UnitGroupMovingInfo;
+import geobattle.geobattle.game.attacking.AttackScript;
 import geobattle.geobattle.game.buildings.Building;
-import geobattle.geobattle.game.buildings.BuildingParams;
 import geobattle.geobattle.game.buildings.BuildingType;
-import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.game.gamestatediff.GameStateDiff;
 import geobattle.geobattle.game.gamestatediff.PlayerStateDiff;
-import geobattle.geobattle.game.research.ResearchInfo;
-import geobattle.geobattle.game.units.Bomber;
-import geobattle.geobattle.game.units.Unit;
-import geobattle.geobattle.game.units.UnitGroup;
 import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.util.GeoBattleMath;
-import geobattle.geobattle.util.IntPoint;
 
 // State of game
 public class GameState {
@@ -41,21 +32,21 @@ public class GameState {
     private ArrayList<PlayerState> players;
 
     // Attack events
-    private ArrayList<AttackEvent> attackEvents;
+    private ArrayList<AttackScript> attackScripts;
 
     public GameState(float resources, int playerId, double time) {
         this.resources = resources;
         this.playerId = playerId;
         this.time = time;
         this.players = new ArrayList<PlayerState>();
-        this.attackEvents = new ArrayList<AttackEvent>();
+        this.attackScripts = new ArrayList<AttackScript>();
 
         IntFloatMap unitHealth1 = new IntFloatMap();
         unitHealth1.put(-1, UnitType.BOMBER.maxHealth * 4);
         IntFloatMap unitHealth2 = new IntFloatMap();
         unitHealth2.put(-1, UnitType.BOMBER.maxHealth * 2f);
 
-//        this.attackEvents.add(new AttackEvent(
+//        this.attackScripts.add(new AttackScript(
 //                1, 0, 0,
 //                new UnitGroupMovingInfo[] {
 //                        new UnitGroupMovingInfo(-1, time + 20, 5234549, 5501466, time + 40)
@@ -67,7 +58,7 @@ public class GameState {
 //                        new TimePoint(time + 40, 0, unitHealth2)
 //                }
 //        ));
-//        this.attackEvents.add(new AttackEvent(
+//        this.attackScripts.add(new AttackScript(
 //                1, 0, 6,
 //                new UnitGroupMovingInfo[] {
 //                        new UnitGroupMovingInfo(-1, time + 5, 5234546, 5501505, time + 25)
@@ -88,8 +79,8 @@ public class GameState {
         for (PlayerState player : players)
             cloned.players.add(player.clone());
 
-        for (AttackEvent event : attackEvents)
-            cloned.attackEvents.add(event.clone());
+        for (AttackScript event : attackScripts)
+            cloned.attackScripts.add(event.clone());
 
         return cloned;
     }
@@ -159,8 +150,8 @@ public class GameState {
         return getPlayer(playerId);
     }
 
-    public ArrayList<AttackEvent> getAttackEvents() {
-        return attackEvents;
+    public ArrayList<AttackScript> getAttackScripts() {
+        return attackScripts;
     }
 
     public static GameState fromJson(JsonObject object) {
@@ -177,7 +168,7 @@ public class GameState {
 
         JsonArray jsonAttackEvents = object.getAsJsonArray("attackEvents");
         for (JsonElement jsonAttackEvent : jsonAttackEvents)
-            gameState.attackEvents.add(AttackEvent.fromJson(jsonAttackEvent.getAsJsonObject()));
+            gameState.attackScripts.add(AttackScript.fromJson(jsonAttackEvent.getAsJsonObject()));
 
 //        gameState.getCurrentPlayer().addBuilding(new Hangar(
 //                new BuildingParams(5234599, 5501449, -1, 0, 0)
@@ -216,7 +207,7 @@ public class GameState {
 
         applyDiff(diff);
 
-        // attackEvents = other.attackEvents;
+        attackScripts = other.attackScripts;
     }
 
     public boolean canBuildBuilding(BuildingType buildingType, int x, int y) {

@@ -7,22 +7,22 @@ import geobattle.geobattle.game.BuildTransactionInfo;
 // Result of building
 public abstract class BuildResult {
     // Building is successfully built
-    public static final class Built extends BuildResult {
+    public static final class BuildingBuilt extends BuildResult {
         // Building instance
         public final BuildTransactionInfo info;
 
         // Cost of building
         public final int cost;
 
-        public Built(BuildTransactionInfo info, int cost) {
+        public BuildingBuilt(BuildTransactionInfo info, int cost) {
             this.info = info;
             this.cost = cost;
         }
 
-        public static Built fromJson(JsonObject object) {
+        public static BuildingBuilt fromJson(JsonObject object) {
             BuildTransactionInfo info = BuildTransactionInfo.fromJson(object.getAsJsonObject("info"));
             int cost = object.getAsJsonPrimitive("cost").getAsInt();
-            return new Built(info, cost);
+            return new BuildingBuilt(info, cost);
         }
     }
 
@@ -120,8 +120,8 @@ public abstract class BuildResult {
     public static BuildResult fromJson(JsonObject object) {
         String type = object.getAsJsonPrimitive("type").getAsString();
 
-        if (type.equals("Built"))
-            return Built.fromJson(object);
+        if (type.equals("BuildingBuilt"))
+            return BuildingBuilt.fromJson(object);
         else if (type.equals("CollisionFound"))
             return CollisionFound.fromJson(object);
         else if (type.equals("NotEnoughResources"))
@@ -143,7 +143,7 @@ public abstract class BuildResult {
 
     // Matches BuildResult
     public void match(
-            MatchBranch<Built> built,
+            MatchBranch<BuildingBuilt> built,
             MatchBranch<CollisionFound> collisionFound,
             MatchBranch<NotEnoughResources> notEnoughResources,
             MatchBranch<BuildingLimitExceeded> buildingLimitExceeded,
@@ -153,8 +153,8 @@ public abstract class BuildResult {
             MatchBranch<MalformedJson> malformedJson,
             MatchBranch<IncorrectData> incorrectData
     ) {
-        if (built != null && this instanceof Built)
-            built.onMatch((Built) this);
+        if (built != null && this instanceof BuildingBuilt)
+            built.onMatch((BuildingBuilt) this);
         else if (collisionFound != null && this instanceof CollisionFound)
             collisionFound.onMatch((CollisionFound) this);
         else if (notEnoughResources != null && this instanceof NotEnoughResources)

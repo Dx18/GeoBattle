@@ -9,6 +9,7 @@ import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.GameStateUpdate;
 import geobattle.geobattle.game.PlayerState;
+import geobattle.geobattle.game.actionresults.AttackResult;
 import geobattle.geobattle.game.actionresults.BuildResult;
 import geobattle.geobattle.game.actionresults.DestroyResult;
 import geobattle.geobattle.game.actionresults.MatchBranch;
@@ -17,7 +18,7 @@ import geobattle.geobattle.game.actionresults.SectorBuildResult;
 import geobattle.geobattle.game.actionresults.StateRequestResult;
 import geobattle.geobattle.game.actionresults.UnitBuildResult;
 import geobattle.geobattle.game.actionresults.UpdateRequestResult;
-import geobattle.geobattle.game.attacking.AttackEvent;
+import geobattle.geobattle.game.attacking.AttackScript;
 import geobattle.geobattle.game.attacking.TimePoint;
 import geobattle.geobattle.game.attacking.UnitGroupMovingInfo;
 import geobattle.geobattle.game.buildings.Building;
@@ -28,6 +29,8 @@ import geobattle.geobattle.game.research.ResearchType;
 import geobattle.geobattle.game.units.UnitGroupState;
 import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.map.GeoBattleMap;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.SelectHangarsMode;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.SelectSectorMode;
 import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.Callback;
 import geobattle.geobattle.server.OSAPI;
@@ -114,12 +117,14 @@ public class GameEvents {
                 new MatchBranch<SectorBuildResult.SectorBuilt>() {
                     @Override
                     public void onMatch(SectorBuildResult.SectorBuilt sectorBuilt) {
-                        gameState.getPlayer(sectorBuilt.info.playerIndex).addSector(new Sector(
-                                sectorBuilt.info.x,
-                                sectorBuilt.info.y,
-                                sectorBuilt.info.id,
-                                gameState.getCurrentPlayer().getResearchInfo()
-                        ));
+                        try {
+                            gameState.getPlayer(sectorBuilt.info.playerIndex).addSector(new Sector(
+                                    sectorBuilt.info.x,
+                                    sectorBuilt.info.y,
+                                    sectorBuilt.info.id,
+                                    gameState.getCurrentPlayer().getResearchInfo()
+                            ));
+                        } catch (IllegalArgumentException ignored) {}
                         screen.switchToNormalMode();
                     }
                 },
@@ -195,11 +200,11 @@ public class GameEvents {
     // Invokes when user receives build result
     private void onBuildResult(BuildResult result) {
         result.match(
-                new MatchBranch<BuildResult.Built>() {
+                new MatchBranch<BuildResult.BuildingBuilt>() {
                     @Override
-                    public void onMatch(BuildResult.Built built) {
-                        gameState.getPlayer(built.info.playerIndex).addBuilding(built.info.building);
-                        gameState.setResources(gameState.getResources() - built.cost);
+                    public void onMatch(BuildResult.BuildingBuilt buildingBuilt) {
+                        gameState.getPlayer(buildingBuilt.info.playerIndex).addBuilding(buildingBuilt.info.building);
+                        gameState.setResources(gameState.getResources() - buildingBuilt.cost);
 
                         screen.switchToNormalMode();
                     }
@@ -281,10 +286,12 @@ public class GameEvents {
     // Invokes when user receives destroy result
     private void onDestroyResult(DestroyResult result) {
         result.match(
-                new MatchBranch<DestroyResult.Destroyed>() {
+                new MatchBranch<DestroyResult.BuildingDestroyed>() {
                     @Override
-                    public void onMatch(DestroyResult.Destroyed destroyed) {
-                        gameState.getPlayer(destroyed.info.playerIndex).removeBuilding(destroyed.info.building);
+                    public void onMatch(DestroyResult.BuildingDestroyed buildingDestroyed) {
+                        gameState.getPlayer(buildingDestroyed.info.playerIndex).removeBuilding(buildingDestroyed.info.building);
+
+                        screen.switchToNormalMode();
                     }
                 },
                 new MatchBranch<DestroyResult.NotOwningBuilding>() {
@@ -341,11 +348,11 @@ public class GameEvents {
 
     private void onUnitBuildResult(UnitBuildResult result) {
         result.match(
-                new MatchBranch<UnitBuildResult.Built>() {
+                new MatchBranch<UnitBuildResult.UnitBuilt>() {
                     @Override
-                    public void onMatch(UnitBuildResult.Built built) {
-                        gameState.getPlayer(built.info.playerIndex).addUnit(built.info.unit);
-                        gameState.setResources(gameState.getResources() - built.cost);
+                    public void onMatch(UnitBuildResult.UnitBuilt unitBuilt) {
+                        gameState.getPlayer(unitBuilt.info.playerIndex).addUnit(unitBuilt.info.unit);
+                        gameState.setResources(gameState.getResources() - unitBuilt.cost);
                     }
                 },
                 new MatchBranch<UnitBuildResult.NotEnoughResources>() {
@@ -513,6 +520,86 @@ public class GameEvents {
         );
     }
 
+    public void onRequestAttack() {
+        SelectHangarsMode selectHangarsMode = (SelectHangarsMode) map.getScreenModeData(GameScreenMode.SELECT_HANGARS);
+        Gdx.app.log("GeoBattle", "onRequestAttack: count is " + selectHangarsMode.getSelectedHangarsCount());
+        if (selectHangarsMode.getSelectedHangarsCount() == 0)
+            return;
+
+        SelectSectorMode selectSectorMode = (SelectSectorMode) map.getScreenModeData(GameScreenMode.SELECT_SECTOR);
+        Gdx.app.log("GeoBattle", "onRequestAttack: pointed sector is " + selectSectorMode.getPointedSector());
+        if (selectSectorMode.getPointedSector() == null)
+            return;
+
+        int attackerId = gameState.getPlayerId();
+        int victimId = selectSectorMode.getOwningPlayerId();
+        int sectorId = selectSectorMode.getPointedSector().sectorId;
+
+        int[] hangarIds = new int[selectHangarsMode.getSelectedHangarsCount()];
+        Iterator<Hangar> hangars = selectHangarsMode.getSelectedHangars();
+        int hangar = 0;
+        while (hangars.hasNext()) {
+            hangarIds[hangar] = hangars.next().id;
+            hangar++;
+        }
+
+        server.requestAttack(authInfo, attackerId, victimId, hangarIds, sectorId, new Callback<AttackResult>() {
+            @Override
+            public void onResult(final AttackResult result) {
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        onAttackResult(result);
+                    }
+                });
+            }
+        });
+    }
+
+    private void onAttackResult(AttackResult result) {
+        result.match(
+                new MatchBranch<AttackResult.AttackStarted>() {
+                    @Override
+                    public void onMatch(AttackResult.AttackStarted attackStarted) {
+                        // gameState.getAttackScripts().add(attackStarted.attackScript);
+
+                        screen.switchToNormalMode();
+                    }
+                },
+                new MatchBranch<AttackResult.NotAttackable>() {
+                    @Override
+                    public void onMatch(AttackResult.NotAttackable notAttackable) {
+                        oSAPI.showMessage("Cannot attack: sector is not attackable");
+                    }
+                },
+                new MatchBranch<AttackResult.HangarsAlreadyUsed>() {
+                    @Override
+                    public void onMatch(AttackResult.HangarsAlreadyUsed hangarsAlreadyUsed) {
+                        oSAPI.showMessage("Cannot attack: some hangars are already used");
+                    }
+                },
+                new MatchBranch<AttackResult.WrongAuthInfo>() {
+                    @Override
+                    public void onMatch(AttackResult.WrongAuthInfo wrongAuthInfo) {
+                        oSAPI.showMessage("Not authorized!");
+                        game.switchToLoginScreen();
+                    }
+                },
+                new MatchBranch<AttackResult.MalformedJson>() {
+                    @Override
+                    public void onMatch(AttackResult.MalformedJson malformedJson) {
+                        oSAPI.showMessage("Cannot build: JSON request is not well-formed. Probable bug. Tell the developers");
+                    }
+                },
+                new MatchBranch<AttackResult.IncorrectData>() {
+                    @Override
+                    public void onMatch(AttackResult.IncorrectData incorrectData) {
+                        oSAPI.showMessage("Cannot build: value of field in request is not valid. Probable bug. Tell the developers");
+                    }
+                }
+        );
+    }
+
     public void onTick(float delta) {
         gameState.addTime(delta);
 
@@ -521,15 +608,13 @@ public class GameEvents {
             lastUpdateTime = gameState.getTime();
         }
 
-        for (int eventIndex = 0; eventIndex < gameState.getAttackEvents().size();) {
-            if (gameState.getAttackEvents().get(eventIndex).isExpired(gameState.getTime())) {
-                Gdx.app.log("GeoBattle", "Attack event expired");
-
-                AttackEvent attackEvent = gameState.getAttackEvents().get(eventIndex);
-                PlayerState attacker = gameState.getPlayer(attackEvent.attackerId);
-                IntIntMap hangarIds = new IntIntMap(attackEvent.unitGroupMoving.length);
-                for (int index = 0; index < attackEvent.unitGroupMoving.length; index++)
-                    hangarIds.put(attackEvent.unitGroupMoving[index].hangarId, index);
+        for (int eventIndex = 0; eventIndex < gameState.getAttackScripts().size();) {
+            if (gameState.getAttackScripts().get(eventIndex).isExpired(gameState.getTime())) {
+                AttackScript attackScript = gameState.getAttackScripts().get(eventIndex);
+                PlayerState attacker = gameState.getPlayer(attackScript.attackerId);
+                IntIntMap hangarIds = new IntIntMap(attackScript.unitGroupMoving.length);
+                for (int index = 0; index < attackScript.unitGroupMoving.length; index++)
+                    hangarIds.put(attackScript.unitGroupMoving[index].hangarId, index);
                 Iterator<Hangar> hangars = attacker.getHangars();
                 while (hangars.hasNext()) {
                     Hangar next = hangars.next();
@@ -541,26 +626,28 @@ public class GameEvents {
                     next.units.setState(new UnitGroupState.Idle(next));
                 }
 
-                gameState.getAttackEvents().remove(eventIndex);
+                Gdx.app.log("GeoBattle", "Attack script expired");
+
+                gameState.getAttackScripts().remove(eventIndex);
             } else
                 eventIndex++;
         }
 
-        // Gdx.app.log("GeoBattle", "Count of events: " + gameState.getAttackEvents().size());
-        for (AttackEvent attackEvent : gameState.getAttackEvents()) {
-            if (attackEvent.startArriveTime > gameState.getTime())
+        // Gdx.app.log("GeoBattle", "Count of events: " + gameState.getAttackScripts().size());
+        for (AttackScript attackScript : gameState.getAttackScripts()) {
+            if (attackScript.startArriveTime > gameState.getTime())
                 continue;
 
-            PlayerState attacker = gameState.getPlayer(attackEvent.attackerId);
-            PlayerState victim = gameState.getPlayer(attackEvent.victimId);
-            Sector victimSector = victim.getSector(attackEvent.sectorId);
+            PlayerState attacker = gameState.getPlayer(attackScript.attackerId);
+            PlayerState victim = gameState.getPlayer(attackScript.victimId);
+            Sector victimSector = victim.getSector(attackScript.sectorId);
 
-            IntIntMap hangarIds = new IntIntMap(attackEvent.unitGroupMoving.length);
-            for (int index = 0; index < attackEvent.unitGroupMoving.length; index++)
-                hangarIds.put(attackEvent.unitGroupMoving[index].hangarId, index);
+            IntIntMap hangarIds = new IntIntMap(attackScript.unitGroupMoving.length);
+            for (int index = 0; index < attackScript.unitGroupMoving.length; index++)
+                hangarIds.put(attackScript.unitGroupMoving[index].hangarId, index);
 
-            TimePoint prevTimePoint = attackEvent.getTimePointBefore(gameState.getTime());
-            TimePoint nextTimePoint = attackEvent.getTimePointAfter(gameState.getTime());
+            TimePoint prevTimePoint = attackScript.getTimePointBefore(gameState.getTime());
+            TimePoint nextTimePoint = attackScript.getTimePointAfter(gameState.getTime());
 
             Iterator<Hangar> hangars = attacker.getHangars();
             while (hangars.hasNext()) {
@@ -568,6 +655,14 @@ public class GameEvents {
 
                 if (!hangarIds.containsKey(next.id))
                     continue;
+
+                if (prevTimePoint == null && nextTimePoint == null) {
+                    Gdx.app.log("GeoBattle", "Both are null");
+                } else if (prevTimePoint == null) {
+                    Gdx.app.log("GeoBattle", "Next is " + nextTimePoint.time);
+                } else if (nextTimePoint == null) {
+                    Gdx.app.log("GeoBattle", "Prev is " + prevTimePoint.time);
+                }
 
                 float factor = (float) ((gameState.getTime() - prevTimePoint.time) / (nextTimePoint.time - prevTimePoint.time));
 
@@ -591,17 +686,17 @@ public class GameEvents {
                     }
                 }
 
-                UnitGroupMovingInfo unitGroupMovingInfo = attackEvent.unitGroupMoving[hangarIds.get(next.id, -1)];
+                UnitGroupMovingInfo unitGroupMovingInfo = attackScript.unitGroupMoving[hangarIds.get(next.id, -1)];
 
                 double hangarCenterX = next.x + next.getSizeX() / 2.0;
                 double hangarCenterY = next.y + next.getSizeY() / 2.0;
 
                 if (gameState.getTime() < unitGroupMovingInfo.arriveTime) {
-                    if (next.units.getLastUpdateTime() < attackEvent.startArriveTime)
-                        next.units.setState(new UnitGroupState.Moving(hangarCenterX, hangarCenterY, attackEvent.startArriveTime, unitGroupMovingInfo.arriveX, unitGroupMovingInfo.arriveY, unitGroupMovingInfo.arriveTime));
-                } else if (gameState.getTime() > attackEvent.startReturnTime) {
-                    if (next.units.getLastUpdateTime() < attackEvent.startReturnTime) {
-                        next.units.setState(new UnitGroupState.Moving(unitGroupMovingInfo.arriveX, unitGroupMovingInfo.arriveY, attackEvent.startReturnTime, hangarCenterX, hangarCenterY, unitGroupMovingInfo.returnTime));
+                    if (next.units.getLastUpdateTime() < attackScript.startArriveTime)
+                        next.units.setState(new UnitGroupState.Moving(hangarCenterX, hangarCenterY, attackScript.startArriveTime, unitGroupMovingInfo.arriveX, unitGroupMovingInfo.arriveY, unitGroupMovingInfo.arriveTime));
+                } else if (gameState.getTime() > attackScript.startReturnTime) {
+                    if (next.units.getLastUpdateTime() < attackScript.startReturnTime) {
+                        next.units.setState(new UnitGroupState.Moving(unitGroupMovingInfo.arriveX, unitGroupMovingInfo.arriveY, attackScript.startReturnTime, hangarCenterX, hangarCenterY, unitGroupMovingInfo.returnTime));
                     }
                 } else {
                     if (next.units.getLastUpdateTime() < unitGroupMovingInfo.arriveTime)

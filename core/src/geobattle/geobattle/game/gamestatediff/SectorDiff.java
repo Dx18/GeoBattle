@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import geobattle.geobattle.game.buildings.Building;
+import geobattle.geobattle.game.buildings.BuildingType;
+import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
 
 // Difference between sectors
@@ -17,12 +19,16 @@ public final class SectorDiff {
     // Removed buildings
     public final ArrayList<Building> removedBuildings;
 
+    // Changed hangars
+    public final ArrayList<HangarDiff> changedHangars;
+
     // Creates and calculates SectorDiff
     public SectorDiff(int sectorId, Sector sector1, Sector sector2) {
         this.sectorId = sectorId;
 
         addedBuildings = new ArrayList<Building>();
         removedBuildings = new ArrayList<Building>();
+        changedHangars = new ArrayList<HangarDiff>();
 
         Iterator<Building> buildings1 = sector1.getAllBuildings();
         while (buildings1.hasNext()) {
@@ -38,6 +44,8 @@ public final class SectorDiff {
 
             if (sector1.getBuilding(next.id) == null)
                 addedBuildings.add(next);
+            else if (next.getBuildingType() == BuildingType.HANGAR)
+                changedHangars.add(new HangarDiff(next.id, ((Hangar) next).units));
         }
     }
 }

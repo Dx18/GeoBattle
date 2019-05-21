@@ -7,17 +7,17 @@ import geobattle.geobattle.game.BuildTransactionInfo;
 // Result of building destroying
 public abstract class DestroyResult {
     // Building is successfully destroyed
-    public static final class Destroyed extends DestroyResult {
+    public static final class BuildingDestroyed extends DestroyResult {
         // Info about destroyed building
         public final BuildTransactionInfo info;
 
-        public Destroyed(BuildTransactionInfo info) {
+        public BuildingDestroyed(BuildTransactionInfo info) {
             this.info = info;
         }
 
-        public static Destroyed fromJson(JsonObject object) {
+        public static BuildingDestroyed fromJson(JsonObject object) {
             BuildTransactionInfo info = BuildTransactionInfo.fromJson(object.getAsJsonObject("info"));
-            return new Destroyed(info);
+            return new BuildingDestroyed(info);
         }
     }
 
@@ -76,8 +76,8 @@ public abstract class DestroyResult {
     public static DestroyResult fromJson(JsonObject object) {
         String type = object.getAsJsonPrimitive("type").getAsString();
 
-        if (type.equals("Destroyed"))
-            return Destroyed.fromJson(object);
+        if (type.equals("BuildingDestroyed"))
+            return BuildingDestroyed.fromJson(object);
         else if (type.equals("NotOwningBuilding"))
             return NotOwningBuilding.fromJson(object);
         else if (type.equals("SectorBlocked"))
@@ -93,15 +93,15 @@ public abstract class DestroyResult {
 
     // Matches DestroyResult
     public void match(
-            MatchBranch<Destroyed> destroyed,
+            MatchBranch<BuildingDestroyed> destroyed,
             MatchBranch<NotOwningBuilding> notOwningBuilding,
             MatchBranch<SectorBlocked> sectorBlocked,
             MatchBranch<WrongAuthInfo> wrongAuthInfo,
             MatchBranch<MalformedJson> malformedJson,
             MatchBranch<IncorrectData> incorrectData
     ) {
-        if (destroyed != null && this instanceof Destroyed)
-            destroyed.onMatch((Destroyed) this);
+        if (destroyed != null && this instanceof BuildingDestroyed)
+            destroyed.onMatch((BuildingDestroyed) this);
         else if (notOwningBuilding != null && this instanceof NotOwningBuilding)
             notOwningBuilding.onMatch((NotOwningBuilding) this);
         else if (sectorBlocked != null && this instanceof SectorBlocked)

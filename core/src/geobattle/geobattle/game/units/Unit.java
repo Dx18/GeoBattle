@@ -1,5 +1,7 @@
 package geobattle.geobattle.game.units;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.MathUtils;
 import com.google.gson.JsonObject;
 
 import geobattle.geobattle.game.buildings.Building;
@@ -7,11 +9,13 @@ import geobattle.geobattle.util.GeoBattleMath;
 
 // Base class for all units
 public abstract class Unit {
-    // Max speed of unit
-    public final double MAX_MOVE_SPEED = 12;
+    // Max move speed of unit
+    public final double MAX_MOVE_SPEED = 10;
 
-    public final double MIN_MOVE_SPEED = 2;
+    // Min move speed of unit
+    public final double MIN_MOVE_SPEED = 3;
 
+    // Max rotate speed of unit
     public final double MAX_ROTATION_SPEED = Math.PI / 2;
 
     // X coordinate of unit
@@ -32,11 +36,11 @@ public abstract class Unit {
     // Slot of hangar this unit bound to
     public final int hangarSlot;
 
-    // Target
-    public Building targetBuilding;
-
     // Type of unit
     public final UnitType unitType;
+
+    // Returns true if was updated at least once
+    private boolean wasUpdated;
 
     public static class ServerSide {
         public final UnitType type;
@@ -82,10 +86,19 @@ public abstract class Unit {
         this.hangarId = hangarId;
         this.hangarSlot = hangarSlot;
         this.unitType = unitType;
+        this.wasUpdated = false;
     }
 
     // Updates unit
     public void update(float delta, double destX, double destY) {
+        if (!wasUpdated) {
+            Gdx.app.log("GeoBattle", "Was not updated");
+            x = destX;
+            y = destY;
+            wasUpdated = true;
+            return;
+        }
+
         if (destX == x && destY == y)
             return;
 

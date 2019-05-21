@@ -7,22 +7,22 @@ import geobattle.geobattle.game.UnitTransactionInfo;
 // Result of unit building
 public abstract class UnitBuildResult {
     // Unit successfully built
-    public static final class Built extends UnitBuildResult {
+    public static final class UnitBuilt extends UnitBuildResult {
         // Info about built unit
         public final UnitTransactionInfo info;
 
         // Cost of unit
         public final int cost;
 
-        public Built(UnitTransactionInfo info, int cost) {
+        public UnitBuilt(UnitTransactionInfo info, int cost) {
             this.info = info;
             this.cost = cost;
         }
 
-        public static Built fromJson(JsonObject object) {
+        public static UnitBuilt fromJson(JsonObject object) {
             UnitTransactionInfo info = UnitTransactionInfo.fromJson(object.getAsJsonObject("info"));
             int cost = object.getAsJsonPrimitive("cost").getAsInt();
-            return new Built(info, cost);
+            return new UnitBuilt(info, cost);
         }
     }
 
@@ -96,8 +96,8 @@ public abstract class UnitBuildResult {
     public static UnitBuildResult fromJson(JsonObject object) {
         String type = object.getAsJsonPrimitive("type").getAsString();
 
-        if (type.equals("Built"))
-            return Built.fromJson(object);
+        if (type.equals("UnitBuilt"))
+            return UnitBuilt.fromJson(object);
         else if (type.equals("NotEnoughResources"))
             return NotEnoughResources.fromJson(object);
         else if (type.equals("NoPlaceInHangar"))
@@ -115,7 +115,7 @@ public abstract class UnitBuildResult {
 
     // Matches UnitBuildResult
     public void match(
-            MatchBranch<Built> built,
+            MatchBranch<UnitBuilt> built,
             MatchBranch<NotEnoughResources> notEnoughResources,
             MatchBranch<NoPlaceInHangar> noPlaceInHangar,
             MatchBranch<SectorBlocked> sectorBlocked,
@@ -123,8 +123,8 @@ public abstract class UnitBuildResult {
             MatchBranch<MalformedJson> malformedJson,
             MatchBranch<IncorrectData> incorrectData
     ) {
-        if (built != null && this instanceof Built)
-            built.onMatch((Built) this);
+        if (built != null && this instanceof UnitBuilt)
+            built.onMatch((UnitBuilt) this);
         else if (notEnoughResources != null && this instanceof NotEnoughResources)
             notEnoughResources.onMatch((NotEnoughResources) this);
         else if (noPlaceInHangar != null && this instanceof NoPlaceInHangar)

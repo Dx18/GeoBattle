@@ -1,9 +1,10 @@
 package geobattle.geobattle.game.attacking;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 // Attack event
-public final class AttackEvent {
+public final class AttackScript {
     // ID of attacker
     public final int attackerId;
 
@@ -28,19 +29,23 @@ public final class AttackEvent {
     // Time when all unit groups start to return
     public final double startReturnTime;
 
-    public AttackEvent(int attackerId, int victimId, int sectorId, UnitGroupMovingInfo[] unitGroupMoving, TimePoint[] timePoints) {
+    public AttackScript(int attackerId, int victimId, int sectorId, UnitGroupMovingInfo[] unitGroupMoving, TimePoint[] timePoints) {
         this.attackerId = attackerId;
         this.victimId = victimId;
         this.sectorId = sectorId;
         this.unitGroupMoving = unitGroupMoving;
         this.timePoints = timePoints;
 
-        double expirationTime = Double.MIN_VALUE;
-        for (UnitGroupMovingInfo unitGroupMovingInfo : this.unitGroupMoving) {
-            if (unitGroupMovingInfo.returnTime > expirationTime)
-                expirationTime = unitGroupMovingInfo.returnTime;
+        if (this.timePoints[this.timePoints.length - 1].sectorHealth == 0) {
+            double expirationTime = Double.MIN_VALUE;
+            for (UnitGroupMovingInfo unitGroupMovingInfo : this.unitGroupMoving) {
+                if (unitGroupMovingInfo.returnTime > expirationTime)
+                    expirationTime = unitGroupMovingInfo.returnTime;
+            }
+            this.expirationTime = expirationTime;
+        } else {
+            this.expirationTime = this.timePoints[this.timePoints.length - 1].time;
         }
-        this.expirationTime = expirationTime;
 
         startArriveTime = timePoints[0].time;
         startReturnTime = timePoints[timePoints.length - 2].time;
@@ -83,13 +88,27 @@ public final class AttackEvent {
         return currentTime > expirationTime;
     }
 
-    // Creates AttackEvent from JSON
-    public static AttackEvent fromJson(JsonObject object) {
-        return null;
+    // Creates AttackScript from JSON
+    public static AttackScript fromJson(JsonObject object) {
+        int attackerId = object.getAsJsonPrimitive("attackerId").getAsInt();
+        int victimId = object.getAsJsonPrimitive("victimId").getAsInt();
+        int sectorId = object.getAsJsonPrimitive("sectorId").getAsInt();
+
+        JsonArray unitGroupMovingJson = object.getAsJsonArray("unitGroupMoving");
+        UnitGroupMovingInfo[] unitGroupMoving = new UnitGroupMovingInfo[unitGroupMovingJson.size()];
+        for (int i = 0; i < unitGroupMoving.length; i++)
+            unitGroupMoving[i] = UnitGroupMovingInfo.fromJson(unitGroupMovingJson.get(i).getAsJsonObject());
+
+        JsonArray timePointsJson = object.getAsJsonArray("timePoints");
+        TimePoint[] timePoints = new TimePoint[timePointsJson.size()];
+        for (int i = 0; i < timePoints.length; i++)
+            timePoints[i] = TimePoint.fromJson(timePointsJson.get(i).getAsJsonObject());
+
+        return new AttackScript(attackerId, victimId, sectorId, unitGroupMoving, timePoints);
     }
 
-    // Clones AttackEvent
-    public AttackEvent clone() {
+    // Clones AttackScript
+    public AttackScript clone() {
         UnitGroupMovingInfo[] unitGroupMoving = new UnitGroupMovingInfo[this.unitGroupMoving.length];
         for (int index = 0; index < this.unitGroupMoving.length; index++)
             unitGroupMoving[index] = this.unitGroupMoving[index].clone();
@@ -98,6 +117,6 @@ public final class AttackEvent {
         for (int index = 0; index < this.timePoints.length; index++)
             timePoints[index] = this.timePoints[index].clone();
 
-        return new AttackEvent(attackerId, victimId, sectorId, unitGroupMoving, timePoints);
+        return new AttackScript(attackerId, victimId, sectorId, unitGroupMoving, timePoints);
     }
 }

@@ -24,8 +24,8 @@ public final class DestroyMode extends GameScreenModeData {
     }
 
     @Override
-    public void setPointedTile(int x, int y) {
-        super.setPointedTile(x, y);
+    public void setPointedTile(int x, int y, boolean fromTransition) {
+        super.setPointedTile(x, y, fromTransition);
         pointedBuilding = gameState.getCurrentPlayer().getBuilding(x, y);
     }
 

@@ -2,8 +2,8 @@ package geobattle.geobattle.game.units;
 
 // Type of unit
 public enum UnitType {
-    BOMBER("Bomber", 3, 3, 350, 330),
-    SPOTTER("Spotter", 2, 2, 500, 150);
+    BOMBER("Bomber", 3, 3, 20, 50),
+    SPOTTER("Spotter", 2, 2, 40, 50);
 
     // Name used in `from` and `toString`
     public final String name;

@@ -188,7 +188,9 @@ public class PlayerState {
             if (sector.containsRect(
                     building.x - 1, building.y - 1, building.getSizeX() + 2, building.getSizeY() + 2
             )) {
-                sector.addBuilding(building);
+                try {
+                    sector.addBuilding(building);
+                } catch (IllegalArgumentException ignored) {}
                 break;
             }
     }
@@ -307,7 +309,9 @@ public class PlayerState {
     // Adds unit and binds it to hangar
     public void addUnit(Unit.ServerSide unit) {
         Building hangar = getBuilding(unit.hangarId);
-        addUnit(Unit.from(unit, hangar.x, hangar.y));
+        try {
+            addUnit(Unit.from(unit, hangar.x, hangar.y));
+        } catch (IllegalArgumentException ignored) {}
     }
 
     // Removes unit and unbinds it from hangar

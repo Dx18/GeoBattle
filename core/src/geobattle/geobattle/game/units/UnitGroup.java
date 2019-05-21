@@ -1,5 +1,6 @@
 package geobattle.geobattle.game.units;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Predicate;
 import com.google.gson.JsonArray;
@@ -15,17 +16,24 @@ import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.util.GeoBattleMath;
 
+// Group of units
 public final class UnitGroup {
+    // Units
     private final Unit[] units;
 
+    // Health of group
     private float health;
 
+    // X coordinate of group
     private double x;
 
+    // Y coordinate of group
     private double y;
 
+    // State of group
     private UnitGroupState state;
 
+    // Last update time of group
     private double lastUpdateTime;
 
     public UnitGroup(Unit[] units, Hangar hangar) {
@@ -43,6 +51,7 @@ public final class UnitGroup {
         this(new Unit[4], hangar);
     }
 
+    // Updates group of units
     public void update(final float delta, final double currentTime) {
         if (state == null)
             return;
@@ -71,6 +80,7 @@ public final class UnitGroup {
         this.lastUpdateTime = currentTime;
     }
 
+    // Updates group of units in case if state is UnitGroupState.Idle
     private void updateIdle(float delta, UnitGroupState.Idle idle) {
         double[] homeOffsetX = { 1.5, 1.5, 5.5, 5.5 };
         double[] homeOffsetY = { 1.5, 5.5, 5.5, 1.5 };
@@ -85,6 +95,7 @@ public final class UnitGroup {
         }
     }
 
+    // Updates group of units in case if state is UnitGroupState.Moving
     private void updateMoving(float delta, double currentTime, UnitGroupState.Moving moving) {
         if (currentTime < moving.time1 || currentTime > moving.time2)
             return;
@@ -109,6 +120,7 @@ public final class UnitGroup {
         }
     }
 
+    // Updates group of units in case if state is UnitGroupState.Attacking
     private void updateAttacking(float delta, UnitGroupState.Attacking attacking) {
         Iterator<Building> buildingsIterator = attacking.sector.getAllBuildings();
         ArrayList<Building> buildings = new ArrayList<Building>();
@@ -155,10 +167,12 @@ public final class UnitGroup {
         }
     }
 
+    // Returns time of last update
     public double getLastUpdateTime() {
         return lastUpdateTime;
     }
 
+    // Returns max health
     public float getMaxHealth() {
         float result = 0;
         for (Unit unit : units) {
@@ -168,6 +182,7 @@ public final class UnitGroup {
         return result;
     }
 
+    // Sets health
     public void setHealth(float health) {
         this.health = MathUtils.clamp(health, 0, getMaxHealth());
 
@@ -185,23 +200,25 @@ public final class UnitGroup {
         }
     }
 
+    // Returns health
     public float getHealth() {
         return health;
     }
 
+    // Removes unit and does not update health
     public void removeUnit(Unit unit) {
         this.units[unit.hangarSlot] = null;
     }
 
+    // Adds unit and does not update health
     public Unit addUnit(Unit unit) {
         Unit existing = this.units[unit.hangarSlot];
         this.units[unit.hangarSlot] = unit;
 
-        // TODO Update health
-
         return existing;
     }
 
+    // Returns all units
     public Iterator<Unit> getAllUnits() {
         return new Predicate.PredicateIterator<Unit>(new Iterator<Unit>() {
             private int index = 0;
@@ -225,14 +242,22 @@ public final class UnitGroup {
         });
     }
 
+    // Returns unit in slot
+    public Unit getUnit(int slot) {
+        return units[slot];
+    }
+
+    // Sets state of unit group
     public void setState(UnitGroupState state) {
         this.state = state;
     }
 
+    // Returns state of unit group
     public UnitGroupState getState() {
         return this.state;
     }
 
+    // Returns free slot
     public int getFreeSlot() {
         for (int index = 0; index < 4; index++)
             if (units[index] == null)
@@ -240,6 +265,7 @@ public final class UnitGroup {
         return -1;
     }
 
+    // Returns count of units
     public int getCount() {
         int count = 0;
         for (Unit unit : units)
@@ -248,6 +274,7 @@ public final class UnitGroup {
         return count;
     }
 
+    // Clones unit group
     public UnitGroup clone(Hangar clonedHangar) {
         Unit[] units = new Unit[4];
         for (int index = 0; index < 4; index++)
@@ -256,8 +283,8 @@ public final class UnitGroup {
         return new UnitGroup(units, clonedHangar);
     }
 
+    // Creates unit group from JSON
     public static UnitGroup fromJson(JsonObject object, Hangar hangar) {
-        // float health = object.getAsJsonPrimitive("health").getAsFloat();
         JsonArray jsonUnits = object.getAsJsonArray("units");
 
         Unit[] units = new Unit[4];

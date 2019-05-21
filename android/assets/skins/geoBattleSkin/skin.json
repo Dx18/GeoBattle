@@ -1,0 +1,89 @@
+{
+  BitmapFont: {
+    default: { file: font-20.fnt }
+  },
+  Color: {
+    white: { r: 1, g: 1, b: 1, a: 1 },
+    gray: { r: 0.5, g: 0.5, b: 0.5, a: 1 },
+    black: { r: 0, g: 0, b: 0, a: 1 },
+    yellow: { r: 0.7, g: 0.7, b: 0, a: 1 }
+
+    up: white,
+    down: yellow
+  },
+  TintedDrawable: {
+    buttonTextUp: { name: button, color: up },
+    buttonTextDown: { name: button, color: down },
+    buttonEmptyUp: { name: empty, color: up },
+    buttonEmptyDown: { name: empty, color: down },
+    buttonAttackUp: { name: attack, color: up },
+    buttonAttackDown: { name: attack, color: down },
+    buttonBackUp: { name: back, color: up },
+    buttonBackDown: { name: back, color: down },
+    buttonBuildUp: { name: build, color: up },
+    buttonBuildDown: { name: build, color: down },
+    buttonBuildingTypeUp: { name: buildingType, color: up },
+    buttonBuildingTypeDown: { name: buildingType, color: down },
+    buttonBuildSectorUp: { name: buildSector, color: up },
+    buttonBuildSectorDown: { name: buildSector, color: down }
+    buttonDestroyUp: { name: destroy, color: up },
+    buttonDestroyDown: { name: destroy, color: down }
+    buttonNextUp: { name: next, color: up },
+    buttonNextDown: { name: next, color: down },
+    buttonOkUp: { name: ok, color: up },
+    buttonOkDown: { name: ok, color: down },
+    buttonResearchUp: { name: research, color: up },
+    buttonResearchDown: { name: research, color: down },
+    cursor: { name: slider, color: white },
+    selection: { name: slider, color: gray },
+    slider: { name: slider, color: up },
+    sliderKnobHorizontal: { name: sliderKnobHorizontal, color: up }
+    panel: { name: panel, color: up },
+    window: { name: window, color: up },
+    researchIndicatorOff: { name: researchIndicator, color: up },
+    researchIndicatorOn: { name: researchIndicator, color: down },
+    listItemDeselected: { name: button, color: up },
+    listItemSelected: { name: button, color: down }
+  },
+  com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle: {
+    buttonEmpty: { up: buttonEmptyUp, down: buttonEmptyDown },
+    buttonAttack: { up: buttonAttackUp, down: buttonAttackDown },
+    buttonBack: { up: buttonBackUp, down: buttonBackDown },
+    buttonBuild: { up: buttonBuildUp, down: buttonBuildDown },
+    buttonBuildingType: { up: buttonBuildingTypeUp, down: buttonBuildingTypeDown },
+    buttonBuildSector: { up: buttonBuildSectorUp, down: buttonBuildSectorDown },
+    buttonDestroy: { up: buttonDestroyUp, down: buttonDestroyDown },
+    buttonNext: { up: buttonNextUp, down: buttonNextDown },
+    buttonOk: { up: buttonOkUp, down: buttonOkDown },
+    buttonResearch: { up: buttonResearchUp, down: buttonResearchDown },
+    default: buttonEmpty
+  },
+  TextButtonStyle: {
+    default: { up: buttonTextUp, down: buttonTextDown, font: default, fontColor: white }
+  },
+  com.kotcrab.vis.ui.widget.VisTextButton$VisTextButtonStyle: {
+    default: { up: buttonTextUp, down: buttonTextDown, font: default, fontColor: white }
+  },
+  LabelStyle: {
+    white: { font: default, fontColor: white },
+    black: { font: default, fontColor: black },
+    default: white
+  },
+  com.kotcrab.vis.ui.widget.ListViewStyle: {
+    default: { scrollPaneStyle: {} }
+  },
+  TextFieldStyle: {
+    default: { font: default, messageFont: default, fontColor: white, focusedFontColor: gray,
+      messageFontColor: gray, background: buttonEmptyUp, focusedBackground: buttonEmptyDown,
+      cursor: cursor, selection: selection }
+  },
+  SliderStyle: {
+    default-horizontal: { background: slider, knob: sliderKnobHorizontal }
+  },
+  WindowStyle: {
+    default: { background: panel, titleFont: default, titleFontColor: white }
+  },
+  ListStyle: {
+    default: { background: null, font: default, selection: selection, fontColorSelected: white, fontColorUnselected: gray }
+  }
+}

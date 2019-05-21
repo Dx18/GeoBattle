@@ -21,7 +21,7 @@ public abstract class GameScreenModeData {
     }
 
     // Sets pointed tile
-    public void setPointedTile(int x, int y) {
+    public void setPointedTile(int x, int y, boolean fromTransition) {
         this.pointedTileX = x;
         this.pointedTileY = y;
     }

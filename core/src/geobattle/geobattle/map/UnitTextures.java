@@ -2,6 +2,8 @@ package geobattle.geobattle.map;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.HashMap;
 
@@ -11,54 +13,53 @@ import geobattle.geobattle.game.units.UnitType;
 // Textures for units
 public final class UnitTextures {
     // Bomber texture
-    public final Texture bomberTexture;
+    public final TextureRegion bomberTexture;
 
     // Spotter texture
-    public final Texture spotterTexture;
+    public final TextureRegion spotterTexture;
 
     // Bomber texture (team color)
-    public final Texture bomberTeamColorTexture;
+    public final TextureRegion bomberTeamColorTexture;
 
     // Spotter texture (team color)
-    public final Texture spotterTeamColorTexture;
+    public final TextureRegion spotterTeamColorTexture;
 
     // Map "unit type" -> "texture of unit type"
-    private HashMap<UnitType, Texture> unitTypeToTexture;
+    private HashMap<UnitType, TextureRegion> unitTypeToTexture;
 
     // Map "unit type" -> "team color texture of unit type"
-    private HashMap<UnitType, Texture> unitTypeToTeamColorTexture;
+    private HashMap<UnitType, TextureRegion> unitTypeToTeamColorTexture;
 
     // Creates UnitTextures
     // Unit textures must be loaded in `assetManager`
     public UnitTextures(AssetManager assetManager) {
-        bomberTexture = assetManager.get(GeoBattleAssets.BOMBER);
-        spotterTexture = assetManager.get(GeoBattleAssets.SPOTTER);
+        TextureAtlas unitsAtlas = assetManager.get(GeoBattleAssets.UNITS_ATLAS);
 
-        unitTypeToTexture = new HashMap<UnitType, Texture>();
+        for (Texture texture : unitsAtlas.getTextures())
+            texture.setFilter(Texture.TextureFilter.MipMap, Texture.TextureFilter.Nearest);
+
+        bomberTexture = unitsAtlas.findRegion(GeoBattleAssets.BOMBER);
+        spotterTexture = unitsAtlas.findRegion(GeoBattleAssets.SPOTTER);
+
+        unitTypeToTexture = new HashMap<UnitType, TextureRegion>();
         unitTypeToTexture.put(UnitType.BOMBER, bomberTexture);
         unitTypeToTexture.put(UnitType.SPOTTER, spotterTexture);
 
-        for (Texture texture : unitTypeToTexture.values())
-            texture.setFilter(Texture.TextureFilter.MipMap, Texture.TextureFilter.Nearest);
+        bomberTeamColorTexture = unitsAtlas.findRegion(GeoBattleAssets.BOMBER_TEAM_COLOR);
+        spotterTeamColorTexture = unitsAtlas.findRegion(GeoBattleAssets.SPOTTER_TEAM_COLOR);
 
-        bomberTeamColorTexture = assetManager.get(GeoBattleAssets.BOMBER_TEAM_COLOR);
-        spotterTeamColorTexture = assetManager.get(GeoBattleAssets.SPOTTER_TEAM_COLOR);
-
-        unitTypeToTeamColorTexture = new HashMap<UnitType, Texture>();
+        unitTypeToTeamColorTexture = new HashMap<UnitType, TextureRegion>();
         unitTypeToTeamColorTexture.put(UnitType.BOMBER, bomberTeamColorTexture);
         unitTypeToTeamColorTexture.put(UnitType.SPOTTER, spotterTeamColorTexture);
-
-        for (Texture texture : unitTypeToTeamColorTexture.values())
-            texture.setFilter(Texture.TextureFilter.MipMap, Texture.TextureFilter.Nearest);
     }
 
     // Returns texture of unit
-    public Texture getTexture(UnitType unitType) {
+    public TextureRegion getTexture(UnitType unitType) {
         return unitTypeToTexture.get(unitType);
     }
 
     // Returns team color texture of unit
-    public Texture getTeamColorTexture(UnitType unitType) {
+    public TextureRegion getTeamColorTexture(UnitType unitType) {
         return unitTypeToTeamColorTexture.get(unitType);
     }
 }

@@ -1,5 +1,8 @@
 package geobattle.geobattle.game.buildings;
 
+import geobattle.geobattle.game.research.ResearchInfo;
+import geobattle.geobattle.game.research.ResearchType;
+
 // Type of building
 public enum BuildingType {
     RESEARCH_CENTER ("ResearchCenter", 6, 5, 50, 100, -4, 1),

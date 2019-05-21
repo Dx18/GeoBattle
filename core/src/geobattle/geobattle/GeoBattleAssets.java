@@ -3,7 +3,10 @@ package geobattle.geobattle;
 // Paths to GeoBattle assets
 public final class GeoBattleAssets {
     // Path to GUI skin
-    public static final String GUI_SKIN = "skins/testSkin/skin.json";
+    public static final String GUI_SKIN = "skins/geoBattleSkin/skin.json";
+
+    // Internationalization bundle
+    public static final String I18N = "i18n/Bundle";
 
     // Color texture (single white pixel)
     public static final String COLOR = "color.png";
@@ -50,15 +53,18 @@ public final class GeoBattleAssets {
     // Hangar texture (team color)
     public static final String HANGAR_TEAM_COLOR = "hangarTeamColor";
 
+    // Atlas with unit textures
+    public static final String UNITS_ATLAS = "unitsAtlas/units.atlas";
+
     // Bomber texture
-    public static final String BOMBER = "units/bomber.png";
+    public static final String BOMBER = "bomber";
 
     // Spotter texture
-    public static final String SPOTTER = "units/spotter.png";
+    public static final String SPOTTER = "spotter";
 
     // Bomber texture (team color)
-    public static final String BOMBER_TEAM_COLOR = "units/bomberTeamColor.png";
+    public static final String BOMBER_TEAM_COLOR = "bomberTeamColor";
 
     // Spotter texture (team color)
-    public static final String SPOTTER_TEAM_COLOR = "units/spotterTeamColor.png";
+    public static final String SPOTTER_TEAM_COLOR = "spotterTeamColor";
 }

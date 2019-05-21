@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 
+import geobattle.geobattle.game.actionresults.AttackResult;
 import geobattle.geobattle.game.actionresults.BuildResult;
 import geobattle.geobattle.game.actionresults.DestroyResult;
 import geobattle.geobattle.game.actionresults.ResearchResult;
@@ -20,6 +21,7 @@ import geobattle.geobattle.game.actionresults.UnitBuildResult;
 import geobattle.geobattle.game.actionresults.UpdateRequestResult;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
+import geobattle.geobattle.game.events.AttackEvent;
 import geobattle.geobattle.game.events.BuildEvent;
 import geobattle.geobattle.game.events.DestroyEvent;
 import geobattle.geobattle.game.events.ResearchEvent;
@@ -342,6 +344,31 @@ public final class SocketServer implements Server {
                     callback.onResult(ResearchResult.fromJson(result));
                 } catch (Exception e) {
                     oSAPI.showMessage("ResearchEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
+                }
+            }
+        }).start();
+
+        return null;
+    }
+
+    @Override
+    public CancelHandle requestAttack(final AuthInfo authInfo, final int attackerId, final int victimId, final int[] hangarIds, final int sectorId, final Callback<AttackResult> callback) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String resultStr = request(new AttackEvent(authInfo, attackerId, victimId, hangarIds, sectorId).toJson().toString());
+
+                if (resultStr == null) {
+                    oSAPI.showMessage("AttackEvent failed: probable problems with connection");
+                    return;
+                }
+
+                try {
+                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
+                    callback.onResult(AttackResult.fromJson(result));
+                } catch (Exception e) {
+                    oSAPI.showMessage("AttackEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }

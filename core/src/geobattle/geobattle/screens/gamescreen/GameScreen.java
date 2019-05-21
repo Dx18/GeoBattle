@@ -11,6 +11,7 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
@@ -97,6 +98,10 @@ public final class GameScreen implements Screen {
         tilesStage.setDebugAll(true);
     }
 
+    public I18NBundle getI18NBundle() {
+        return game.getI18NBundle();
+    }
+
     // Initializes game screen
     @Override
     public void show() {
@@ -116,9 +121,9 @@ public final class GameScreen implements Screen {
         Gdx.input.setInputProcessor(input);
     }
 
-    private void switchTo(GameScreenMode mode) {
+    public void switchTo(GameScreenMode mode) {
         this.mode = mode;
-        map.setScreenMode(mode);
+        map.setScreenMode(mode, true);
         gui.setMode(mode);
     }
 
@@ -146,6 +151,20 @@ public final class GameScreen implements Screen {
         if (mode == GameScreenMode.NORMAL)
             switchTo(GameScreenMode.DESTROY);
         else if (mode == GameScreenMode.DESTROY)
+            switchTo(GameScreenMode.NORMAL);
+    }
+
+    public void onSelectHangarsMode() {
+        if (mode == GameScreenMode.NORMAL || mode == GameScreenMode.SELECT_SECTOR)
+            switchTo(GameScreenMode.SELECT_HANGARS);
+        else if (mode == GameScreenMode.SELECT_HANGARS)
+            switchTo(GameScreenMode.NORMAL);
+    }
+
+    public void onSelectSectorMode() {
+        if (mode == GameScreenMode.NORMAL || mode == GameScreenMode.SELECT_HANGARS)
+            switchTo(GameScreenMode.SELECT_SECTOR);
+        else if (mode == GameScreenMode.SELECT_SECTOR)
             switchTo(GameScreenMode.NORMAL);
     }
 
@@ -297,7 +316,7 @@ public final class GameScreen implements Screen {
             Vector3 point = new Vector3();
             camera.getPickRay(x, y).getEndPoint(point, 0);
 
-            map.setPointedTile(point.x, point.y);
+            map.setPointedTile(point.x, point.y, false);
             Building pointed = map.getPointedBuilding();
 
             gui.onBuildingSelected(pointed);

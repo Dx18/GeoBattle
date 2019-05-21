@@ -1,5 +1,8 @@
 package geobattle.geobattle.game.attacking;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 // Info about unit group moving
 public final class UnitGroupMovingInfo {
     // Hangar ID (home for unit group)
@@ -27,6 +30,17 @@ public final class UnitGroupMovingInfo {
 
     // Clones UnitGroupMovingInfo
     public UnitGroupMovingInfo clone() {
+        return new UnitGroupMovingInfo(hangarId, arriveTime, arriveX, arriveY, returnTime);
+    }
+
+    // Creates UnitGroupMovingInfo from JSON
+    public static UnitGroupMovingInfo fromJson(JsonObject object) {
+        int hangarId = object.getAsJsonPrimitive("hangarId").getAsInt();
+        double arriveTime = object.getAsJsonPrimitive("arriveTime").getAsDouble();
+        int arriveX = object.getAsJsonPrimitive("arriveX").getAsInt();
+        int arriveY = object.getAsJsonPrimitive("arriveY").getAsInt();
+        double returnTime = object.getAsJsonPrimitive("returnTime").getAsDouble();
+
         return new UnitGroupMovingInfo(hangarId, arriveTime, arriveX, arriveY, returnTime);
     }
 }

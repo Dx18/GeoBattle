@@ -9,8 +9,21 @@ import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
+import com.kotcrab.vis.ui.util.adapter.AbstractListAdapter;
+import com.kotcrab.vis.ui.util.adapter.ArrayAdapter;
+import com.kotcrab.vis.ui.util.adapter.ListAdapter;
+import com.kotcrab.vis.ui.util.adapter.SimpleListAdapter;
+import com.kotcrab.vis.ui.widget.ListView;
+import com.kotcrab.vis.ui.widget.VisDialog;
+import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisTextButton;
+
+import java.util.ArrayList;
 
 import geobattle.geobattle.GeoBattleAssets;
 import geobattle.geobattle.game.buildings.BuildingType;
@@ -19,137 +32,140 @@ import geobattle.geobattle.game.research.ResearchInfo;
 public final class BuildingGUI {
     private final Skin skin;
 
-    public final Dialog root;
+    public final VisDialog root;
 
-    public final Label buildingName;
+    public final VisLabel buildingName;
 
-    public final Label description;
+    public final VisLabel description;
 
-    public final Label size;
+    public final VisLabel size;
 
-    public final Label strength;
+    public final VisLabel strength;
 
-    public final Label energy;
+    public final VisLabel energy;
 
-    public final Label maxCount;
+    public final VisLabel maxCount;
 
-    public final TextButton buildButton;
+    public final VisTextButton buildButton;
 
     private BuildingType buildingType;
 
-    public BuildingGUI(AssetManager assetManager, final GameScreen screen, BuildingType initialBuildingType) {
+    public BuildingGUI(AssetManager assetManager, GameScreen screen, BuildingType initialBuildingType) {
         skin = assetManager.get(GeoBattleAssets.GUI_SKIN);
         buildingType = initialBuildingType;
 
-        root = new Dialog("", skin);
+        root = new VisDialog(screen.getI18NBundle().get("building"));
 
-        buildingName = new Label("", skin);
-        description = new Label("", skin);
-        size = new Label("", skin);
-        strength = new Label("", skin);
-        energy = new Label("", skin);
-        maxCount = new Label("", skin);
-        buildButton = new TextButton("", skin);
+        buildingName = new VisLabel("");
+        description = new VisLabel("");
+        size = new VisLabel("");
+        strength = new VisLabel("");
+        energy = new VisLabel("");
+        maxCount = new VisLabel("");
+        buildButton = new VisTextButton("");
 
         init(screen);
     }
 
     public void init(final GameScreen screen) {
         root.getContentTable().clear();
+        root.getButtonsTable().clear();
         root.getContentTable().pad(20);
-
-        Label title = new Label("Building", skin);
-        root.getContentTable().add(title)
-                .expandX()
-                .width(Gdx.graphics.getWidth() - 40)
-                .colspan(2)
-                .height(Gdx.graphics.getPpcY());
-        root.getContentTable().row();
 
         Table buildingInfo = new Table(skin);
         buildingName.setAlignment(Align.left, Align.left);
-        buildingInfo.add(buildingName)
-                .expandX()
-                .fillX();
+        buildingInfo.add(buildingName).growX();
         buildingInfo.row();
         description.setAlignment(Align.left, Align.left);
-        buildingInfo.add(description)
-                .expandX()
-                .fillX();
+        buildingInfo.add(description).growX();
         buildingInfo.row();
         size.setAlignment(Align.left, Align.left);
-        buildingInfo.add(size)
-                .expandX()
-                .fillX();
+        buildingInfo.add(size).growX();
         buildingInfo.row();
         strength.setAlignment(Align.left, Align.left);
-        buildingInfo.add(strength)
-                .expandX()
-                .fillX();
+        buildingInfo.add(strength).growX();
         buildingInfo.row();
         energy.setAlignment(Align.left, Align.left);
-        buildingInfo.add(energy)
-                .expandX()
-                .fillX();
+        buildingInfo.add(energy).growX();
         buildingInfo.row();
         maxCount.setAlignment(Align.left, Align.left);
-        buildingInfo.add(maxCount)
-                .expandX()
-                .fillX();
-        buildingInfo.row();
-        buildingInfo.add(buildButton)
-                .expandX()
-                .height(Gdx.graphics.getPpcY())
-                .bottom()
-                .right();
-        buildingInfo.top();
+        buildingInfo.add(maxCount).growX();
 
-        final List<BuildingType> buildingTypes = new List<BuildingType>(skin);
-        buildingTypes.setItems(BuildingType.values());
-
-        buildingTypes.addListener(new ChangeListener() {
+        ArrayAdapter<BuildingType, VisTable> adapter = new ArrayAdapter<BuildingType, VisTable>(Array.with(BuildingType.values())) {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                setBuildingType(buildingTypes.getSelected());
+            protected VisTable createView(BuildingType item) {
+                VisTable result = new VisTable();
+
+                VisLabel label = new VisLabel(screen.getI18NBundle().get(String.format("building%s", item.toString())));
+                result.add(label);
+
+                if (item == buildingType)
+                    selectView(result);
+                else
+                    deselectView(result);
+
+                return result;
+            }
+
+            @Override
+            protected void selectView(VisTable view) {
+                view.setBackground("listItemSelected");
+            }
+
+            @Override
+            protected void deselectView(VisTable view) {
+                view.setBackground("listItemDeselected");
+            }
+        };
+
+        adapter.setSelectionMode(AbstractListAdapter.SelectionMode.SINGLE);
+
+        final ListView<BuildingType> buildingTypes = new ListView<BuildingType>(adapter);
+
+        buildingTypes.setItemClickListener(new ListView.ItemClickListener<BuildingType>() {
+            @Override
+            public void clicked(BuildingType item) {
+                screen.getGameEvents().setSelectedBuildingType(item);
+                setBuildingType(screen, item);
             }
         });
 
-        buildingTypes.setSelected(buildingType);
+        adapter.getSelection().setSize(1);
+        adapter.getSelection().set(0, buildingType);
+        buildingTypes.getClickListener().clicked(buildingType);
 
         buildButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                screen.getGameEvents().setSelectedBuildingType(buildingTypes.getSelected());
                 root.hide();
             }
         });
 
-        root.getContentTable().add(buildingTypes)
-                .width((Gdx.graphics.getWidth() - 60) * 0.4f)
-                .fill()
-                .expand()
+        root.getContentTable().add(buildingTypes.getMainTable())
+                .growX()
+                .width(Gdx.graphics.getWidth() * 0.8f)
                 .pad(5);
+        root.getContentTable().row();
         root.getContentTable().add(buildingInfo)
-                .width((Gdx.graphics.getWidth() - 60) * 0.6f)
-                .fill()
-                .expand()
+                .growX()
+                .width(Gdx.graphics.getWidth() * 0.8f)
                 .pad(5);
 
-        root.getContentTable().setFillParent(true);
+        root.getButtonsTable().add(buildButton);
 
         root.center();
     }
 
-    public void setBuildingType(BuildingType buildingType) {
-        buildingName.setText(buildingType.toString());
-        description.setText("Just " + buildingType.toString());
-        size.setText("Size: " + buildingType.sizeX + " x " + buildingType.sizeY);
-        strength.setText("Strength: " + buildingType.healthBonus);
-        energy.setText("Energy: " + buildingType.getEnergyDelta(new ResearchInfo(0, 0, 0)));
+    public void setBuildingType(GameScreen screen, BuildingType buildingType) {
+        buildingName.setText(screen.getI18NBundle().get(String.format("building%s", buildingType.toString())));
+        description.setText(screen.getI18NBundle().get(String.format("building%sDescription", buildingType.toString())));
+        size.setText(screen.getI18NBundle().format("buildingSize", buildingType.sizeX, buildingType.sizeY));
+        strength.setText(screen.getI18NBundle().format("buildingStrength", buildingType.healthBonus));
+        energy.setText(screen.getI18NBundle().format("buildingEnergy",buildingType.getEnergyDelta(new ResearchInfo(0, 0, 0))));
         if (buildingType.maxCount != Integer.MAX_VALUE)
-            maxCount.setText("Max count: " + buildingType.maxCount);
+            maxCount.setText(screen.getI18NBundle().format("buildingMaxCount", buildingType.maxCount));
         else
             maxCount.setText("");
-        buildButton.setText("Build: " + buildingType.cost);
+        buildButton.setText(screen.getI18NBundle().format("buildingBuild", buildingType.cost));
     }
 }

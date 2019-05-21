@@ -24,6 +24,7 @@ import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.game.units.Unit;
+import geobattle.geobattle.screens.gamescreen.GameScreen;
 import geobattle.geobattle.screens.gamescreen.GameScreenMode;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildFirstSectorMode;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildMode;
@@ -31,6 +32,8 @@ import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildSectorMode
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.DestroyMode;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.GameScreenModeData;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.NormalMode;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.SelectHangarsMode;
+import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.SelectSectorMode;
 import geobattle.geobattle.server.GeolocationAPI;
 import geobattle.geobattle.server.implementation.TileRequestPool;
 import geobattle.geobattle.util.CoordinateConverter;
@@ -125,8 +128,10 @@ public class GeoBattleMap extends Actor {
         this.screenModes.put(GameScreenMode.NORMAL, new NormalMode((int) geolocation.x, (int) geolocation.y, this.gameState));
         this.screenModes.put(GameScreenMode.BUILD, new BuildMode((int) geolocation.x, (int) geolocation.y, BuildingType.GENERATOR));
         this.screenModes.put(GameScreenMode.DESTROY, new DestroyMode((int) geolocation.x, (int) geolocation.y, this.gameState));
+        this.screenModes.put(GameScreenMode.SELECT_HANGARS, new SelectHangarsMode((int) geolocation.x, (int) geolocation.y, this.gameState));
+        this.screenModes.put(GameScreenMode.SELECT_SECTOR, new SelectSectorMode((int) geolocation.x, (int) geolocation.y, this.gameState));
 
-        setScreenMode(GameScreenMode.NORMAL);
+        setScreenMode(GameScreenMode.NORMAL, false);
 
         // Resetting zoom of camera and moving it to initial point
         camera.resetZoom();
@@ -136,9 +141,13 @@ public class GeoBattleMap extends Actor {
     }
 
     // Sets screen mode
-    public void setScreenMode(GameScreenMode mode) {
+    public void setScreenMode(GameScreenMode mode, boolean fromTransition) {
         screenModeData = screenModes.get(mode);
-        screenModeData.setPointedTile(pointedTile.x, pointedTile.y);
+        screenModeData.setPointedTile(pointedTile.x, pointedTile.y, fromTransition);
+    }
+
+    public GameScreenModeData getScreenModeData(GameScreenMode mode) {
+        return screenModes.get(mode);
     }
 
     // Returns building where player points to
@@ -157,16 +166,17 @@ public class GeoBattleMap extends Actor {
         return null;
     }
 
-    public void setPointedTileSubTiles(int x, int y) {
-        screenModeData.setPointedTile(x, y);
+    public void setPointedTileSubTiles(int x, int y, boolean fromTransition) {
+        screenModeData.setPointedTile(x, y, fromTransition);
         pointedTile = new IntPoint(x, y);
     }
 
     // Sets pointed tile
-    public void setPointedTile(float worldX, float worldY) {
+    public void setPointedTile(float worldX, float worldY, boolean fromTransition) {
         setPointedTileSubTiles(
                 CoordinateConverter.worldToSubTiles(worldX, xOffset, GeoBattleConst.SUBDIVISION),
-                CoordinateConverter.worldToSubTiles(worldY, yOffset, GeoBattleConst.SUBDIVISION)
+                CoordinateConverter.worldToSubTiles(worldY, yOffset, GeoBattleConst.SUBDIVISION),
+                fromTransition
         );
     }
 
@@ -236,7 +246,7 @@ public class GeoBattleMap extends Actor {
         batch.setColor(prev);
     }
 
-    private void drawUnit(Batch batch, Unit unit, Texture texture, Color color) {
+    private void drawUnit(Batch batch, Unit unit, TextureRegion texture, Color color) {
         float sizeX = unit.getSizeX() / (float) (1 << GeoBattleConst.SUBDIVISION);
         float sizeY = unit.getSizeY() / (float) (1 << GeoBattleConst.SUBDIVISION);
         float x = CoordinateConverter.subTilesToWorld(unit.x, xOffset, GeoBattleConst.SUBDIVISION);
@@ -244,9 +254,8 @@ public class GeoBattleMap extends Actor {
 
 //        Gdx.app.log("GeoBattle", "Drawing unit at " + x + ", " + y);
 
-        TextureRegion region = new TextureRegion(texture);
         batch.draw(
-                region, x - sizeX / 2, y - sizeY / 2,
+                texture, x - sizeX / 2, y - sizeY / 2,
                 sizeX / 2, sizeY / 2, sizeX, sizeY, 1, 1, (float) Math.toDegrees(unit.direction)
         );
     }

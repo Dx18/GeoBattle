@@ -2,6 +2,7 @@ package geobattle.geobattle.server;
 
 import com.badlogic.gdx.graphics.Color;
 
+import geobattle.geobattle.game.actionresults.AttackResult;
 import geobattle.geobattle.game.actionresults.BuildResult;
 import geobattle.geobattle.game.actionresults.DestroyResult;
 import geobattle.geobattle.game.actionresults.ResearchResult;
@@ -58,6 +59,9 @@ public interface Server {
 
     // Requests research
     CancelHandle requestResearch(AuthInfo authInfo, ResearchType researchType, Callback<ResearchResult> callback);
+
+    // Requests attack
+    CancelHandle requestAttack(AuthInfo authInfo, int attackerId, int victimId, int[] hangarIds, int sectorId, Callback<AttackResult> callback);
 
     // Requests email confirmation
     CancelHandle requestEmailConfirmation(String name, int code, Callback<EmailConfirmationResult> callback);
