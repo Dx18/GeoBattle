@@ -15,8 +15,12 @@ import android.widget.Toast;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import geobattle.geobattle.server.ExternalAPI;
 import geobattle.geobattle.server.OSAPI;
+import geobattle.geobattle.server.ServerAddress;
 import geobattle.geobattle.server.implementation.FixedGeolocationAPI;
 import geobattle.geobattle.server.implementation.SocketServer;
 import geobattle.geobattle.server.implementation.TileRequestPool;
@@ -128,6 +132,11 @@ public class AndroidLauncher extends AndroidApplication {
                         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                     }
                 });
+            }
+
+            @Override
+            public List<ServerAddress> getCustomServers() {
+                return new ArrayList<>();
             }
         };
 
