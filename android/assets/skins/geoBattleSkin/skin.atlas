@@ -1,0 +1,121 @@
+
+skin.png
+size: 512,256
+format: RGBA8888
+filter: MipMap,Nearest
+repeat: none
+attack
+  rotate: false
+  xy: 2, 153
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+back
+  rotate: false
+  xy: 2, 51
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+build
+  rotate: false
+  xy: 104, 153
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+buildSector
+  rotate: false
+  xy: 104, 51
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+buildingType
+  rotate: false
+  xy: 206, 153
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+button
+  rotate: false
+  xy: 84, 12
+  size: 11, 11
+  split: 5, 5, 5, 5
+  orig: 11, 11
+  offset: 0, 0
+  index: -1
+destroy
+  rotate: false
+  xy: 206, 51
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+empty
+  rotate: false
+  xy: 308, 153
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+next
+  rotate: false
+  xy: 410, 153
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+ok
+  rotate: false
+  xy: 308, 51
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+panel
+  rotate: false
+  xy: 2, 10
+  size: 39, 39
+  split: 19, 19, 19, 19
+  orig: 39, 39
+  offset: 0, 0
+  index: -1
+research
+  rotate: false
+  xy: 410, 51
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+researchIndicator
+  rotate: false
+  xy: 84, 25
+  size: 48, 24
+  orig: 48, 24
+  offset: 0, 0
+  index: -1
+slider
+  rotate: false
+  xy: 2, 2
+  size: 6, 6
+  orig: 6, 6
+  offset: 0, 0
+  index: -1
+sliderKnobHorizontal
+  rotate: false
+  xy: 134, 25
+  size: 12, 24
+  orig: 12, 24
+  offset: 0, 0
+  index: -1
+window
+  rotate: false
+  xy: 43, 10
+  size: 39, 39
+  split: 19, 19, 19, 19
+  orig: 39, 39
+  offset: 0, 0
+  index: -1

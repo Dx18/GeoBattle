@@ -1,0 +1,48 @@
+
+buildingIcons.png
+size: 1024,256
+format: RGBA8888
+filter: MipMap,Nearest
+repeat: none
+beacon
+  rotate: false
+  xy: 746, 130
+  size: 96, 96
+  orig: 96, 96
+  offset: 0, 0
+  index: -1
+generator
+  rotate: false
+  xy: 422, 66
+  size: 160, 160
+  orig: 160, 160
+  offset: 0, 0
+  index: -1
+hangar
+  rotate: false
+  xy: 2, 2
+  size: 224, 224
+  orig: 224, 224
+  offset: 0, 0
+  index: -1
+mine
+  rotate: false
+  xy: 584, 66
+  size: 160, 160
+  orig: 160, 160
+  offset: 0, 0
+  index: -1
+researchCenter
+  rotate: false
+  xy: 228, 66
+  size: 192, 160
+  orig: 192, 160
+  offset: 0, 0
+  index: -1
+turret
+  rotate: false
+  xy: 844, 162
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1

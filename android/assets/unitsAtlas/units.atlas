@@ -1,0 +1,27 @@
+
+units.png
+size: 1024,512
+format: RGBA8888
+filter: MipMap,Nearest
+repeat: none
+bomber
+  rotate: false
+  xy: 454, 260
+  size: 192, 192
+  orig: 192, 192
+  offset: 0, 0
+  index: -1
+bomberBackup
+  rotate: false
+  xy: 2, 2
+  size: 450, 450
+  orig: 450, 450
+  offset: 0, 0
+  index: -1
+bomberTeamColor
+  rotate: false
+  xy: 454, 66
+  size: 192, 192
+  orig: 192, 192
+  offset: 0, 0
+  index: -1
