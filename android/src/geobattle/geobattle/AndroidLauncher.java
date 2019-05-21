@@ -141,7 +141,7 @@ public class AndroidLauncher extends AndroidApplication {
         };
 
         externalAPI = new ExternalAPI(
-                new SocketServer("78.47.182.60", 12000, oSAPI),
+                new SocketServer(11999, "78.47.182.60", 12000, oSAPI),
                 geolocationAPI,
                 new TileRequestPool(new String(APP_ID), new String(APP_CODE), "/", 10),
                 oSAPI
