@@ -75,7 +75,7 @@ public final class LoginScreen implements Screen {
                         }
                     });
                 }
-            });
+            }, null);
     }
 
     private void onAuthorizationResult(AuthorizationResult result) {
@@ -102,7 +102,7 @@ public final class LoginScreen implements Screen {
                         }
                     });
                 }
-            });
+            }, null);
     }
 
     private void onRegistrationResult(RegistrationResult result) {

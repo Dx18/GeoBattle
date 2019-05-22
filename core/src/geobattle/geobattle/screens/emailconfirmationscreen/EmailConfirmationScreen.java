@@ -64,7 +64,7 @@ public final class EmailConfirmationScreen implements Screen {
                     }
                 });
             }
-        });
+        }, null);
     }
 
     private void onEmailConfirmationResult(EmailConfirmationResult result) {
@@ -87,7 +87,7 @@ public final class EmailConfirmationScreen implements Screen {
                     }
                 });
             }
-        });
+        }, null);
     }
 
     private void onResendEmailResult(ResendEmailResult result) {

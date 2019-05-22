@@ -87,7 +87,7 @@ public class GameEvents {
                     }
                 });
             }
-        });
+        }, null);
     }
 
     public void onRequestBuildSector() {
@@ -110,7 +110,7 @@ public class GameEvents {
                     }
                 });
             }
-        });
+        }, null);
     }
 
     private void onSectorBuildResult(SectorBuildResult result) {
@@ -191,7 +191,7 @@ public class GameEvents {
                     }
                 });
             }
-        });
+        }, null);
     }
 
     public void setSelectedBuildingType(BuildingType type) {
@@ -221,7 +221,7 @@ public class GameEvents {
                         }
                     });
                 }
-            });
+            }, null);
 
         screen.switchToNormalMode();
     }
@@ -247,7 +247,7 @@ public class GameEvents {
                     }
                 });
             }
-        });
+        }, null);
     }
 
     private void onUnitBuildResult(UnitBuildResult result) {
@@ -268,7 +268,7 @@ public class GameEvents {
                     }
                 });
             }
-        });
+        }, null);
     }
 
     private void onRequestUpdateResult(UpdateRequestResult result) {
@@ -329,7 +329,7 @@ public class GameEvents {
                     }
                 });
             }
-        });
+        }, null);
     }
 
     private void onResearchResult(ResearchResult result) {
@@ -372,7 +372,7 @@ public class GameEvents {
                     }
                 });
             }
-        });
+        }, null);
     }
 
     private void onAttackResult(AttackResult result) {

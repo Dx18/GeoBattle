@@ -33,7 +33,7 @@ public final class GeoBattle extends Game {
 	private AssetManager assetManager;
 
 	// Internationalization bundle
-	I18NBundle i18NBundle;
+	private I18NBundle i18NBundle;
 
 	// Constructor
     public GeoBattle(ExternalAPI externalAPI) {
@@ -43,6 +43,19 @@ public final class GeoBattle extends Game {
     @Override
 	public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
+
+        externalAPI.server.setOnFailListener(new Runnable() {
+            @Override
+            public void run() {
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        externalAPI.oSAPI.showMessage("You have problems with connection");
+                        switchToLoginScreen();
+                    }
+                });
+            }
+        });
 
         assetManager = new AssetManager();
 
@@ -112,6 +125,12 @@ public final class GeoBattle extends Game {
                     }
                 });
             }
+        }, new Runnable() {
+            @Override
+            public void run() {
+                externalAPI.oSAPI.showMessage("Failed to get game state");
+                switchToLoginScreen();
+            }
         });
 
         setScreen(new LoadingScreen());
@@ -147,7 +166,7 @@ public final class GeoBattle extends Game {
     }
 
     public void onExitGame(final AuthInfo authInfo) {
-        externalAPI.server.invalidatePlayerToken(authInfo.id, authInfo.token);
+        externalAPI.server.invalidatePlayerToken(authInfo.id, authInfo.token, null);
         setScreen(new LoginScreen(externalAPI, assetManager, this));
     }
 

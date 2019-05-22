@@ -57,8 +57,11 @@ import geobattle.geobattle.events.AuthorizationEvent;
 import geobattle.geobattle.events.EmailConfirmationEvent;
 import geobattle.geobattle.events.RegistrationEvent;
 import geobattle.geobattle.events.ResendEmailEvent;
+import geobattle.geobattle.util.FrequencyQueue;
 
 public final class SocketServer implements Server {
+    private static final int TRIES_COUNT = 7;
+
     private int masterPort;
 
     private String ip;
@@ -71,12 +74,22 @@ public final class SocketServer implements Server {
 
     private SSLSocketFactory sslSocketFactory;
 
+    private FrequencyQueue fails;
+
+    private Runnable onFail;
+
     public SocketServer(int masterPort, String ip, int port, OSAPI oSAPI) {
         this.masterPort = masterPort;
         this.ip = ip;
         this.port = port;
         this.parser = new JsonParser();
         this.oSAPI = oSAPI;
+        this.fails = new FrequencyQueue(TRIES_COUNT, false);
+    }
+
+    @Override
+    public void setOnFailListener(Runnable onFail) {
+        this.onFail = onFail;
     }
 
     @Override
@@ -261,15 +274,30 @@ public final class SocketServer implements Server {
         return result.toString();
     }
 
+    private void onFail() {
+        fails.add(true);
+        if (fails.getTrueCount() >= TRIES_COUNT && onFail != null) {
+            onFail.run();
+            fails = new FrequencyQueue(TRIES_COUNT, false);
+        }
+    }
+
+    private void onSuccess() {
+        fails.add(false);
+    }
+
     @Override
-    public CancelHandle register(final String playerName, final String email, final String password, final Color color, final Callback<RegistrationResult> callback) {
+    public CancelHandle register(final String playerName, final String email, final String password, final Color color, final Callback<RegistrationResult> callback, final Runnable failCallback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String resultStr = requestSSL(ip, port, new RegistrationEvent(playerName, email, password, color).toJson().toString());
 
                 if (resultStr == null) {
-                    oSAPI.showMessage("RegisterEvent failed: probable problems with connection");
+                    if (failCallback == null)
+                        oSAPI.showMessage("RegisterEvent failed: probable problems with connection");
+                    else
+                        failCallback.run();
                     return;
                 }
 
@@ -287,14 +315,17 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle login(final String playerName, final String password, final Callback<AuthorizationResult> callback) {
+    public CancelHandle login(final String playerName, final String password, final Callback<AuthorizationResult> callback, final Runnable failCallback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String resultStr = requestSSL(ip, port, new AuthorizationEvent(playerName, password).toJson().toString());
 
                 if (resultStr == null) {
-                    oSAPI.showMessage("AuthorizationEvent failed: probable problems with connection");
+                    if (failCallback == null)
+                        oSAPI.showMessage("AuthorizationEvent failed: probable problems with connection");
+                    else
+                        failCallback.run();
                     return;
                 }
 
@@ -312,7 +343,7 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle invalidatePlayerToken(int playerId, String playerToken) {
+    public CancelHandle invalidatePlayerToken(int playerId, String playerToken, final Runnable failCallback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -324,16 +355,21 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle requestState(final AuthInfo authInfo, final Callback<StateRequestResult> callback) {
+    public CancelHandle requestState(final AuthInfo authInfo, final Callback<StateRequestResult> callback, final Runnable failCallback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String resultStr = requestSSL(ip, port, new StateRequestEvent(authInfo).toJson().toString());
 
                 if (resultStr == null) {
-                    oSAPI.showMessage("StateRequestEvent failed: probable problems with connection");
+                    onFail();
+                    if (failCallback == null)
+                        oSAPI.showMessage("StateRequestEvent failed: probable problems with connection");
+                    else
+                        failCallback.run();
                     return;
                 }
+                onSuccess();
 
                 try {
                     JsonObject result = parser.parse(resultStr).getAsJsonObject();
@@ -349,16 +385,21 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle requestUpdate(final AuthInfo authInfo, final double lastUpdateTime, final Callback<UpdateRequestResult> callback) {
+    public CancelHandle requestUpdate(final AuthInfo authInfo, final double lastUpdateTime, final Callback<UpdateRequestResult> callback, final Runnable failCallback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String resultStr = requestSSL(ip, port, new UpdateRequestEvent(authInfo, lastUpdateTime).toJson().toString());
 
                 if (resultStr == null) {
-                    oSAPI.showMessage("UpdateRequestEvent failed: probable problems with connection");
+                    onFail();
+                    if (failCallback == null)
+                        oSAPI.showMessage("UpdateRequestEvent failed: probable problems with connection");
+                    else
+                        failCallback.run();
                     return;
                 }
+                onSuccess();
 
                 try {
                     JsonObject result = parser.parse(resultStr).getAsJsonObject();
@@ -374,16 +415,21 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle requestBuild(final AuthInfo authInfo, final BuildingType type, final int x, final int y, final Callback<BuildResult> callback) {
+    public CancelHandle requestBuild(final AuthInfo authInfo, final BuildingType type, final int x, final int y, final Callback<BuildResult> callback, final Runnable failCallback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String resultStr = requestSSL(ip, port, new BuildEvent(authInfo, type.toString(), x, y).toJson().toString());
 
                 if (resultStr == null) {
-                    oSAPI.showMessage("BuildEvent failed: probable problems with connection");
+                    onFail();
+                    if (failCallback == null)
+                        oSAPI.showMessage("BuildEvent failed: probable problems with connection");
+                    else
+                        failCallback.run();
                     return;
                 }
+                onSuccess();
 
                 try {
                     JsonObject result = parser.parse(resultStr).getAsJsonObject();
@@ -399,16 +445,21 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle requestSectorBuild(final AuthInfo authInfo, final int x, final int y, final Callback<SectorBuildResult> callback) {
+    public CancelHandle requestSectorBuild(final AuthInfo authInfo, final int x, final int y, final Callback<SectorBuildResult> callback, final Runnable failCallback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String resultStr = requestSSL(ip, port, new SectorBuildEvent(authInfo, x, y).toJson().toString());
 
                 if (resultStr == null) {
-                    oSAPI.showMessage("SectorBuildEvent failed: probable problems with connection");
+                    onFail();
+                    if (failCallback == null)
+                        oSAPI.showMessage("SectorBuildEvent failed: probable problems with connection");
+                    else
+                        failCallback.run();
                     return;
                 }
+                onSuccess();
 
                 try {
                     JsonObject result = parser.parse(resultStr).getAsJsonObject();
@@ -424,16 +475,21 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle requestDestroy(final AuthInfo authInfo, final int id, final Callback<DestroyResult> callback) {
+    public CancelHandle requestDestroy(final AuthInfo authInfo, final int id, final Callback<DestroyResult> callback, final Runnable failCallback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String resultStr = requestSSL(ip, port, new DestroyEvent(authInfo, id).toJson().toString());
 
                 if (resultStr == null) {
-                    oSAPI.showMessage("DestroyEvent failed: probable problems with connection");
+                    onFail();
+                    if (failCallback == null)
+                        oSAPI.showMessage("DestroyEvent failed: probable problems with connection");
+                    else
+                        failCallback.run();
                     return;
                 }
+                onSuccess();
 
                 try {
                     JsonObject result = parser.parse(resultStr).getAsJsonObject();
@@ -449,16 +505,21 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle requestUnitBuild(final AuthInfo authInfo, final UnitType type, final Building building, final Callback<UnitBuildResult> callback) {
+    public CancelHandle requestUnitBuild(final AuthInfo authInfo, final UnitType type, final Building building, final Callback<UnitBuildResult> callback, final Runnable failCallback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String resultStr = requestSSL(ip, port, new UnitBuildEvent(authInfo, type.toString(), building.id).toJson().toString());
 
                 if (resultStr == null) {
-                    oSAPI.showMessage("UnitBuildEvent failed: probable problems with connection");
+                    onFail();
+                    if (failCallback == null)
+                        oSAPI.showMessage("UnitBuildEvent failed: probable problems with connection");
+                    else
+                        failCallback.run();
                     return;
                 }
+                onSuccess();
 
                 try {
                     JsonObject result = parser.parse(resultStr).getAsJsonObject();
@@ -474,16 +535,21 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle requestResearch(final AuthInfo authInfo, final ResearchType researchType, final Callback<ResearchResult> callback) {
+    public CancelHandle requestResearch(final AuthInfo authInfo, final ResearchType researchType, final Callback<ResearchResult> callback, final Runnable failCallback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String resultStr = requestSSL(ip, port, new ResearchEvent(authInfo, researchType.toString()).toJson().toString());
 
                 if (resultStr == null) {
-                    oSAPI.showMessage("ResearchEvent failed: probable problems with connection");
+                    onFail();
+                    if (failCallback == null)
+                        oSAPI.showMessage("ResearchEvent failed: probable problems with connection");
+                    else
+                        failCallback.run();
                     return;
                 }
+                onSuccess();
 
                 try {
                     JsonObject result = parser.parse(resultStr).getAsJsonObject();
@@ -499,16 +565,21 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle requestAttack(final AuthInfo authInfo, final int attackerId, final int victimId, final int[] hangarIds, final int sectorId, final Callback<AttackResult> callback) {
+    public CancelHandle requestAttack(final AuthInfo authInfo, final int attackerId, final int victimId, final int[] hangarIds, final int sectorId, final Callback<AttackResult> callback, final Runnable failCallback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String resultStr = requestSSL(ip, port, new AttackEvent(authInfo, attackerId, victimId, hangarIds, sectorId).toJson().toString());
 
                 if (resultStr == null) {
-                    oSAPI.showMessage("AttackEvent failed: probable problems with connection");
+                    onFail();
+                    if (failCallback == null)
+                        oSAPI.showMessage("AttackEvent failed: probable problems with connection");
+                    else
+                        failCallback.run();
                     return;
                 }
+                onSuccess();
 
                 try {
                     JsonObject result = parser.parse(resultStr).getAsJsonObject();
@@ -524,14 +595,17 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle requestEmailConfirmation(final String name, final int code, final Callback<EmailConfirmationResult> callback) {
+    public CancelHandle requestEmailConfirmation(final String name, final int code, final Callback<EmailConfirmationResult> callback, final Runnable failCallback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String resultStr = requestSSL(ip, port, new EmailConfirmationEvent(name, code).toJson().toString());
 
                 if (resultStr == null) {
-                    oSAPI.showMessage("EmailConfirmationEvent failed: probable problems with connection");
+                    if (failCallback == null)
+                        oSAPI.showMessage("EmailConfirmationEvent failed: probable problems with connection");
+                    else
+                        failCallback.run();
                     return;
                 }
 
@@ -549,14 +623,17 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle requestEmailResend(final String name, final Callback<ResendEmailResult> callback) {
+    public CancelHandle requestEmailResend(final String name, final Callback<ResendEmailResult> callback, final Runnable failCallback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String resultStr = requestSSL(ip, port, new ResendEmailEvent(name).toJson().toString());
 
                 if (resultStr == null) {
-                    oSAPI.showMessage("ResendEmailEvent failed: probable problems with connection");
+                    if (failCallback == null)
+                        oSAPI.showMessage("ResendEmailEvent failed: probable problems with connection");
+                    else
+                        failCallback.run();
                     return;
                 }
 
