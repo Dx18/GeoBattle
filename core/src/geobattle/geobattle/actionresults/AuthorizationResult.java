@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
+import geobattle.geobattle.screens.gamescreen.GameScreenMode;
 import geobattle.geobattle.server.AuthInfo;
 
 // Result of authorization
@@ -74,6 +75,11 @@ public abstract class AuthorizationResult implements ActionResult {
         public void apply(GeoBattle game, GameState gameState) {
             game.getExternalAPI().oSAPI.showMessage("Cannot login: value of field in request is not valid. Probable bug. Tell the developers");
         }
+    }
+
+    @Override
+    public GameScreenMode screenModeAfterApply() {
+        return null;
     }
 
     // Creates AuthorizationResult from JSON

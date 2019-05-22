@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
+import geobattle.geobattle.screens.gamescreen.GameScreenMode;
 import geobattle.geobattle.server.AuthInfo;
 
 // Result of email confirmation
@@ -102,6 +103,11 @@ public abstract class EmailConfirmationResult implements ActionResult {
         public void apply(GeoBattle game, GameState gameState) {
             game.getExternalAPI().oSAPI.showMessage("Cannot confirm email: value of field in request is not valid. Probable bug. Tell the developers");
         }
+    }
+
+    @Override
+    public GameScreenMode screenModeAfterApply() {
+        return null;
     }
 
     // Creates EmailConfirmationResult from JSON

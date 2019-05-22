@@ -7,6 +7,7 @@ import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.GameStateUpdate;
 import geobattle.geobattle.game.attacking.AttackScript;
 import geobattle.geobattle.screens.gamescreen.GameScreen;
+import geobattle.geobattle.screens.gamescreen.GameScreenMode;
 import geobattle.geobattle.server.ExternalAPI;
 
 public abstract class AttackResult implements ActionResult {
@@ -27,9 +28,11 @@ public abstract class AttackResult implements ActionResult {
         @Override
         public void apply(GeoBattle game, GameState gameState) {
             gameState.getAttackScripts().add(attackScript);
+        }
 
-            if (game.getScreen() instanceof GameScreen)
-                ((GameScreen) game.getScreen()).switchToNormalMode();
+        @Override
+        public GameScreenMode screenModeAfterApply() {
+            return GameScreenMode.NORMAL;
         }
     }
 
@@ -108,6 +111,11 @@ public abstract class AttackResult implements ActionResult {
         public void apply(GeoBattle game, GameState gameState) {
             game.getExternalAPI().oSAPI.showMessage("Cannot build: value of field in request is not valid. Probable bug. Tell the developers");
         }
+    }
+
+    @Override
+    public GameScreenMode screenModeAfterApply() {
+        return null;
     }
 
     // Creates AttackResult from JSON

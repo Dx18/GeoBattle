@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.research.ResearchType;
+import geobattle.geobattle.screens.gamescreen.GameScreenMode;
 
 // Result of research
 public abstract class ResearchResult implements ActionResult {
@@ -114,6 +115,11 @@ public abstract class ResearchResult implements ActionResult {
         public void apply(GeoBattle game, GameState gameState) {
             game.getExternalAPI().oSAPI.showMessage("Cannot build: incorrect data");
         }
+    }
+
+    @Override
+    public GameScreenMode screenModeAfterApply() {
+        return null;
     }
 
     // Creates ResearchResult from JSON

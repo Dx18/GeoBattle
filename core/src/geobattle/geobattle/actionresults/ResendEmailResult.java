@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
+import geobattle.geobattle.screens.gamescreen.GameScreenMode;
 
 // Result of email resend
 public abstract class ResendEmailResult implements ActionResult {
@@ -67,6 +68,11 @@ public abstract class ResendEmailResult implements ActionResult {
         public void apply(GeoBattle game, GameState gameState) {
             game.getExternalAPI().oSAPI.showMessage("Cannot resend email: value of field in request is not valid. Probable bug. Tell the developers");
         }
+    }
+
+    @Override
+    public GameScreenMode screenModeAfterApply() {
+        return null;
     }
 
     // Creates ResendEmailResult from JSON

@@ -200,8 +200,10 @@ public class GameEvents {
 
     // Invokes when user receives build result
     private void onBuildResult(BuildResult result) {
-        if (result != null)
+        if (result != null) {
             result.apply(game, gameState);
+            screen.switchTo(result.screenModeAfterApply());
+        }
     }
 
     // Invokes when user requests building destroying
@@ -226,8 +228,10 @@ public class GameEvents {
 
     // Invokes when user receives destroy result
     private void onDestroyResult(DestroyResult result) {
-        if (result != null)
+        if (result != null) {
             result.apply(game, gameState);
+            screen.switchTo(result.screenModeAfterApply());
+        }
     }
 
     public void onUnitBuild(UnitType unitType) {
@@ -247,8 +251,10 @@ public class GameEvents {
     }
 
     private void onUnitBuildResult(UnitBuildResult result) {
-        if (result != null)
+        if (result != null) {
             result.apply(game, gameState);
+            screen.switchTo(result.screenModeAfterApply());
+        }
     }
 
     public void onRequestUpdate() {
@@ -327,8 +333,10 @@ public class GameEvents {
     }
 
     private void onResearchResult(ResearchResult result) {
-        if (result != null)
+        if (result != null) {
             result.apply(game, gameState);
+            screen.switchTo(result.screenModeAfterApply());
+        }
     }
 
     public void onRequestAttack() {
@@ -368,8 +376,10 @@ public class GameEvents {
     }
 
     private void onAttackResult(AttackResult result) {
-        if (result != null)
+        if (result != null) {
             result.apply(game, gameState);
+            screen.switchTo(result.screenModeAfterApply());
+        }
     }
 
     public void onTick(float delta) {

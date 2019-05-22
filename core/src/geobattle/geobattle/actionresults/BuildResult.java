@@ -7,6 +7,7 @@ import geobattle.geobattle.game.BuildTransactionInfo;
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.GameStateUpdate;
 import geobattle.geobattle.screens.gamescreen.GameScreen;
+import geobattle.geobattle.screens.gamescreen.GameScreenMode;
 
 // Result of building
 public abstract class BuildResult implements ActionResult {
@@ -37,9 +38,11 @@ public abstract class BuildResult implements ActionResult {
                 // Building already added
             }
             gameState.setResources(gameState.getResources() - cost);
+        }
 
-            if (game.getScreen() instanceof GameScreen)
-                ((GameScreen) game.getScreen()).switchToNormalMode();
+        @Override
+        public GameScreenMode screenModeAfterApply() {
+            return GameScreenMode.NORMAL;
         }
     }
 
@@ -172,6 +175,11 @@ public abstract class BuildResult implements ActionResult {
         public void apply(GeoBattle game, GameState gameState) {
             game.getExternalAPI().oSAPI.showMessage("Cannot build: value of field in request is not valid. Probable bug. Tell the developers");
         }
+    }
+
+    @Override
+    public GameScreenMode screenModeAfterApply() {
+        return null;
     }
 
     // Creates BuildResult from JSON

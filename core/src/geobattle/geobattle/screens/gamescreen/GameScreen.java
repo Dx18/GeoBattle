@@ -122,6 +122,9 @@ public final class GameScreen implements Screen {
     }
 
     public void switchTo(GameScreenMode mode) {
+        if (mode == null)
+            return;
+
         this.mode = mode;
         map.setScreenMode(mode, true);
         gui.setMode(mode);

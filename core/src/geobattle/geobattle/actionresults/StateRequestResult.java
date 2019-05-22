@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
+import geobattle.geobattle.screens.gamescreen.GameScreenMode;
 
 // Result of game state request
 public abstract class StateRequestResult implements ActionResult {
@@ -65,6 +66,11 @@ public abstract class StateRequestResult implements ActionResult {
             return WrongAuthInfo.fromJson(object);
         else if (type.equals("MalformedJson"))
             return MalformedJson.fromJson(object);
+        return null;
+    }
+
+    @Override
+    public GameScreenMode screenModeAfterApply() {
         return null;
     }
 

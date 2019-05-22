@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.screens.emailconfirmationscreen.EmailConfirmationScreen;
+import geobattle.geobattle.screens.gamescreen.GameScreenMode;
 
 // Result of registration
 public abstract class RegistrationResult implements ActionResult {
@@ -171,6 +172,11 @@ public abstract class RegistrationResult implements ActionResult {
         public void apply(GeoBattle game, GameState gameState) {
             game.getExternalAPI().oSAPI.showMessage("Cannot register: value of field in request is not valid. Probable bug. Tell the developers");
         }
+    }
+
+    @Override
+    public GameScreenMode screenModeAfterApply() {
+        return null;
     }
 
     // Creates RegistrationResult from JSON

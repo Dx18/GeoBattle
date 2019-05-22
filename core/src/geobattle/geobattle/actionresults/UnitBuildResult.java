@@ -6,6 +6,7 @@ import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.GameStateUpdate;
 import geobattle.geobattle.game.UnitTransactionInfo;
+import geobattle.geobattle.screens.gamescreen.GameScreenMode;
 
 // Result of unit building
 public abstract class UnitBuildResult implements ActionResult {
@@ -134,6 +135,11 @@ public abstract class UnitBuildResult implements ActionResult {
         public void apply(GeoBattle game, GameState gameState) {
             game.getExternalAPI().oSAPI.showMessage("Cannot build: value of field in request is not valid. Probable bug. Tell the developers");
         }
+    }
+
+    @Override
+    public GameScreenMode screenModeAfterApply() {
+        return null;
     }
 
     // Creates UnitBuildResult from JSON

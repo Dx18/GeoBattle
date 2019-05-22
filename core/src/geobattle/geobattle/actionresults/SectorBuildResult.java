@@ -8,6 +8,7 @@ import geobattle.geobattle.game.GameStateUpdate;
 import geobattle.geobattle.game.SectorTransactionInfo;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.screens.gamescreen.GameScreen;
+import geobattle.geobattle.screens.gamescreen.GameScreenMode;
 
 // Result of sector building
 public abstract class SectorBuildResult implements ActionResult {
@@ -35,9 +36,11 @@ public abstract class SectorBuildResult implements ActionResult {
             } catch (IllegalArgumentException ignored) {
                 // Sector already added
             }
+        }
 
-            if (game.getScreen() instanceof GameScreen)
-                ((GameScreen) game.getScreen()).switchToNormalMode();
+        @Override
+        public GameScreenMode screenModeAfterApply() {
+            return GameScreenMode.NORMAL;
         }
     }
 
@@ -142,6 +145,11 @@ public abstract class SectorBuildResult implements ActionResult {
         public void apply(GeoBattle game, GameState gameState) {
             game.getExternalAPI().oSAPI.showMessage("Cannot build sector: value of field in request is not valid. Probable bug. Tell the developers");
         }
+    }
+
+    @Override
+    public GameScreenMode screenModeAfterApply() {
+        return null;
     }
 
     // Creates SectorBuildResult from JSON
