@@ -1,17 +1,23 @@
-package geobattle.geobattle.server.actionresults;
+package geobattle.geobattle.actionresults;
 
 import com.google.gson.JsonObject;
 
-import geobattle.geobattle.game.actionresults.MatchBranch;
+import geobattle.geobattle.GeoBattle;
+import geobattle.geobattle.game.GameState;
 
 // Result of email resend
-public abstract class ResendEmailResult {
+public abstract class ResendEmailResult implements ActionResult {
     // Email successfully resent
     public static final class EmailResent extends ResendEmailResult {
         public EmailResent() {}
 
         public static EmailResent fromJson(JsonObject object) {
             return new EmailResent();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Check your email");
         }
     }
 
@@ -22,6 +28,11 @@ public abstract class ResendEmailResult {
         public static DoesNotExist fromJson(JsonObject object) {
             return new DoesNotExist();
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Player with same name already confirmed email or does not exist");
+        }
     }
 
     // JSON request is not well-formed
@@ -30,6 +41,11 @@ public abstract class ResendEmailResult {
 
         public static MalformedJson fromJson(JsonObject object) {
             return new MalformedJson();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot resend email: JSON request is not well-formed. Probable bug. Tell the developers");
         }
     }
 
@@ -45,6 +61,11 @@ public abstract class ResendEmailResult {
         public static IncorrectData fromJson(JsonObject object) {
             String field = object.getAsJsonPrimitive("field").getAsString();
             return new IncorrectData(field);
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot resend email: value of field in request is not valid. Probable bug. Tell the developers");
         }
     }
 

@@ -1,11 +1,12 @@
-package geobattle.geobattle.game.actionresults;
+package geobattle.geobattle.actionresults;
 
 import com.google.gson.JsonObject;
 
+import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
 
 // Result of game state request
-public abstract class StateRequestResult {
+public abstract class StateRequestResult implements ActionResult {
     // Successfully got game state
     public static final class StateRequestSuccess extends StateRequestResult {
         // Game state
@@ -19,6 +20,11 @@ public abstract class StateRequestResult {
             GameState gameState = GameState.fromJson(object.getAsJsonObject("gameState"));
             return new StateRequestSuccess(gameState);
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+
+        }
     }
 
     // Wrong auth info
@@ -28,6 +34,11 @@ public abstract class StateRequestResult {
         public static WrongAuthInfo fromJson(JsonObject object) {
             return new WrongAuthInfo();
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+
+        }
     }
 
     // JSON request is not well-formed
@@ -36,6 +47,11 @@ public abstract class StateRequestResult {
 
         public static MalformedJson fromJson(JsonObject object) {
             return new MalformedJson();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+
         }
     }
 

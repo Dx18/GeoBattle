@@ -1,9 +1,13 @@
-package geobattle.geobattle.game.actionresults;
+package geobattle.geobattle.actionresults;
 
 import com.google.gson.JsonObject;
 
+import geobattle.geobattle.GeoBattle;
+import geobattle.geobattle.game.GameState;
+import geobattle.geobattle.game.research.ResearchType;
+
 // Result of research
-public abstract class ResearchResult {
+public abstract class ResearchResult implements ActionResult {
     // Research successfully researched
     public static final class Researched extends ResearchResult {
         // Type of research
@@ -22,6 +26,11 @@ public abstract class ResearchResult {
             int cost = object.getAsJsonPrimitive("cost").getAsInt();
             return new Researched(researchType, cost);
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            gameState.getCurrentPlayer().getResearchInfo().incrementLevel(ResearchType.from(researchType));
+        }
     }
 
     // Not enough resources for research
@@ -37,6 +46,11 @@ public abstract class ResearchResult {
             int required = object.getAsJsonPrimitive("required").getAsInt();
             return new NotEnoughResources(required);
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot research: not enough resources");
+        }
     }
 
     // Max level of research is already reached
@@ -45,6 +59,11 @@ public abstract class ResearchResult {
 
         public static MaxLevel fromJson(JsonObject object) {
             return new MaxLevel();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot research: max level reached");
         }
     }
 
@@ -55,6 +74,12 @@ public abstract class ResearchResult {
         public static WrongAuthInfo fromJson(JsonObject object) {
             return new WrongAuthInfo();
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Not authorized!");
+            game.switchToLoginScreen();
+        }
     }
 
     // Wrong format of JSON sent to server
@@ -63,6 +88,11 @@ public abstract class ResearchResult {
 
         public static MalformedJson fromJson(JsonObject object) {
             return new MalformedJson();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot build: malformed JSON");
         }
     }
 
@@ -78,6 +108,11 @@ public abstract class ResearchResult {
         public static IncorrectData fromJson(JsonObject object) {
             String field = object.getAsJsonPrimitive("field").getAsString();
             return new IncorrectData(field);
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot build: incorrect data");
         }
     }
 

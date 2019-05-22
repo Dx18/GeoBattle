@@ -1,11 +1,14 @@
-package geobattle.geobattle.game.actionresults;
+package geobattle.geobattle.actionresults;
 
 import com.google.gson.JsonObject;
 
+import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.BuildTransactionInfo;
+import geobattle.geobattle.game.GameState;
+import geobattle.geobattle.screens.gamescreen.GameScreen;
 
 // Result of building destroying
-public abstract class DestroyResult {
+public abstract class DestroyResult implements ActionResult {
     // Building is successfully destroyed
     public static final class BuildingDestroyed extends DestroyResult {
         // Info about destroyed building
@@ -19,6 +22,18 @@ public abstract class DestroyResult {
             BuildTransactionInfo info = BuildTransactionInfo.fromJson(object.getAsJsonObject("info"));
             return new BuildingDestroyed(info);
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            try {
+                gameState.getPlayer(info.playerIndex).removeBuilding(info.building);
+            } catch (IllegalArgumentException ignored) {
+                // Building already destroyed
+            }
+
+            if (game.getScreen() instanceof GameScreen)
+                ((GameScreen) game.getScreen()).switchToNormalMode();
+        }
     }
 
     // Player does not own building he wants to destroy
@@ -27,6 +42,11 @@ public abstract class DestroyResult {
 
         public static NotOwningBuilding fromJson(JsonObject object) {
             return new NotOwningBuilding();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot destroy: you are not owning this building");
         }
     }
 
@@ -37,6 +57,11 @@ public abstract class DestroyResult {
         public static SectorBlocked fromJson(JsonObject object) {
             return new SectorBlocked();
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot destroy: sector is blocked");
+        }
     }
 
     // Wrong auth info
@@ -46,6 +71,12 @@ public abstract class DestroyResult {
         public static WrongAuthInfo fromJson(JsonObject object) {
             return new WrongAuthInfo();
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Not authorized!");
+            game.switchToLoginScreen();
+        }
     }
 
     // JSON request is not well-formed
@@ -54,6 +85,11 @@ public abstract class DestroyResult {
 
         public static MalformedJson fromJson(JsonObject object) {
             return new MalformedJson();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot build: JSON request is not well-formed. Probable bug. Tell the developers");
         }
     }
 
@@ -69,6 +105,11 @@ public abstract class DestroyResult {
         public static IncorrectData fromJson(JsonObject object) {
             String field = object.getAsJsonPrimitive("field").getAsString();
             return new IncorrectData(field);
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot build: value of field in request is not valid. Probable bug. Tell the developers");
         }
     }
 

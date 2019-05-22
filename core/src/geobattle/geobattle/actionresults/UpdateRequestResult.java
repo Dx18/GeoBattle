@@ -1,4 +1,4 @@
-package geobattle.geobattle.game.actionresults;
+package geobattle.geobattle.actionresults;
 
 import java.util.ArrayList;
 

@@ -9,11 +9,11 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import java.util.Locale;
 
 import geobattle.geobattle.GeoBattle;
-import geobattle.geobattle.game.actionresults.MatchBranch;
+import geobattle.geobattle.actionresults.MatchBranch;
 import geobattle.geobattle.server.Callback;
-import geobattle.geobattle.server.actionresults.EmailConfirmationResult;
+import geobattle.geobattle.actionresults.EmailConfirmationResult;
 import geobattle.geobattle.server.ExternalAPI;
-import geobattle.geobattle.server.actionresults.ResendEmailResult;
+import geobattle.geobattle.actionresults.ResendEmailResult;
 
 public final class EmailConfirmationScreen implements Screen {
     private final ExternalAPI externalAPI;
@@ -68,7 +68,9 @@ public final class EmailConfirmationScreen implements Screen {
     }
 
     private void onEmailConfirmationResult(EmailConfirmationResult result) {
-        result.match(
+        if (result != null)
+            result.apply(game, null);
+        /*result.match(
                 new MatchBranch<EmailConfirmationResult.EmailConfirmed>() {
                     @Override
                     public void onMatch(EmailConfirmationResult.EmailConfirmed emailConfirmed) {
@@ -105,7 +107,7 @@ public final class EmailConfirmationScreen implements Screen {
                         externalAPI.oSAPI.showMessage("Cannot confirm email: value of field in request is not valid. Probable bug. Tell the developers");
                     }
                 }
-        );
+        );*/
     }
 
     public void onResend(String playerName) {
@@ -115,14 +117,21 @@ public final class EmailConfirmationScreen implements Screen {
 
         externalAPI.server.requestEmailResend(playerName, new Callback<ResendEmailResult>() {
             @Override
-            public void onResult(ResendEmailResult result) {
-
+            public void onResult(final ResendEmailResult result) {
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        onResendEmailResult(result);
+                    }
+                });
             }
         });
     }
 
     private void onResendEmailResult(ResendEmailResult result) {
-        result.match(
+        if (result != null)
+            result.apply(game, null);
+        /*result.match(
                 new MatchBranch<ResendEmailResult.EmailResent>() {
                     @Override
                     public void onMatch(ResendEmailResult.EmailResent emailResent) {
@@ -147,7 +156,7 @@ public final class EmailConfirmationScreen implements Screen {
                         externalAPI.oSAPI.showMessage("Cannot resend email: value of field in request is not valid. Probable bug. Tell the developers");
                     }
                 }
-        );
+        );*/
     }
 
     public void onReturn() {

@@ -1,4 +1,4 @@
-package geobattle.geobattle.game.actionresults;
+package geobattle.geobattle.actionresults;
 
 // Match branch for BuildResult and DestroyResult matching
 public interface MatchBranch<T> {

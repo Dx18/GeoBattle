@@ -4,23 +4,18 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.assets.loaders.I18NBundleLoader;
-import com.badlogic.gdx.assets.loaders.SkinLoader;
 import com.badlogic.gdx.assets.loaders.TextureLoader;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.I18NBundle;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.kotcrab.vis.ui.VisUI;
 
-import java.util.Locale;
-
-import geobattle.geobattle.game.actionresults.MatchBranch;
-import geobattle.geobattle.game.actionresults.StateRequestResult;
+import geobattle.geobattle.actionresults.MatchBranch;
+import geobattle.geobattle.actionresults.StateRequestResult;
+import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.screens.LoadingScreen;
+import geobattle.geobattle.screens.emailconfirmationscreen.EmailConfirmationScreen;
 import geobattle.geobattle.screens.gamescreen.GameScreen;
 import geobattle.geobattle.screens.loginscreen.LoginScreen;
 import geobattle.geobattle.screens.mainmenuscreen.MainMenuScreen;
@@ -98,6 +93,10 @@ public final class GeoBattle extends Game {
         setScreen(new LoginScreen(externalAPI, assetManager, this));
     }
 
+    public void switchToEmailConfirmationScreen(String name) {
+        setScreen(new EmailConfirmationScreen(externalAPI, assetManager, this, name));
+    }
+
     public void switchToSelectServerScreen() {
         setScreen(new SelectServerScreen(assetManager, this));
     }
@@ -118,12 +117,17 @@ public final class GeoBattle extends Game {
         setScreen(new LoadingScreen());
     }
 
+    public void onGameStateObtained(GameState gameState, AuthInfo authInfo) {
+        setScreen(new GameScreen(externalAPI, gameState, assetManager, authInfo, this));
+    }
+
     private void onStateRequestResult(StateRequestResult result, final AuthInfo authInfo) {
         result.match(
                 new MatchBranch<StateRequestResult.StateRequestSuccess>() {
                     @Override
                     public void onMatch(StateRequestResult.StateRequestSuccess stateRequestSuccess) {
-                        setScreen(new GameScreen(externalAPI, stateRequestSuccess.gameState, assetManager, authInfo, GeoBattle.this));
+                        onGameStateObtained(stateRequestSuccess.gameState, authInfo);
+                        // setScreen(new GameScreen(externalAPI, stateRequestSuccess.gameState, assetManager, authInfo, GeoBattle.this));
                     }
                 },
                 new MatchBranch<StateRequestResult.WrongAuthInfo>() {

@@ -1,11 +1,15 @@
-package geobattle.geobattle.game.actionresults;
+package geobattle.geobattle.actionresults;
 
 import com.google.gson.JsonObject;
 
+import geobattle.geobattle.GeoBattle;
+import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.SectorTransactionInfo;
+import geobattle.geobattle.game.buildings.Sector;
+import geobattle.geobattle.screens.gamescreen.GameScreen;
 
 // Result of sector building
-public abstract class SectorBuildResult {
+public abstract class SectorBuildResult implements ActionResult {
     // Sector successfully built
     public static final class SectorBuilt extends SectorBuildResult {
         // Info about sector
@@ -18,6 +22,21 @@ public abstract class SectorBuildResult {
         public static SectorBuilt fromJson(JsonObject object) {
             SectorTransactionInfo info = SectorTransactionInfo.fromJson(object.getAsJsonObject("info"));
             return new SectorBuilt(info);
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            try {
+                gameState.getPlayer(info.playerIndex).addSector(new Sector(
+                        info.x, info.y, info.id,
+                        gameState.getCurrentPlayer().getResearchInfo()
+                ));
+            } catch (IllegalArgumentException ignored) {
+                // Sector already added
+            }
+
+            if (game.getScreen() instanceof GameScreen)
+                ((GameScreen) game.getScreen()).switchToNormalMode();
         }
     }
 
@@ -34,6 +53,11 @@ public abstract class SectorBuildResult {
             int required = object.getAsJsonPrimitive("required").getAsInt();
             return new NotEnoughResources(required);
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot build sector: not enough resources");
+        }
     }
 
     // Cannot build because sector player wants to build intersects with other player's sector
@@ -49,6 +73,11 @@ public abstract class SectorBuildResult {
             int enemyIndex = object.getAsJsonPrimitive("enemyIndex").getAsInt();
             return new IntersectsWithEnemy(enemyIndex);
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot build sector: not enough resources");
+        }
     }
 
     // Sector is not aligned or it's not attached to other sector
@@ -57,6 +86,11 @@ public abstract class SectorBuildResult {
 
         public static WrongPosition fromJson(JsonObject object) {
             return new WrongPosition();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot build sector: wrong position of sector");
         }
     }
 
@@ -67,6 +101,12 @@ public abstract class SectorBuildResult {
         public static WrongAuthInfo fromJson(JsonObject object) {
             return new WrongAuthInfo();
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Not authorized!");
+            game.switchToLoginScreen();
+        }
     }
 
     // JSON request is not well-formed
@@ -75,6 +115,11 @@ public abstract class SectorBuildResult {
 
         public static MalformedJson fromJson(JsonObject object) {
             return new MalformedJson();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot build sector: JSON request is not well-formed. Probable bug. Tell the developers");
         }
     }
 
@@ -90,6 +135,11 @@ public abstract class SectorBuildResult {
         public static IncorrectData fromJson(JsonObject object) {
             String field = object.getAsJsonPrimitive("field").getAsString();
             return new IncorrectData(field);
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot build sector: value of field in request is not valid. Probable bug. Tell the developers");
         }
     }
 

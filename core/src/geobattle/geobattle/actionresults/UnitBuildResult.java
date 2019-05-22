@@ -1,11 +1,13 @@
-package geobattle.geobattle.game.actionresults;
+package geobattle.geobattle.actionresults;
 
 import com.google.gson.JsonObject;
 
+import geobattle.geobattle.GeoBattle;
+import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.UnitTransactionInfo;
 
 // Result of unit building
-public abstract class UnitBuildResult {
+public abstract class UnitBuildResult implements ActionResult {
     // Unit successfully built
     public static final class UnitBuilt extends UnitBuildResult {
         // Info about built unit
@@ -24,6 +26,16 @@ public abstract class UnitBuildResult {
             int cost = object.getAsJsonPrimitive("cost").getAsInt();
             return new UnitBuilt(info, cost);
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            try {
+                gameState.getPlayer(info.playerIndex).addUnit(info.unit);
+            } catch (IllegalArgumentException e) {
+                // Unit already added
+            }
+            gameState.setResources(gameState.getResources() - cost);
+        }
     }
 
     // Not enough resources to build unit
@@ -39,6 +51,11 @@ public abstract class UnitBuildResult {
             int required = object.getAsJsonPrimitive("required").getAsInt();
             return new NotEnoughResources(required);
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot build: not in territory");
+        }
     }
 
     // Cannot build unit because there is no place in hangar
@@ -47,6 +64,11 @@ public abstract class UnitBuildResult {
 
         public static NoPlaceInHangar fromJson(JsonObject object) {
             return new NoPlaceInHangar();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot build: no place in hangar");
         }
     }
 
@@ -57,6 +79,11 @@ public abstract class UnitBuildResult {
         public static SectorBlocked fromJson(JsonObject object) {
             return new SectorBlocked();
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot build: sector is blocked");
+        }
     }
 
     // Wrong auth info
@@ -66,6 +93,12 @@ public abstract class UnitBuildResult {
         public static WrongAuthInfo fromJson(JsonObject object) {
             return new WrongAuthInfo();
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Not authorized!");
+            game.switchToLoginScreen();
+        }
     }
 
     // JSON request is not well-formed
@@ -74,6 +107,11 @@ public abstract class UnitBuildResult {
 
         public static MalformedJson fromJson(JsonObject object) {
             return new MalformedJson();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot build: JSON request is not well-formed. Probable bug. Tell the developers");
         }
     }
 
@@ -89,6 +127,11 @@ public abstract class UnitBuildResult {
         public static IncorrectData fromJson(JsonObject object) {
             String field = object.getAsJsonPrimitive("field").getAsString();
             return new IncorrectData(field);
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot build: value of field in request is not valid. Probable bug. Tell the developers");
         }
     }
 

@@ -1,12 +1,15 @@
-package geobattle.geobattle.server.actionresults;
+package geobattle.geobattle.actionresults;
 
 import com.google.gson.JsonObject;
 
-import geobattle.geobattle.game.actionresults.MatchBranch;
+import java.util.Locale;
+
+import geobattle.geobattle.GeoBattle;
+import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.server.AuthInfo;
 
 // Result of email confirmation
-public abstract class EmailConfirmationResult {
+public abstract class EmailConfirmationResult implements ActionResult {
     // Email successfully confirmed
     public static final class EmailConfirmed extends EmailConfirmationResult {
         // Auth info
@@ -19,6 +22,11 @@ public abstract class EmailConfirmationResult {
         public static EmailConfirmed fromJson(JsonObject object) {
             AuthInfo authInfo = AuthInfo.fromJson(object.getAsJsonObject("authInfo"));
             return new EmailConfirmed(authInfo);
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.onAuthInfoObtained(authInfo);
         }
     }
 
@@ -35,6 +43,17 @@ public abstract class EmailConfirmationResult {
             int triesLeft = object.getAsJsonPrimitive("triesLeft").getAsInt();
             return new WrongCode(triesLeft);
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage(String.format(
+                    Locale.US,
+                    "Wrong code. Tries left: %d",
+                    triesLeft
+            ));
+            if (triesLeft <= 0)
+                game.switchToLoginScreen();
+        }
     }
 
     // Player with same name already confirmed email or does not exist
@@ -44,6 +63,11 @@ public abstract class EmailConfirmationResult {
         public static DoesNotExist fromJson(JsonObject object) {
             return new DoesNotExist();
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Player with same name already confirmed email or does not exist");
+        }
     }
 
     // JSON request is not well-formed
@@ -52,6 +76,11 @@ public abstract class EmailConfirmationResult {
 
         public static MalformedJson fromJson(JsonObject object) {
             return new MalformedJson();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot confirm email: JSON request is not well-formed. Probable bug. Tell the developers");
         }
     }
 
@@ -67,6 +96,11 @@ public abstract class EmailConfirmationResult {
         public static IncorrectData fromJson(JsonObject object) {
             String field = object.getAsJsonPrimitive("field").getAsString();
             return new IncorrectData(field);
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot confirm email: value of field in request is not valid. Probable bug. Tell the developers");
         }
     }
 

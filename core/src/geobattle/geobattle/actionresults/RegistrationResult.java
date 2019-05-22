@@ -1,11 +1,13 @@
-package geobattle.geobattle.server.actionresults;
+package geobattle.geobattle.actionresults;
 
 import com.google.gson.JsonObject;
 
-import geobattle.geobattle.game.actionresults.MatchBranch;
+import geobattle.geobattle.GeoBattle;
+import geobattle.geobattle.game.GameState;
+import geobattle.geobattle.screens.emailconfirmationscreen.EmailConfirmationScreen;
 
 // Result of registration
-public abstract class RegistrationResult {
+public abstract class RegistrationResult implements ActionResult {
     // Successfully registered
     public static final class Success extends RegistrationResult {
         // Name of player
@@ -19,6 +21,11 @@ public abstract class RegistrationResult {
             String name = object.getAsJsonPrimitive("name").getAsString();
             return new Success(name);
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.switchToEmailConfirmationScreen(name);
+        }
     }
 
     // Email is invalid
@@ -28,6 +35,11 @@ public abstract class RegistrationResult {
         public static InvalidEmail fromJson(JsonObject object) {
             return new InvalidEmail();
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot register: invalid email");
+        }
     }
 
     // Player with same email already exists
@@ -36,6 +48,11 @@ public abstract class RegistrationResult {
 
         public static EmailExists fromJson(JsonObject object) {
             return new EmailExists();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot register: player with same email exists");
         }
     }
 
@@ -62,6 +79,11 @@ public abstract class RegistrationResult {
             int max = object.getAsJsonPrimitive("max").getAsInt();
             return new InvalidNameLength(actual, min, max);
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot register: invalid name length");
+        }
     }
 
     // Invalid length of password
@@ -82,6 +104,11 @@ public abstract class RegistrationResult {
             int min = object.getAsJsonPrimitive("min").getAsInt();
             return new InvalidPasswordLength(actual, min);
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot register: invalid password length");
+        }
     }
 
     // Invalid symbols in name
@@ -90,6 +117,11 @@ public abstract class RegistrationResult {
 
         public static InvalidNameSymbols fromJson(JsonObject object) {
             return new InvalidNameSymbols();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot register: invalid symbols in name");
         }
     }
 
@@ -100,6 +132,11 @@ public abstract class RegistrationResult {
         public static NameExists fromJson(JsonObject object) {
             return new NameExists();
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot register: player with same name exists");
+        }
     }
 
     // JSON request is not well-formed
@@ -108,6 +145,11 @@ public abstract class RegistrationResult {
 
         public static MalformedJson fromJson(JsonObject object) {
             return new MalformedJson();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot register: JSON request is not well-formed. Probable bug. Tell the developers");
         }
     }
 
@@ -123,6 +165,11 @@ public abstract class RegistrationResult {
         public static IncorrectData fromJson(JsonObject object) {
             String field = object.getAsJsonPrimitive("field").getAsString();
             return new IncorrectData(field);
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot register: value of field in request is not valid. Probable bug. Tell the developers");
         }
     }
 

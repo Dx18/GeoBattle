@@ -2,22 +2,22 @@ package geobattle.geobattle.server;
 
 import com.badlogic.gdx.graphics.Color;
 
-import geobattle.geobattle.game.actionresults.AttackResult;
-import geobattle.geobattle.game.actionresults.BuildResult;
-import geobattle.geobattle.game.actionresults.DestroyResult;
-import geobattle.geobattle.game.actionresults.ResearchResult;
-import geobattle.geobattle.game.actionresults.SectorBuildResult;
-import geobattle.geobattle.game.actionresults.StateRequestResult;
-import geobattle.geobattle.game.actionresults.UnitBuildResult;
-import geobattle.geobattle.game.actionresults.UpdateRequestResult;
+import geobattle.geobattle.actionresults.AttackResult;
+import geobattle.geobattle.actionresults.BuildResult;
+import geobattle.geobattle.actionresults.DestroyResult;
+import geobattle.geobattle.actionresults.ResearchResult;
+import geobattle.geobattle.actionresults.SectorBuildResult;
+import geobattle.geobattle.actionresults.StateRequestResult;
+import geobattle.geobattle.actionresults.UnitBuildResult;
+import geobattle.geobattle.actionresults.UpdateRequestResult;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.research.ResearchType;
 import geobattle.geobattle.game.units.UnitType;
-import geobattle.geobattle.server.actionresults.AuthorizationResult;
-import geobattle.geobattle.server.actionresults.EmailConfirmationResult;
-import geobattle.geobattle.server.actionresults.RegistrationResult;
-import geobattle.geobattle.server.actionresults.ResendEmailResult;
+import geobattle.geobattle.actionresults.AuthorizationResult;
+import geobattle.geobattle.actionresults.EmailConfirmationResult;
+import geobattle.geobattle.actionresults.RegistrationResult;
+import geobattle.geobattle.actionresults.ResendEmailResult;
 
 // Game server
 public interface Server {

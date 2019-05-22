@@ -1,12 +1,13 @@
-package geobattle.geobattle.server.actionresults;
+package geobattle.geobattle.actionresults;
 
 import com.google.gson.JsonObject;
 
-import geobattle.geobattle.game.actionresults.MatchBranch;
+import geobattle.geobattle.GeoBattle;
+import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.server.AuthInfo;
 
 // Result of authorization
-public abstract class AuthorizationResult {
+public abstract class AuthorizationResult implements ActionResult {
     // Successfully authorized
     public static final class Success extends AuthorizationResult {
         // Auth info
@@ -20,6 +21,11 @@ public abstract class AuthorizationResult {
             AuthInfo authInfo = AuthInfo.fromJson(object.getAsJsonObject("authInfo"));
             return new Success(authInfo);
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.onAuthInfoObtained(authInfo);
+        }
     }
 
     // Pair name-password not found
@@ -29,6 +35,11 @@ public abstract class AuthorizationResult {
         public static PairNotFound fromJson(JsonObject object) {
             return new PairNotFound();
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot login: pair not found");
+        }
     }
 
     // JSON request is not well-formed
@@ -37,6 +48,11 @@ public abstract class AuthorizationResult {
 
         public static MalformedJson fromJson(JsonObject object) {
             return new MalformedJson();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot login: JSON request is not well-formed. Probable bug. Tell the developers");
         }
     }
 
@@ -52,6 +68,11 @@ public abstract class AuthorizationResult {
         public static IncorrectData fromJson(JsonObject object) {
             String field = object.getAsJsonPrimitive("field").getAsString();
             return new IncorrectData(field);
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot login: value of field in request is not valid. Probable bug. Tell the developers");
         }
     }
 

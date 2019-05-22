@@ -1,6 +1,5 @@
 package geobattle.geobattle.game.units;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Predicate;
 import com.google.gson.JsonArray;
@@ -10,7 +9,7 @@ import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import geobattle.geobattle.game.actionresults.MatchBranch;
+import geobattle.geobattle.actionresults.MatchBranch;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;

@@ -1,6 +1,6 @@
 package geobattle.geobattle.game.units;
 
-import geobattle.geobattle.game.actionresults.MatchBranch;
+import geobattle.geobattle.actionresults.MatchBranch;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;

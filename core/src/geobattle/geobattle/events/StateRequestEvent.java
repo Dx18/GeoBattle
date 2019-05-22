@@ -1,4 +1,4 @@
-package geobattle.geobattle.game.events;
+package geobattle.geobattle.events;
 
 import com.google.gson.JsonObject;
 

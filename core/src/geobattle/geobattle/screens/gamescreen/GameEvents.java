@@ -9,15 +9,15 @@ import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.GameStateUpdate;
 import geobattle.geobattle.game.PlayerState;
-import geobattle.geobattle.game.actionresults.AttackResult;
-import geobattle.geobattle.game.actionresults.BuildResult;
-import geobattle.geobattle.game.actionresults.DestroyResult;
-import geobattle.geobattle.game.actionresults.MatchBranch;
-import geobattle.geobattle.game.actionresults.ResearchResult;
-import geobattle.geobattle.game.actionresults.SectorBuildResult;
-import geobattle.geobattle.game.actionresults.StateRequestResult;
-import geobattle.geobattle.game.actionresults.UnitBuildResult;
-import geobattle.geobattle.game.actionresults.UpdateRequestResult;
+import geobattle.geobattle.actionresults.AttackResult;
+import geobattle.geobattle.actionresults.BuildResult;
+import geobattle.geobattle.actionresults.DestroyResult;
+import geobattle.geobattle.actionresults.MatchBranch;
+import geobattle.geobattle.actionresults.ResearchResult;
+import geobattle.geobattle.actionresults.SectorBuildResult;
+import geobattle.geobattle.actionresults.StateRequestResult;
+import geobattle.geobattle.actionresults.UnitBuildResult;
+import geobattle.geobattle.actionresults.UpdateRequestResult;
 import geobattle.geobattle.game.attacking.AttackScript;
 import geobattle.geobattle.game.attacking.TimePoint;
 import geobattle.geobattle.game.attacking.UnitGroupMovingInfo;
@@ -199,7 +199,9 @@ public class GameEvents {
 
     // Invokes when user receives build result
     private void onBuildResult(BuildResult result) {
-        result.match(
+        if (result != null)
+            result.apply(game, gameState);
+        /*result.match(
                 new MatchBranch<BuildResult.BuildingBuilt>() {
                     @Override
                     public void onMatch(BuildResult.BuildingBuilt buildingBuilt) {
@@ -218,7 +220,7 @@ public class GameEvents {
                 new MatchBranch<BuildResult.NotEnoughResources>() {
                     @Override
                     public void onMatch(BuildResult.NotEnoughResources notEnoughResources) {
-                        oSAPI.showMessage("Cannot build: not enough resources");
+                        oSAPI.showMessage("Cannot build: collision found");
                     }
                 },
                 new MatchBranch<BuildResult.BuildingLimitExceeded>() {
@@ -260,7 +262,7 @@ public class GameEvents {
                         oSAPI.showMessage("Cannot build: value of field in request is not valid. Probable bug. Tell the developers");
                     }
                 }
-        );
+        );*/
     }
 
     // Invokes when user requests building destroying
@@ -285,7 +287,9 @@ public class GameEvents {
 
     // Invokes when user receives destroy result
     private void onDestroyResult(DestroyResult result) {
-        result.match(
+        if (result != null)
+            result.apply(game, gameState);
+        /*result.match(
                 new MatchBranch<DestroyResult.BuildingDestroyed>() {
                     @Override
                     public void onMatch(DestroyResult.BuildingDestroyed buildingDestroyed) {
@@ -327,7 +331,7 @@ public class GameEvents {
                         oSAPI.showMessage("Cannot build: value of field in request is not valid. Probable bug. Tell the developers");
                     }
                 }
-        );
+        );*/
     }
 
     public void onUnitBuild(UnitType unitType) {
@@ -479,7 +483,9 @@ public class GameEvents {
     }
 
     private void onResearchResult(ResearchResult result) {
-        result.match(
+        if (result != null)
+            result.apply(game, gameState);
+        /*result.match(
                 new MatchBranch<ResearchResult.Researched>() {
                     @Override
                     public void onMatch(ResearchResult.Researched researched) {
@@ -517,7 +523,7 @@ public class GameEvents {
                         oSAPI.showMessage("Cannot build: incorrect data");
                     }
                 }
-        );
+        );*/
     }
 
     public void onRequestAttack() {
@@ -557,7 +563,9 @@ public class GameEvents {
     }
 
     private void onAttackResult(AttackResult result) {
-        result.match(
+        if (result != null)
+            result.apply(game, gameState);
+        /*result.match(
                 new MatchBranch<AttackResult.AttackStarted>() {
                     @Override
                     public void onMatch(AttackResult.AttackStarted attackStarted) {
@@ -597,7 +605,7 @@ public class GameEvents {
                         oSAPI.showMessage("Cannot build: value of field in request is not valid. Probable bug. Tell the developers");
                     }
                 }
-        );
+        );*/
     }
 
     public void onTick(float delta) {

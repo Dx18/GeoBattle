@@ -1,4 +1,4 @@
-package geobattle.geobattle.server.events;
+package geobattle.geobattle.events;
 
 import com.badlogic.gdx.graphics.Color;
 import com.google.gson.JsonObject;

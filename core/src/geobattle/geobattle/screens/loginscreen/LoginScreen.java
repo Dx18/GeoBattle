@@ -8,13 +8,13 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import geobattle.geobattle.GeoBattle;
-import geobattle.geobattle.game.actionresults.MatchBranch;
+import geobattle.geobattle.actionresults.MatchBranch;
 import geobattle.geobattle.screens.emailconfirmationscreen.EmailConfirmationScreen;
 import geobattle.geobattle.screens.settingsscreen.SettingsScreen;
-import geobattle.geobattle.server.actionresults.AuthorizationResult;
+import geobattle.geobattle.actionresults.AuthorizationResult;
 import geobattle.geobattle.server.Callback;
 import geobattle.geobattle.server.ExternalAPI;
-import geobattle.geobattle.server.actionresults.RegistrationResult;
+import geobattle.geobattle.actionresults.RegistrationResult;
 
 // Login screen
 public final class LoginScreen implements Screen {
@@ -79,7 +79,9 @@ public final class LoginScreen implements Screen {
     }
 
     private void onAuthorizationResult(AuthorizationResult result) {
-        result.match(
+        if (result != null)
+            result.apply(game, null);
+        /*result.match(
                 new MatchBranch<AuthorizationResult.Success>() {
                     @Override
                     public void onMatch(AuthorizationResult.Success success) {
@@ -105,7 +107,7 @@ public final class LoginScreen implements Screen {
                         externalAPI.oSAPI.showMessage("Cannot login: value of field in request is not valid. Probable bug. Tell the developers");
                     }
                 }
-        );
+        );*/
     }
 
     // Invokes when player tries to register
@@ -131,7 +133,9 @@ public final class LoginScreen implements Screen {
     }
 
     private void onRegistrationResult(RegistrationResult result) {
-        result.match(
+        if (result != null)
+            result.apply(game, null);
+        /*result.match(
                 new MatchBranch<RegistrationResult.Success>() {
                     @Override
                     public void onMatch(RegistrationResult.Success success) {
@@ -193,7 +197,7 @@ public final class LoginScreen implements Screen {
                         externalAPI.oSAPI.showMessage("Cannot register: value of field in request is not valid. Probable bug. Tell the developers");
                     }
                 }
-        );
+        );*/
     }
 
     public void onSettings() {

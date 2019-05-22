@@ -1,10 +1,14 @@
-package geobattle.geobattle.game.actionresults;
+package geobattle.geobattle.actionresults;
 
 import com.google.gson.JsonObject;
 
+import geobattle.geobattle.GeoBattle;
+import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.attacking.AttackScript;
+import geobattle.geobattle.screens.gamescreen.GameScreen;
+import geobattle.geobattle.server.ExternalAPI;
 
-public abstract class AttackResult {
+public abstract class AttackResult implements ActionResult {
     // Attack successfully started
     public static final class AttackStarted extends AttackResult {
         // Attack script
@@ -18,6 +22,14 @@ public abstract class AttackResult {
             AttackScript attackScript = AttackScript.fromJson(object.getAsJsonObject("attackScript"));
             return new AttackStarted(attackScript);
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            gameState.getAttackScripts().add(attackScript);
+
+            if (game.getScreen() instanceof GameScreen)
+                ((GameScreen) game.getScreen()).switchToNormalMode();
+        }
     }
 
     // Cannot attack: sector blocked or one
@@ -26,6 +38,11 @@ public abstract class AttackResult {
 
         public static NotAttackable fromJson(JsonObject object) {
             return new NotAttackable();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot attack: sector is not attackable");
         }
     }
 
@@ -36,6 +53,11 @@ public abstract class AttackResult {
         public static HangarsAlreadyUsed fromJson(JsonObject object) {
             return new HangarsAlreadyUsed();
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot attack: some hangars are already used");
+        }
     }
 
     // Wrong auth info
@@ -45,6 +67,12 @@ public abstract class AttackResult {
         public static WrongAuthInfo fromJson(JsonObject object) {
             return new WrongAuthInfo();
         }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Not authorized!");
+            game.switchToLoginScreen();
+        }
     }
 
     // JSON request is not well-formed
@@ -53,6 +81,11 @@ public abstract class AttackResult {
 
         public static MalformedJson fromJson(JsonObject object) {
             return new MalformedJson();
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot build: JSON request is not well-formed. Probable bug. Tell the developers");
         }
     }
 
@@ -68,6 +101,11 @@ public abstract class AttackResult {
         public static IncorrectData fromJson(JsonObject object) {
             String field = object.getAsJsonPrimitive("field").getAsString();
             return new IncorrectData(field);
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.getExternalAPI().oSAPI.showMessage("Cannot build: value of field in request is not valid. Probable bug. Tell the developers");
         }
     }
 
