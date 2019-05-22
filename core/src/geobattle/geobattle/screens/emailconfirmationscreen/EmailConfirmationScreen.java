@@ -70,44 +70,6 @@ public final class EmailConfirmationScreen implements Screen {
     private void onEmailConfirmationResult(EmailConfirmationResult result) {
         if (result != null)
             result.apply(game, null);
-        /*result.match(
-                new MatchBranch<EmailConfirmationResult.EmailConfirmed>() {
-                    @Override
-                    public void onMatch(EmailConfirmationResult.EmailConfirmed emailConfirmed) {
-                        game.onAuthInfoObtained(emailConfirmed.authInfo);
-                    }
-                },
-                new MatchBranch<EmailConfirmationResult.WrongCode>() {
-                    @Override
-                    public void onMatch(EmailConfirmationResult.WrongCode wrongCode) {
-                        externalAPI.oSAPI.showMessage(String.format(
-                                Locale.US,
-                                "Wrong code. Tries left: %d",
-                                wrongCode.triesLeft
-                        ));
-                        if (wrongCode.triesLeft <= 0)
-                            game.switchToLoginScreen();
-                    }
-                },
-                new MatchBranch<EmailConfirmationResult.DoesNotExist>() {
-                    @Override
-                    public void onMatch(EmailConfirmationResult.DoesNotExist doesNotExist) {
-                        externalAPI.oSAPI.showMessage("Player with same name already confirmed email or does not exist");
-                    }
-                },
-                new MatchBranch<EmailConfirmationResult.MalformedJson>() {
-                    @Override
-                    public void onMatch(EmailConfirmationResult.MalformedJson malformedJson) {
-                        externalAPI.oSAPI.showMessage("Cannot confirm email: JSON request is not well-formed. Probable bug. Tell the developers");
-                    }
-                },
-                new MatchBranch<EmailConfirmationResult.IncorrectData>() {
-                    @Override
-                    public void onMatch(EmailConfirmationResult.IncorrectData incorrectData) {
-                        externalAPI.oSAPI.showMessage("Cannot confirm email: value of field in request is not valid. Probable bug. Tell the developers");
-                    }
-                }
-        );*/
     }
 
     public void onResend(String playerName) {
@@ -131,32 +93,6 @@ public final class EmailConfirmationScreen implements Screen {
     private void onResendEmailResult(ResendEmailResult result) {
         if (result != null)
             result.apply(game, null);
-        /*result.match(
-                new MatchBranch<ResendEmailResult.EmailResent>() {
-                    @Override
-                    public void onMatch(ResendEmailResult.EmailResent emailResent) {
-                        externalAPI.oSAPI.showMessage("Check your email");
-                    }
-                },
-                new MatchBranch<ResendEmailResult.DoesNotExist>() {
-                    @Override
-                    public void onMatch(ResendEmailResult.DoesNotExist doesNotExist) {
-                        externalAPI.oSAPI.showMessage("Player with same name already confirmed email or does not exist");
-                    }
-                },
-                new MatchBranch<ResendEmailResult.MalformedJson>() {
-                    @Override
-                    public void onMatch(ResendEmailResult.MalformedJson malformedJson) {
-                        externalAPI.oSAPI.showMessage("Cannot resend email: JSON request is not well-formed. Probable bug. Tell the developers");
-                    }
-                },
-                new MatchBranch<ResendEmailResult.IncorrectData>() {
-                    @Override
-                    public void onMatch(ResendEmailResult.IncorrectData incorrectData) {
-                        externalAPI.oSAPI.showMessage("Cannot resend email: value of field in request is not valid. Probable bug. Tell the developers");
-                    }
-                }
-        );*/
     }
 
     public void onReturn() {
