@@ -183,22 +183,6 @@ public class GameState {
         for (JsonElement jsonAttackEvent : jsonAttackEvents)
             gameState.attackScripts.add(AttackScript.fromJson(jsonAttackEvent.getAsJsonObject()));
 
-//        gameState.getCurrentPlayer().addBuilding(new Hangar(
-//                new BuildingParams(5234599, 5501449, -1, 0, 0)
-//        ));
-//        ((Hangar) gameState.getCurrentPlayer().getBuilding(-1)).units.addUnit(
-//                new Bomber(5234599 + 1.5, 5501449 + 1.5, 0, -1, -1, 0)
-//        );
-//        ((Hangar) gameState.getCurrentPlayer().getBuilding(-1)).units.addUnit(
-//                new Bomber(5234599 + 1.5, 5501449 + 5.5, 0, -2, -1, 1)
-//        );
-//        ((Hangar) gameState.getCurrentPlayer().getBuilding(-1)).units.addUnit(
-//                new Bomber(5234599 + 5.5, 5501449 + 5.5, 0, -3, -1, 2)
-//        );
-//        ((Hangar) gameState.getCurrentPlayer().getBuilding(-1)).units.addUnit(
-//                new Bomber(5234599 + 5.5, 5501449 + 1.5, 0, -4, -1, 3)
-//        );
-
         return gameState;
     }
 
