@@ -43,7 +43,7 @@ public interface Server {
     CancelHandle requestState(AuthInfo authInfo, Callback<StateRequestResult> callback);
 
     // Requests update of game
-    CancelHandle requestUpdate(AuthInfo authInfo, Callback<UpdateRequestResult> callback);
+    CancelHandle requestUpdate(AuthInfo authInfo, double lastUpdateTime, Callback<UpdateRequestResult> callback);
 
     // Requests build action
     CancelHandle requestBuild(AuthInfo authInfo, BuildingType type, int x, int y, Callback<BuildResult> callback);

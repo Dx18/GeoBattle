@@ -4,12 +4,13 @@ import com.google.gson.JsonObject;
 
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
+import geobattle.geobattle.game.GameStateUpdate;
 import geobattle.geobattle.game.UnitTransactionInfo;
 
 // Result of unit building
 public abstract class UnitBuildResult implements ActionResult {
     // Unit successfully built
-    public static final class UnitBuilt extends UnitBuildResult {
+    public static final class UnitBuilt extends UnitBuildResult implements GameStateUpdate {
         // Info about built unit
         public final UnitTransactionInfo info;
 

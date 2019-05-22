@@ -25,6 +25,7 @@ import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
+import geobattle.geobattle.game.research.ResearchInfo;
 import geobattle.geobattle.game.research.ResearchType;
 import geobattle.geobattle.game.units.UnitGroupState;
 import geobattle.geobattle.game.units.UnitType;
@@ -351,60 +352,62 @@ public class GameEvents {
     }
 
     private void onUnitBuildResult(UnitBuildResult result) {
-        result.match(
-                new MatchBranch<UnitBuildResult.UnitBuilt>() {
-                    @Override
-                    public void onMatch(UnitBuildResult.UnitBuilt unitBuilt) {
-                        gameState.getPlayer(unitBuilt.info.playerIndex).addUnit(unitBuilt.info.unit);
-                        gameState.setResources(gameState.getResources() - unitBuilt.cost);
-                    }
-                },
-                new MatchBranch<UnitBuildResult.NotEnoughResources>() {
-                    @Override
-                    public void onMatch(UnitBuildResult.NotEnoughResources notEnoughResources) {
-                        oSAPI.showMessage("Cannot build: not in territory");
-                    }
-                },
-                new MatchBranch<UnitBuildResult.NoPlaceInHangar>() {
-                    @Override
-                    public void onMatch(UnitBuildResult.NoPlaceInHangar noPlaceInHangar) {
-                        oSAPI.showMessage("Cannot build: no place in hangar");
-                    }
-                },
-                new MatchBranch<UnitBuildResult.SectorBlocked>() {
-                    @Override
-                    public void onMatch(UnitBuildResult.SectorBlocked sectorBlocked) {
-                        oSAPI.showMessage("Cannot build: sector is blocked");
-                    }
-                },
-                new MatchBranch<UnitBuildResult.WrongAuthInfo>() {
-                    @Override
-                    public void onMatch(UnitBuildResult.WrongAuthInfo wrongAuthInfo) {
-                        oSAPI.showMessage("Not authorized!");
-                        game.switchToLoginScreen();
-                        // Gdx.app.error("GeoBattle", "Not authorized!");
-                        // Gdx.app.exit();
-                    }
-                },
-                new MatchBranch<UnitBuildResult.MalformedJson>() {
-                    @Override
-                    public void onMatch(UnitBuildResult.MalformedJson match) {
-                        oSAPI.showMessage("Cannot build: JSON request is not well-formed. Probable bug. Tell the developers");
-                    }
-                },
-                new MatchBranch<UnitBuildResult.IncorrectData>() {
-                    @Override
-                    public void onMatch(UnitBuildResult.IncorrectData match) {
-                        oSAPI.showMessage("Cannot build: value of field in request is not valid. Probable bug. Tell the developers");
-                    }
-                }
-        );
+        if (result != null)
+            result.apply(game, gameState);
+//        result.match(
+//                new MatchBranch<UnitBuildResult.UnitBuilt>() {
+//                    @Override
+//                    public void onMatch(UnitBuildResult.UnitBuilt unitBuilt) {
+//                        gameState.getPlayer(unitBuilt.info.playerIndex).addUnit(unitBuilt.info.unit);
+//                        gameState.setResources(gameState.getResources() - unitBuilt.cost);
+//                    }
+//                },
+//                new MatchBranch<UnitBuildResult.NotEnoughResources>() {
+//                    @Override
+//                    public void onMatch(UnitBuildResult.NotEnoughResources notEnoughResources) {
+//                        oSAPI.showMessage("Cannot build: not in territory");
+//                    }
+//                },
+//                new MatchBranch<UnitBuildResult.NoPlaceInHangar>() {
+//                    @Override
+//                    public void onMatch(UnitBuildResult.NoPlaceInHangar noPlaceInHangar) {
+//                        oSAPI.showMessage("Cannot build: no place in hangar");
+//                    }
+//                },
+//                new MatchBranch<UnitBuildResult.SectorBlocked>() {
+//                    @Override
+//                    public void onMatch(UnitBuildResult.SectorBlocked sectorBlocked) {
+//                        oSAPI.showMessage("Cannot build: sector is blocked");
+//                    }
+//                },
+//                new MatchBranch<UnitBuildResult.WrongAuthInfo>() {
+//                    @Override
+//                    public void onMatch(UnitBuildResult.WrongAuthInfo wrongAuthInfo) {
+//                        oSAPI.showMessage("Not authorized!");
+//                        game.switchToLoginScreen();
+//                        // Gdx.app.error("GeoBattle", "Not authorized!");
+//                        // Gdx.app.exit();
+//                    }
+//                },
+//                new MatchBranch<UnitBuildResult.MalformedJson>() {
+//                    @Override
+//                    public void onMatch(UnitBuildResult.MalformedJson match) {
+//                        oSAPI.showMessage("Cannot build: JSON request is not well-formed. Probable bug. Tell the developers");
+//                    }
+//                },
+//                new MatchBranch<UnitBuildResult.IncorrectData>() {
+//                    @Override
+//                    public void onMatch(UnitBuildResult.IncorrectData match) {
+//                        oSAPI.showMessage("Cannot build: value of field in request is not valid. Probable bug. Tell the developers");
+//                    }
+//                }
+//        );
     }
 
     public void onRequestUpdate() {
-        server.requestState(authInfo, new Callback<StateRequestResult>() {
+        server.requestUpdate(authInfo, gameState.getLastUpdateTime(), new Callback<UpdateRequestResult>() {
             @Override
-            public void onResult(final StateRequestResult result) {
+            public void onResult(final UpdateRequestResult result) {
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
                     public void run() {
@@ -421,39 +424,53 @@ public class GameEvents {
 //        });
     }
 
-    private void onRequestUpdateResult(StateRequestResult result) {
-        result.match(
-                new MatchBranch<StateRequestResult.StateRequestSuccess>() {
-                    @Override
-                    public void onMatch(StateRequestResult.StateRequestSuccess stateRequestSuccess) {
-                        gameState.setData(stateRequestSuccess.gameState);
-                    }
-                },
-                new MatchBranch<StateRequestResult.WrongAuthInfo>() {
-                    @Override
-                    public void onMatch(StateRequestResult.WrongAuthInfo match) {
-                        oSAPI.showMessage("Not authorized!");
-                        game.switchToLoginScreen();
-                        // Gdx.app.error("GeoBattle", "Not authorized!");
-                        // Gdx.app.exit();
-                    }
-                },
-                new MatchBranch<StateRequestResult.MalformedJson>() {
-                    @Override
-                    public void onMatch(StateRequestResult.MalformedJson malformedJson) {
-                        oSAPI.showMessage("Cannot build: JSON request is not well-formed. Probable bug. Tell the developers");
-                    }
-                }
-        );
-    }
+//    private void onRequestUpdateResult(StateRequestResult result) {
+//        result.match(
+//                new MatchBranch<StateRequestResult.StateRequestSuccess>() {
+//                    @Override
+//                    public void onMatch(StateRequestResult.StateRequestSuccess stateRequestSuccess) {
+//                        gameState.setData(stateRequestSuccess.gameState);
+//                    }
+//                },
+//                new MatchBranch<StateRequestResult.WrongAuthInfo>() {
+//                    @Override
+//                    public void onMatch(StateRequestResult.WrongAuthInfo match) {
+//                        oSAPI.showMessage("Not authorized!");
+//                        game.switchToLoginScreen();
+//                        // Gdx.app.error("GeoBattle", "Not authorized!");
+//                        // Gdx.app.exit();
+//                    }
+//                },
+//                new MatchBranch<StateRequestResult.MalformedJson>() {
+//                    @Override
+//                    public void onMatch(StateRequestResult.MalformedJson malformedJson) {
+//                        oSAPI.showMessage("Cannot build: JSON request is not well-formed. Probable bug. Tell the developers");
+//                    }
+//                }
+//        );
+//    }
 
     private void onRequestUpdateResult(UpdateRequestResult result) {
         result.match(
                 new MatchBranch<UpdateRequestResult.UpdateRequestSuccess>() {
                     @Override
                     public void onMatch(UpdateRequestResult.UpdateRequestSuccess updateRequestSuccess) {
-                        for (GameStateUpdate update : updateRequestSuccess.updates)
-                            update.update(gameState);
+                        if (gameState.getLastUpdateTime() < updateRequestSuccess.time) {
+                            gameState.setLastUpdateTime(updateRequestSuccess.time);
+
+                            ResearchInfo researchInfoOld = gameState.getCurrentPlayer().getResearchInfo();
+
+                            ResearchInfo researchInfoNew = updateRequestSuccess.researchInfo;
+
+                            researchInfoOld.setLevel(ResearchType.TURRET_DAMAGE, researchInfoNew.getLevel(ResearchType.TURRET_DAMAGE));
+                            researchInfoOld.setLevel(ResearchType.UNIT_DAMAGE, researchInfoNew.getLevel(ResearchType.UNIT_DAMAGE));
+                            researchInfoOld.setLevel(ResearchType.GENERATOR_EFFICIENCY, researchInfoNew.getLevel(ResearchType.GENERATOR_EFFICIENCY));
+
+                            gameState.setResources(updateRequestSuccess.resources);
+
+                            for (GameStateUpdate update : updateRequestSuccess.updates)
+                                update.apply(game, gameState);
+                        }
                     }
                 },
                 new MatchBranch<UpdateRequestResult.WrongAuthInfo>() {
@@ -463,6 +480,18 @@ public class GameEvents {
                         game.switchToLoginScreen();
                         // Gdx.app.error("GeoBattle", "Not authorized!");
                         // Gdx.app.exit();
+                    }
+                },
+                new MatchBranch<UpdateRequestResult.MalformedJson>() {
+                    @Override
+                    public void onMatch(UpdateRequestResult.MalformedJson malformedJson) {
+                        oSAPI.showMessage("Cannot build: JSON request is not well-formed. Probable bug. Tell the developers");
+                    }
+                },
+                new MatchBranch<UpdateRequestResult.IncorrectData>() {
+                    @Override
+                    public void onMatch(UpdateRequestResult.IncorrectData incorrectData) {
+                        oSAPI.showMessage("Cannot build: incorrect data");
                     }
                 }
         );

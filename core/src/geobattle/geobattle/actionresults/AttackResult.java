@@ -4,13 +4,14 @@ import com.google.gson.JsonObject;
 
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
+import geobattle.geobattle.game.GameStateUpdate;
 import geobattle.geobattle.game.attacking.AttackScript;
 import geobattle.geobattle.screens.gamescreen.GameScreen;
 import geobattle.geobattle.server.ExternalAPI;
 
 public abstract class AttackResult implements ActionResult {
     // Attack successfully started
-    public static final class AttackStarted extends AttackResult {
+    public static final class AttackStarted extends AttackResult implements GameStateUpdate {
         // Attack script
         public final AttackScript attackScript;
 

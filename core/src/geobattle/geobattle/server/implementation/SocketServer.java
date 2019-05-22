@@ -32,6 +32,7 @@ import geobattle.geobattle.actionresults.SectorBuildResult;
 import geobattle.geobattle.actionresults.StateRequestResult;
 import geobattle.geobattle.actionresults.UnitBuildResult;
 import geobattle.geobattle.actionresults.UpdateRequestResult;
+import geobattle.geobattle.events.UpdateRequestEvent;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.events.AttackEvent;
@@ -348,7 +349,27 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle requestUpdate(AuthInfo authInfo, Callback<UpdateRequestResult> callback) {
+    public CancelHandle requestUpdate(final AuthInfo authInfo, final double lastUpdateTime, final Callback<UpdateRequestResult> callback) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String resultStr = requestSSL(ip, port, new UpdateRequestEvent(authInfo, lastUpdateTime).toJson().toString());
+
+                if (resultStr == null) {
+                    oSAPI.showMessage("UpdateRequestEvent failed: probable problems with connection");
+                    return;
+                }
+
+                try {
+                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
+                    callback.onResult(UpdateRequestResult.fromJson(result));
+                } catch (Exception e) {
+                    oSAPI.showMessage("UpdateRequestEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
+                }
+            }
+        }).start();
+
         return null;
     }
 

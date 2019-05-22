@@ -5,12 +5,13 @@ import com.google.gson.JsonObject;
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.BuildTransactionInfo;
 import geobattle.geobattle.game.GameState;
+import geobattle.geobattle.game.GameStateUpdate;
 import geobattle.geobattle.screens.gamescreen.GameScreen;
 
 // Result of building
 public abstract class BuildResult implements ActionResult {
     // Building is successfully built
-    public static final class BuildingBuilt extends BuildResult {
+    public static final class BuildingBuilt extends BuildResult implements GameStateUpdate {
         // Building instance
         public final BuildTransactionInfo info;
 

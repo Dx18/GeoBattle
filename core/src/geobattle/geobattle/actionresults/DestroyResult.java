@@ -5,12 +5,13 @@ import com.google.gson.JsonObject;
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.BuildTransactionInfo;
 import geobattle.geobattle.game.GameState;
+import geobattle.geobattle.game.GameStateUpdate;
 import geobattle.geobattle.screens.gamescreen.GameScreen;
 
 // Result of building destroying
 public abstract class DestroyResult implements ActionResult {
     // Building is successfully destroyed
-    public static final class BuildingDestroyed extends DestroyResult {
+    public static final class BuildingDestroyed extends DestroyResult implements GameStateUpdate {
         // Info about destroyed building
         public final BuildTransactionInfo info;
 

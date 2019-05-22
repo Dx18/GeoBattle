@@ -28,6 +28,9 @@ public class GameState {
     // Time
     private double time;
 
+    // Last update time
+    private double lastUpdateTime;
+
     // Players
     private ArrayList<PlayerState> players;
 
@@ -118,6 +121,16 @@ public class GameState {
     // Adds time
     public void addTime(double time) {
         this.time += time;
+    }
+
+    // Returns time of last update
+    public double getLastUpdateTime() {
+        return lastUpdateTime;
+    }
+
+    // Sets last update time
+    public void setLastUpdateTime(double lastUpdateTime) {
+        this.lastUpdateTime = lastUpdateTime;
     }
 
     // Returns iterator over players

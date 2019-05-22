@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
+import geobattle.geobattle.game.GameStateUpdate;
 import geobattle.geobattle.game.SectorTransactionInfo;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.screens.gamescreen.GameScreen;
@@ -11,7 +12,7 @@ import geobattle.geobattle.screens.gamescreen.GameScreen;
 // Result of sector building
 public abstract class SectorBuildResult implements ActionResult {
     // Sector successfully built
-    public static final class SectorBuilt extends SectorBuildResult {
+    public static final class SectorBuilt extends SectorBuildResult implements GameStateUpdate {
         // Info about sector
         public final SectorTransactionInfo info;
 
