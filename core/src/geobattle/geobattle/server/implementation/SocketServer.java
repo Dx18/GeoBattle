@@ -302,8 +302,10 @@ public final class SocketServer implements Server {
                 }
 
                 try {
-                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                    callback.onResult(RegistrationResult.fromJson(result));
+                    RegistrationResult result = RegistrationResult.fromJson(parser.parse(resultStr).getAsJsonObject());
+                    if (result == null)
+                        throw new IllegalArgumentException("Given type of RegistrationResult is unknown");
+                    callback.onResult(result);
                 } catch (Exception e) {
                     oSAPI.showMessage("RegisterEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
@@ -330,8 +332,10 @@ public final class SocketServer implements Server {
                 }
 
                 try {
-                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                    callback.onResult(AuthorizationResult.fromJson(result));
+                    AuthorizationResult result = AuthorizationResult.fromJson(parser.parse(resultStr).getAsJsonObject());
+                    if (result == null)
+                        throw new IllegalArgumentException("Given type of AuthorizationResult is unknown");
+                    callback.onResult(result);
                 } catch (Exception e) {
                     oSAPI.showMessage("AuthorizationEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
@@ -372,8 +376,10 @@ public final class SocketServer implements Server {
                 onSuccess();
 
                 try {
-                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                    callback.onResult(StateRequestResult.fromJson(result));
+                    StateRequestResult result = StateRequestResult.fromJson(parser.parse(resultStr).getAsJsonObject());
+                    if (result == null)
+                        throw new IllegalArgumentException("Given type of StateRequestResult is unknown");
+                    callback.onResult(result);
                 } catch (Exception e) {
                     oSAPI.showMessage("StateRequestEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
@@ -402,8 +408,10 @@ public final class SocketServer implements Server {
                 onSuccess();
 
                 try {
-                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                    callback.onResult(UpdateRequestResult.fromJson(result));
+                    UpdateRequestResult result = UpdateRequestResult.fromJson(parser.parse(resultStr).getAsJsonObject());
+                    if (result == null)
+                        throw new IllegalArgumentException("Given type of UpdateRequestResult is unknown");
+                    callback.onResult(result);
                 } catch (Exception e) {
                     oSAPI.showMessage("UpdateRequestEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
@@ -432,8 +440,10 @@ public final class SocketServer implements Server {
                 onSuccess();
 
                 try {
-                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                    callback.onResult(BuildResult.fromJson(result));
+                    BuildResult result = BuildResult.fromJson(parser.parse(resultStr).getAsJsonObject());
+                    if (result == null)
+                        throw new IllegalArgumentException("Given type of BuildResult is unknown");
+                    callback.onResult(result);
                 } catch (Exception e) {
                     oSAPI.showMessage("BuildEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
@@ -462,8 +472,10 @@ public final class SocketServer implements Server {
                 onSuccess();
 
                 try {
-                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                    callback.onResult(SectorBuildResult.fromJson(result));
+                    SectorBuildResult result = SectorBuildResult.fromJson(parser.parse(resultStr).getAsJsonObject());
+                    if (result == null)
+                        throw new IllegalArgumentException("Given type of SectorBuildResult is unknown");
+                    callback.onResult(result);
                 } catch (Exception e) {
                     oSAPI.showMessage("SectorBuildEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
@@ -492,8 +504,10 @@ public final class SocketServer implements Server {
                 onSuccess();
 
                 try {
-                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                    callback.onResult(DestroyResult.fromJson(result));
+                    DestroyResult result = DestroyResult.fromJson(parser.parse(resultStr).getAsJsonObject());
+                    if (result == null)
+                        throw new IllegalArgumentException("Given type of DestroyResult is unknown");
+                    callback.onResult(result);
                 } catch (Exception e) {
                     oSAPI.showMessage("DestroyEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
@@ -522,8 +536,10 @@ public final class SocketServer implements Server {
                 onSuccess();
 
                 try {
-                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                    callback.onResult(UnitBuildResult.fromJson(result));
+                    UnitBuildResult result = UnitBuildResult.fromJson(parser.parse(resultStr).getAsJsonObject());
+                    if (result == null)
+                        throw new IllegalArgumentException("Given type of UnitBuildResult is unknown");
+                    callback.onResult(result);
                 } catch (Exception e) {
                     oSAPI.showMessage("UnitBuildResult failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
@@ -552,8 +568,10 @@ public final class SocketServer implements Server {
                 onSuccess();
 
                 try {
-                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                    callback.onResult(ResearchResult.fromJson(result));
+                    ResearchResult result = ResearchResult.fromJson(parser.parse(resultStr).getAsJsonObject());
+                    if (result == null)
+                        throw new IllegalArgumentException("Given type of ResearchResult is unknown");
+                    callback.onResult(result);
                 } catch (Exception e) {
                     oSAPI.showMessage("ResearchEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
@@ -582,8 +600,10 @@ public final class SocketServer implements Server {
                 onSuccess();
 
                 try {
-                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                    callback.onResult(AttackResult.fromJson(result));
+                    AttackResult result = AttackResult.fromJson(parser.parse(resultStr).getAsJsonObject());
+                    if (result == null)
+                        throw new IllegalArgumentException("Given type of AttackResult is unknown");
+                    callback.onResult(result);
                 } catch (Exception e) {
                     oSAPI.showMessage("AttackEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
@@ -610,8 +630,10 @@ public final class SocketServer implements Server {
                 }
 
                 try {
-                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                    callback.onResult(EmailConfirmationResult.fromJson(result));
+                    EmailConfirmationResult result = EmailConfirmationResult.fromJson(parser.parse(resultStr).getAsJsonObject());
+                    if (result == null)
+                        throw new IllegalArgumentException("Given type of EmailConfirmationResult is unknown");
+                    callback.onResult(result);
                 } catch (Exception e) {
                     oSAPI.showMessage("EmailConfirmationEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
@@ -638,8 +660,10 @@ public final class SocketServer implements Server {
                 }
 
                 try {
-                    JsonObject result = parser.parse(resultStr).getAsJsonObject();
-                    callback.onResult(ResendEmailResult.fromJson(result));
+                    ResendEmailResult result = ResendEmailResult.fromJson(parser.parse(resultStr).getAsJsonObject());
+                    if (result == null)
+                        throw new IllegalArgumentException("Given type of EmailResendResult is unknown");
+                    callback.onResult(result);
                 } catch (Exception e) {
                     oSAPI.showMessage("ResendEmailEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
