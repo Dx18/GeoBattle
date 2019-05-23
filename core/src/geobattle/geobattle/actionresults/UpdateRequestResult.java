@@ -54,6 +54,12 @@ public abstract class UpdateRequestResult {
             if (attackResult instanceof GameStateUpdate)
                 return (GameStateUpdate) attackResult;
 
+            String type = object.getAsJsonPrimitive("type").getAsString();
+            if (type.equals("PlayerAdded"))
+                return PlayerAdded.fromJson(object);
+            if (type.equals("PlayerRemoved"))
+                return PlayerRemoved.fromJson(object);
+
             return null;
         }
 

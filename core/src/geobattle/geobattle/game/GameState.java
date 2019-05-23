@@ -6,6 +6,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 
 import geobattle.geobattle.game.attacking.AttackScript;
@@ -36,6 +38,14 @@ public class GameState {
 
     // Attack events
     private ArrayList<AttackScript> attackScripts;
+
+    // Comparator for buildings
+    private final static Comparator<PlayerState> playerComparator = new Comparator<PlayerState>() {
+        @Override
+        public int compare(PlayerState player1, PlayerState player2) {
+            return player1.getPlayerId() - player2.getPlayerId();
+        }
+    };
 
     public GameState(float resources, int playerId, double time) {
         this.resources = resources;
@@ -161,6 +171,23 @@ public class GameState {
     // Returns current player
     public PlayerState getCurrentPlayer() {
         return getPlayer(playerId);
+    }
+
+    // Adds player to game
+    public void addPlayer(PlayerState player) {
+        int index = Collections.binarySearch(players, player, playerComparator);
+        if (index >= 0)
+            throw new IllegalArgumentException("Cannot add player with existing ID");
+
+        players.add(-index - 1, player);
+    }
+
+    // Removes player from game
+    public void removePlayer(PlayerState player) {
+        int index = Collections.binarySearch(players, player, playerComparator);
+        if (index < 0)
+            throw new IllegalArgumentException("Cannot remove player with specified ID");
+        players.remove(index);
     }
 
     public ArrayList<AttackScript> getAttackScripts() {
