@@ -1,10 +1,12 @@
 package geobattle.geobattle.game.units;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.google.gson.JsonObject;
 
-import geobattle.geobattle.game.buildings.Building;
+import geobattle.geobattle.map.GeoBattleMap;
+import geobattle.geobattle.map.UnitTextures;
 import geobattle.geobattle.util.GeoBattleMath;
 
 // Base class for all units
@@ -133,6 +135,22 @@ public abstract class Unit {
                 x = destX;
                 y = destY;
             }
+        }
+    }
+
+    // Draws unit
+    public void draw(Batch batch, GeoBattleMap map, UnitTextures unitTextures, Color color, boolean drawIcons) {
+        if (drawIcons) {
+
+        } else {
+            map.drawCenteredTextureSubTiles(
+                    batch, x, y, getSizeX(), getSizeY(), direction,
+                    unitTextures.getTexture(getUnitType()), Color.WHITE
+            );
+            map.drawCenteredTextureSubTiles(
+                    batch, x, y, getSizeX(), getSizeY(), direction,
+                    unitTextures.getTeamColorTexture(getUnitType()), color
+            );
         }
     }
 

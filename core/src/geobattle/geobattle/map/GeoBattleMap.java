@@ -24,7 +24,6 @@ import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.game.units.Unit;
-import geobattle.geobattle.screens.gamescreen.GameScreen;
 import geobattle.geobattle.screens.gamescreen.GameScreenMode;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildFirstSectorMode;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildMode;
@@ -246,23 +245,21 @@ public class GeoBattleMap extends Actor {
         batch.setColor(prev);
     }
 
-    private void drawUnit(Batch batch, Unit unit, TextureRegion texture, Color color) {
-        float sizeX = unit.getSizeX() / (float) (1 << GeoBattleConst.SUBDIVISION);
-        float sizeY = unit.getSizeY() / (float) (1 << GeoBattleConst.SUBDIVISION);
-        float x = CoordinateConverter.subTilesToWorld(unit.x, xOffset, GeoBattleConst.SUBDIVISION);
-        float y = CoordinateConverter.subTilesToWorld(unit.y, yOffset, GeoBattleConst.SUBDIVISION);
+    public void drawCenteredTextureSubTiles(Batch batch, double subTileX, double subTileY, double subTileWidth, double subTileHeight, double direction, TextureRegion texture, Color color) {
+        float width = CoordinateConverter.subTilesToRealWorld(subTileWidth, GeoBattleConst.SUBDIVISION);
+        float height = CoordinateConverter.subTilesToRealWorld(subTileHeight, GeoBattleConst.SUBDIVISION);
+        float x = CoordinateConverter.subTilesToWorld(subTileX, xOffset, GeoBattleConst.SUBDIVISION);
+        float y = CoordinateConverter.subTilesToWorld(subTileY, yOffset, GeoBattleConst.SUBDIVISION);
 
-//        Gdx.app.log("GeoBattle", "Drawing unit at " + x + ", " + y);
+        Color prev = batch.getColor().cpy();
+        batch.setColor(color);
 
         batch.draw(
-                texture, x - sizeX / 2, y - sizeY / 2,
-                sizeX / 2, sizeY / 2, sizeX, sizeY, 1, 1, (float) Math.toDegrees(unit.direction)
+                texture, x - width / 2, y - height / 2,
+                width / 2, height / 2, width, height, 1, 1, (float) Math.toDegrees(direction)
         );
-    }
 
-    private void drawNormalUnit(Batch batch, Unit unit, Color teamColor) {
-        drawUnit(batch, unit, unitTextures.getTexture(unit.getUnitType()), Color.WHITE);
-        drawUnit(batch, unit, unitTextures.getTeamColorTexture(unit.getUnitType()), teamColor);
+        batch.setColor(prev);
     }
 
     public void drawRegionRectSubTiles(int x, int y, int width, int height, Color color) {
@@ -378,6 +375,7 @@ public class GeoBattleMap extends Actor {
         }
     }
 
+    // Draws sectors and selections
     private void drawSectorsAndSelections(IntRect visible) {
         // Drawing sectors...
         Iterator<PlayerState> players = gameState.getPlayers();
@@ -405,6 +403,7 @@ public class GeoBattleMap extends Actor {
         }
     }
 
+    // Draws buildings
     private void drawBuildings(Batch batch, IntRect visible) {
         int visibleTiles = Math.min(
                 CoordinateConverter.realWorldToSubTiles(camera.viewportWidth, GeoBattleConst.SUBDIVISION),
@@ -439,6 +438,48 @@ public class GeoBattleMap extends Actor {
                         continue;
 
                     nextBuilding.draw(batch, this, buildingTextures, player.getColor(), drawIcons);
+                }
+            }
+        }
+    }
+
+    // Draws units
+    private void drawUnits(Batch batch, IntRect visible) {
+        int visibleTiles = Math.min(
+                CoordinateConverter.realWorldToSubTiles(camera.viewportWidth, GeoBattleConst.SUBDIVISION),
+                CoordinateConverter.realWorldToSubTiles(camera.viewportHeight, GeoBattleConst.SUBDIVISION)
+        );
+
+        if (visibleTiles >= 400)
+            return;
+
+        boolean drawIcons = visibleTiles >= 100;
+
+        Iterator<PlayerState> players = gameState.getPlayers();
+        while (players.hasNext()) {
+            PlayerState player = players.next();
+            Iterator<Hangar> hangars = player.getHangars();
+            while (hangars.hasNext()) {
+                Hangar nextHangar = hangars.next();
+
+                Iterator<Unit> units = nextHangar.units.getAllUnits();
+                while (units.hasNext()) {
+                    Unit next = units.next();
+
+                    if (next == null)
+                        continue;
+
+                    int unitSize = Math.max(next.getSizeX(), next.getSizeY()) * 3;
+
+                    if (!GeoBattleMath.tileRectanglesIntersect(
+                            visible.x, visible.y,
+                            visible.width, visible.height,
+                            (int) next.x - unitSize / 2, (int) next.y - unitSize / 2,
+                            unitSize, unitSize
+                    ))
+                        continue;
+
+                    next.draw(batch, this, unitTextures, player.getColor(), drawIcons);
                 }
             }
         }
@@ -503,27 +544,10 @@ public class GeoBattleMap extends Actor {
         batch.begin();
 
         drawBuildings(batch, visible);
+        drawUnits(batch, visible);
 
         if (screenModeData != null)
             screenModeData.draw(batch, this, gameState, visible);
-
-        // Draws units (on top of buildings)
-        Iterator<PlayerState> players = gameState.getPlayers();
-        while (players.hasNext()) {
-            PlayerState player = players.next();
-            Iterator<Hangar> hangars = player.getHangars();
-            while (hangars.hasNext()) {
-                Hangar nextHangar = hangars.next();
-
-                Iterator<Unit> units = nextHangar.units.getAllUnits();
-                while (units.hasNext()) {
-                    Unit next = units.next();
-
-                    if (next != null)
-                        drawNormalUnit(batch, next, player.getColor());
-                }
-            }
-        }
 
         batch.end();
         Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);

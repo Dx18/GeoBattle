@@ -84,21 +84,6 @@ public abstract class Building {
         }
     }
 
-    // Draws building without player's color
-    public void drawColorless(Batch batch, GeoBattleMap map, BuildingTextures buildingTextures, Color color, boolean drawIcons) {
-        if (drawIcons) {
-            map.drawTexture(
-                    batch, x, y, getSizeX(), getSizeY(), 0,
-                    buildingTextures.getIconTexture(buildingType), color
-            );
-        } else {
-            map.drawTexture(
-                    batch, x, y, getSizeX(), getSizeY(), 0.5f,
-                    buildingTextures.getTexture(buildingType), color
-            );
-        }
-    }
-
     // Creates building from JSON
     public static Building fromJson(JsonObject object) {
         String type = object.getAsJsonPrimitive("type").getAsString();
