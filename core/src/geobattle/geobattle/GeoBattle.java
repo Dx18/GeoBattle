@@ -89,7 +89,8 @@ public final class GeoBattle extends Game {
 
         i18NBundle = assetManager.get(GeoBattleAssets.I18N);
 
-         VisUI.load(assetManager.get(GeoBattleAssets.GUI_SKIN, Skin.class));
+        if (!VisUI.isLoaded())
+            VisUI.load(assetManager.get(GeoBattleAssets.GUI_SKIN, Skin.class));
 //        VisUI.load();
 
         // setScreen(new LoginScreen(externalAPI, assetManager, this));
