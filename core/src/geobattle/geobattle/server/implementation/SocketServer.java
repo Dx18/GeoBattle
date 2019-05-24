@@ -118,6 +118,9 @@ public final class SocketServer implements Server {
 
         System.out.println("Certificate: " + certificateStr);
 
+        if (certificateStr == null)
+            return false;
+
         try {
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
             Certificate certificate = certificateFactory.generateCertificate(new ByteArrayInputStream(certificateStr.getBytes()));
@@ -153,7 +156,8 @@ public final class SocketServer implements Server {
     private String requestSSL(String ip, int port, String json) {
         synchronized (this) {
             if (sslSocketFactory == null)
-                requestCertificate();
+                if (!requestCertificate())
+                    return null;
         }
 
         SSLSocket socket;
