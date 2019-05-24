@@ -62,9 +62,6 @@ public abstract class Building {
         return buildingType;
     }
 
-    // Updates building
-    public void update(float delta, GameState gameState) {}
-
     // Draws building
     public void draw(Batch batch, GeoBattleMap map, BuildingTextures buildingTextures, Color color, boolean drawIcons) {
         if (drawIcons) {

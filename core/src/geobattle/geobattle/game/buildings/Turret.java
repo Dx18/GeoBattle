@@ -1,56 +1,49 @@
 package geobattle.geobattle.game.buildings;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.google.gson.JsonObject;
 
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.units.Unit;
+import geobattle.geobattle.map.BuildingTextures;
+import geobattle.geobattle.map.GeoBattleMap;
+import geobattle.geobattle.util.GeoBattleMath;
 
 // Turret
 public final class Turret extends Building {
-    // Range of turret
-    private static final int RANGE = 10;
+    // Speed of rotation in idle mode
+    public final double IDLE_ROTATION_SPEED = Math.PI / 6;
 
-    // Damage of turret
-    private static final float DAMAGE = 66;
-
-    // Turret's target
-    private Unit target;
+    // Direction of turret
+    public double direction;
 
     public Turret(BuildingParams params) {
         super(params, BuildingType.TURRET);
     }
 
+    // Updates turret
+    public void update(float delta, Unit unit) {
+        if (unit == null) {
+            direction += IDLE_ROTATION_SPEED * delta;
+        } else {
+            direction = GeoBattleMath.getDirection(
+                    unit.x - x - getSizeX() / 2.0,
+                    unit.y - y - getSizeY() / 2.0
+            );
+        }
+    }
+
     @Override
-    public void update(float delta, GameState gameState) {
-//        if (target != null) {
-//            double dist2 = Math.pow(x + getSizeX() / 2.0 - target.x, 2) + Math.pow(y + getSizeY() / 2.0 - target.y2, 2);
-//
-//            if (dist2 <= RANGE * RANGE)
-//                target.setHealth(target.getHealth() - DAMAGE * delta);
-//            else
-//                target = null;
-//        }
-//
-//        if (target == null) {
-//            for (PlayerState player : gameState.getPlayers()) {
-//                Unit unit = player.getUnit(id);
-//                if (unit == null) {
-//                    // If player is not owner
-//                    Iterator<Unit> units = player.getAllUnits();
-//                    while (units.hasNext()) {
-//                        Unit next = units.next();
-//
-//                        double dist2 = Math.pow(x + getSizeX() / 2.0 - target.x, 2) + Math.pow(y + getSizeY() / 2.0 - target.y2, 2);
-//
-//                        if (dist2 <= RANGE * RANGE) {
-//                            target = next;
-//                            target.setHealth(target.getHealth() - DAMAGE * delta);
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//        }
+    public void draw(Batch batch, GeoBattleMap map, BuildingTextures buildingTextures, Color color, boolean drawIcons) {
+        super.draw(batch, map, buildingTextures, color, drawIcons);
+        if (!drawIcons) {
+            map.drawCenteredTextureSubTiles(
+                    batch, x + getSizeX() / 2.0, y + getSizeY() / 2.0,
+                    getSizeX() + 1, getSizeY() + 1,
+                    direction, buildingTextures.turretTowerTexture, Color.WHITE
+            );
+        }
     }
 
     // Clones turret

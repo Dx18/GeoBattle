@@ -10,9 +10,6 @@ public final class ResearchCenter extends Building {
         super(params, BuildingType.RESEARCH_CENTER);
     }
 
-    @Override
-    public void update(float delta, GameState gameState) {}
-
     // Clones research center
     @Override
     public Building clone() {

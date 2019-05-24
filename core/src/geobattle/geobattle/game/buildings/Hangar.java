@@ -45,9 +45,6 @@ public final class Hangar extends Building {
         }
     }
 
-    @Override
-    public void update(float delta, GameState gameState) {}
-
     // Clones hangar
     @Override
     public Building clone() {

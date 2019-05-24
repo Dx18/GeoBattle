@@ -10,9 +10,6 @@ public final class Generator extends Building {
         super(params, BuildingType.GENERATOR);
     }
 
-    @Override
-    public void update(float delta, GameState gameState) {}
-
     // Clones generator
     @Override
     public Building clone() {

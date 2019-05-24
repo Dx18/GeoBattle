@@ -10,9 +10,6 @@ public final class Mine extends Building {
         super(params, BuildingType.MINE);
     }
 
-    @Override
-    public void update(float delta, GameState gameState) {}
-
     // Clones mine
     @Override
     public Building clone() {
