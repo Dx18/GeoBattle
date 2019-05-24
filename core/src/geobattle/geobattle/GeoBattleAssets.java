@@ -82,4 +82,13 @@ public final class GeoBattleAssets {
 
     // Count of frames in explosion animation
     public static final int ANIMATION_EXPLOSION_FRAME_COUNT = 74;
+
+    // Background music 1
+    public static final String MUSIC_BACKGROUND_1 = "music/background1.ogg";
+
+    // Background music 2
+    public static final String MUSIC_BACKGROUND_2 = "music/background2.ogg";
+
+    // Background music 3
+    public static final String MUSIC_BACKGROUND_3 = "music/background3.ogg";
 }

@@ -35,6 +35,9 @@ public final class GeoBattle extends Game {
 	// Internationalization bundle
 	private I18NBundle i18NBundle;
 
+	// Music controller
+	private GeoBattleMusicController musicController;
+
 	// Constructor
     public GeoBattle(ExternalAPI externalAPI) {
         this.externalAPI = externalAPI;
@@ -92,6 +95,13 @@ public final class GeoBattle extends Game {
         if (!VisUI.isLoaded())
             VisUI.load(assetManager.get(GeoBattleAssets.GUI_SKIN, Skin.class));
 //        VisUI.load();
+
+        musicController = new GeoBattleMusicController(new String[] {
+                GeoBattleAssets.MUSIC_BACKGROUND_1,
+                GeoBattleAssets.MUSIC_BACKGROUND_2,
+                GeoBattleAssets.MUSIC_BACKGROUND_3
+        });
+        musicController.nextTrack();
 
         // setScreen(new LoginScreen(externalAPI, assetManager, this));
         setScreen(new MainMenuScreen(assetManager, this));
@@ -182,5 +192,6 @@ public final class GeoBattle extends Game {
 	public void dispose() {
         assetManager.dispose();
         getScreen().dispose();
+        musicController.dispose();
     }
 }
