@@ -131,8 +131,8 @@ public abstract class Unit {
             double minSpeedY = Math.sin(direction) * MIN_MOVE_SPEED * delta;
 
             if (
-                    Math.pow(destX - x + minSpeedY, 2) + Math.pow(destY - y - minSpeedX, 2) < MIN_RADIUS * MIN_RADIUS ||
-                    Math.pow(destX - x - minSpeedY, 2) + Math.pow(destY - y + minSpeedX, 2) < MIN_RADIUS * MIN_RADIUS
+                    Math.pow(destX - x + minSpeedY * MIN_RADIUS / MIN_MOVE_SPEED / delta, 2) + Math.pow(destY - y - minSpeedX * MIN_RADIUS / MIN_MOVE_SPEED / delta, 2) < MIN_RADIUS * MIN_RADIUS ||
+                    Math.pow(destX - x - minSpeedY * MIN_RADIUS / MIN_MOVE_SPEED / delta, 2) + Math.pow(destY - y + minSpeedX * MIN_RADIUS / MIN_MOVE_SPEED / delta, 2) < MIN_RADIUS * MIN_RADIUS
             ) {
                 x += Math.cos(direction) * MAX_MOVE_SPEED * delta;
                 y += Math.sin(direction) * MAX_MOVE_SPEED * delta;
@@ -150,8 +150,8 @@ public abstract class Unit {
             double minSpeedY = Math.sin(direction) * MIN_MOVE_SPEED * delta;
 
             if (
-                    Math.pow(destX - x + minSpeedY, 2) + Math.pow(destY - y - minSpeedX, 2) < MIN_RADIUS * MIN_RADIUS ||
-                    Math.pow(destX - x - minSpeedY, 2) + Math.pow(destY - y + minSpeedX, 2) < MIN_RADIUS * MIN_RADIUS
+                    Math.pow(destX - x + minSpeedY * MIN_RADIUS / MIN_MOVE_SPEED / delta, 2) + Math.pow(destY - y - minSpeedX * MIN_RADIUS / MIN_MOVE_SPEED / delta, 2) < MIN_RADIUS * MIN_RADIUS ||
+                    Math.pow(destX - x - minSpeedY * MIN_RADIUS / MIN_MOVE_SPEED / delta, 2) + Math.pow(destY - y + minSpeedX * MIN_RADIUS / MIN_MOVE_SPEED / delta, 2) < MIN_RADIUS * MIN_RADIUS
             ) {
                 x += Math.cos(direction) * MAX_MOVE_SPEED * delta;
                 y += Math.sin(direction) * MAX_MOVE_SPEED * delta;
