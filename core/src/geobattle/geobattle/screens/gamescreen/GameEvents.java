@@ -470,6 +470,11 @@ public class GameEvents {
 
                 UnitGroupMovingInfo unitGroupMovingInfo = attackScript.unitGroupMoving[hangarIds.get(next.id, -1)];
 
+                if (gameState.getTime() > unitGroupMovingInfo.returnTime && !(next.units.getState() instanceof UnitGroupState.Idle)) {
+                    next.units.setState(new UnitGroupState.Idle(next));
+                    continue;
+                }
+
                 double hangarCenterX = next.x + next.getSizeX() / 2.0;
                 double hangarCenterY = next.y + next.getSizeY() / 2.0;
 
