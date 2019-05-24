@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 
 import java.util.Iterator;
 
-import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.units.Unit;
 import geobattle.geobattle.game.units.UnitGroup;
 

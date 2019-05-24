@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.I18NBundle;
 
 import geobattle.geobattle.GeoBattle;
-import geobattle.geobattle.screens.selectserverscreen.SelectServerScreen;
 
 public final class MainMenuScreen implements Screen {
     private final GeoBattle game;

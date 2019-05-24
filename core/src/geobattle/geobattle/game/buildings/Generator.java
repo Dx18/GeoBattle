@@ -2,8 +2,6 @@ package geobattle.geobattle.game.buildings;
 
 import com.google.gson.JsonObject;
 
-import geobattle.geobattle.game.GameState;
-
 // Generator
 public final class Generator extends Building {
     public Generator(BuildingParams params) {

@@ -1,10 +1,7 @@
 package geobattle.geobattle.screens.gamescreen.gamescreenmodedata;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-
-import java.util.Iterator;
 
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.buildings.Sector;

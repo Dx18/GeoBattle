@@ -4,8 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import java.util.ArrayList;
-
 public final class JsonObjects {
     // Converts Color to JSON
     public static JsonObject toJson(Color color) {

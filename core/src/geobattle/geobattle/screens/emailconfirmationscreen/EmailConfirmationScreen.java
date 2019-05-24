@@ -6,14 +6,11 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
-import java.util.Locale;
-
 import geobattle.geobattle.GeoBattle;
-import geobattle.geobattle.actionresults.MatchBranch;
-import geobattle.geobattle.server.Callback;
 import geobattle.geobattle.actionresults.EmailConfirmationResult;
-import geobattle.geobattle.server.ExternalAPI;
 import geobattle.geobattle.actionresults.ResendEmailResult;
+import geobattle.geobattle.server.Callback;
+import geobattle.geobattle.server.ExternalAPI;
 
 public final class EmailConfirmationScreen implements Screen {
     private final ExternalAPI externalAPI;

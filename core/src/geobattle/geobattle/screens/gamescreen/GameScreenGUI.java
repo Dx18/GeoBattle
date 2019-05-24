@@ -2,21 +2,12 @@ package geobattle.geobattle.screens.gamescreen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.widget.VisImageButton;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -25,15 +16,7 @@ import com.kotcrab.vis.ui.widget.VisTextButton;
 import geobattle.geobattle.GeoBattleAssets;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
-import geobattle.geobattle.game.research.ResearchInfo;
-import geobattle.geobattle.game.research.ResearchType;
 import geobattle.geobattle.game.units.UnitType;
-import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildFirstSectorMode;
-import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildMode;
-import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildSectorMode;
-import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.DestroyMode;
-import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.GameScreenModeData;
-import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.NormalMode;
 
 // GUI for game screen
 final class GameScreenGUI {

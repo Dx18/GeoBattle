@@ -1,7 +1,5 @@
 package geobattle.geobattle.map;
 
-import com.google.gson.JsonObject;
-
 import geobattle.geobattle.actionresults.MatchBranch;
 
 // Event of GeoBattle map

@@ -1,9 +1,5 @@
 package geobattle.geobattle.game.gamestatediff;
 
-import java.util.ArrayList;
-
-import geobattle.geobattle.game.buildings.Hangar;
-import geobattle.geobattle.game.units.Unit;
 import geobattle.geobattle.game.units.UnitGroup;
 
 // Difference between hangars

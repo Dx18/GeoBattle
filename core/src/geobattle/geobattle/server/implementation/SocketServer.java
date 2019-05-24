@@ -2,7 +2,6 @@ package geobattle.geobattle.server.implementation;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.io.ByteArrayInputStream;
@@ -25,38 +24,38 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
 import geobattle.geobattle.actionresults.AttackResult;
+import geobattle.geobattle.actionresults.AuthorizationResult;
 import geobattle.geobattle.actionresults.BuildResult;
 import geobattle.geobattle.actionresults.DestroyResult;
+import geobattle.geobattle.actionresults.EmailConfirmationResult;
+import geobattle.geobattle.actionresults.RegistrationResult;
 import geobattle.geobattle.actionresults.ResearchResult;
+import geobattle.geobattle.actionresults.ResendEmailResult;
 import geobattle.geobattle.actionresults.SectorBuildResult;
 import geobattle.geobattle.actionresults.StateRequestResult;
 import geobattle.geobattle.actionresults.UnitBuildResult;
 import geobattle.geobattle.actionresults.UpdateRequestResult;
-import geobattle.geobattle.events.UpdateRequestEvent;
-import geobattle.geobattle.game.buildings.Building;
-import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.events.AttackEvent;
+import geobattle.geobattle.events.AuthorizationEvent;
 import geobattle.geobattle.events.BuildEvent;
 import geobattle.geobattle.events.DestroyEvent;
+import geobattle.geobattle.events.EmailConfirmationEvent;
+import geobattle.geobattle.events.RegistrationEvent;
 import geobattle.geobattle.events.ResearchEvent;
+import geobattle.geobattle.events.ResendEmailEvent;
 import geobattle.geobattle.events.SectorBuildEvent;
 import geobattle.geobattle.events.StateRequestEvent;
 import geobattle.geobattle.events.UnitBuildEvent;
+import geobattle.geobattle.events.UpdateRequestEvent;
+import geobattle.geobattle.game.buildings.Building;
+import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.research.ResearchType;
 import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.server.AuthInfo;
-import geobattle.geobattle.actionresults.AuthorizationResult;
 import geobattle.geobattle.server.Callback;
 import geobattle.geobattle.server.CancelHandle;
-import geobattle.geobattle.actionresults.EmailConfirmationResult;
 import geobattle.geobattle.server.OSAPI;
-import geobattle.geobattle.actionresults.RegistrationResult;
-import geobattle.geobattle.actionresults.ResendEmailResult;
 import geobattle.geobattle.server.Server;
-import geobattle.geobattle.events.AuthorizationEvent;
-import geobattle.geobattle.events.EmailConfirmationEvent;
-import geobattle.geobattle.events.RegistrationEvent;
-import geobattle.geobattle.events.ResendEmailEvent;
 import geobattle.geobattle.util.FrequencyQueue;
 
 public final class SocketServer implements Server {

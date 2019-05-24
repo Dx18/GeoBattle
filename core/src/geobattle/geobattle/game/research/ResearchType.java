@@ -1,8 +1,5 @@
 package geobattle.geobattle.game.research;
 
-import geobattle.geobattle.game.buildings.BuildingType;
-import geobattle.geobattle.game.buildings.ResearchCenter;
-
 public enum ResearchType {
     TURRET_DAMAGE(
             "TurretDamage",

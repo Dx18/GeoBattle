@@ -1,14 +1,10 @@
 package geobattle.geobattle.actionresults;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
-import java.util.ArrayList;
 
 import geobattle.geobattle.game.GameStateUpdate;
 import geobattle.geobattle.game.research.ResearchInfo;
-import geobattle.geobattle.util.JsonObjects;
 
 // Result of update request
 public abstract class UpdateRequestResult {

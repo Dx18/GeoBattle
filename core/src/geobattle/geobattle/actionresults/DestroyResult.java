@@ -6,7 +6,6 @@ import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.BuildTransactionInfo;
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.GameStateUpdate;
-import geobattle.geobattle.screens.gamescreen.GameScreen;
 import geobattle.geobattle.screens.gamescreen.GameScreenMode;
 
 // Result of building destroying

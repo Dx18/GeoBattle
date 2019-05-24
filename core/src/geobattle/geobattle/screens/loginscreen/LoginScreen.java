@@ -8,13 +8,12 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import geobattle.geobattle.GeoBattle;
-import geobattle.geobattle.actionresults.MatchBranch;
+import geobattle.geobattle.actionresults.AuthorizationResult;
+import geobattle.geobattle.actionresults.RegistrationResult;
 import geobattle.geobattle.screens.emailconfirmationscreen.EmailConfirmationScreen;
 import geobattle.geobattle.screens.settingsscreen.SettingsScreen;
-import geobattle.geobattle.actionresults.AuthorizationResult;
 import geobattle.geobattle.server.Callback;
 import geobattle.geobattle.server.ExternalAPI;
-import geobattle.geobattle.actionresults.RegistrationResult;
 
 // Login screen
 public final class LoginScreen implements Screen {

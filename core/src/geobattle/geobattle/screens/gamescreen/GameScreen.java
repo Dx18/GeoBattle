@@ -25,15 +25,8 @@ import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.map.GeoBattleCamera;
 import geobattle.geobattle.map.GeoBattleMap;
-import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildFirstSectorMode;
-import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildMode;
-import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildSectorMode;
-import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.DestroyMode;
-import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.GameScreenModeData;
-import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.NormalMode;
 import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.ExternalAPI;
-import geobattle.geobattle.util.IntPoint;
 
 // Game screen
 public final class GameScreen implements Screen {

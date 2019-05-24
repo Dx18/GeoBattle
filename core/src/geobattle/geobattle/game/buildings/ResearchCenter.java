@@ -2,8 +2,6 @@ package geobattle.geobattle.game.buildings;
 
 import com.google.gson.JsonObject;
 
-import geobattle.geobattle.game.GameState;
-
 // Research center
 public final class ResearchCenter extends Building {
     public ResearchCenter(BuildingParams params) {

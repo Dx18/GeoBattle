@@ -7,7 +7,6 @@ import java.util.Iterator;
 
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.PlayerState;
-import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.util.IntRect;

@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
-import geobattle.geobattle.screens.emailconfirmationscreen.EmailConfirmationScreen;
 import geobattle.geobattle.screens.gamescreen.GameScreenMode;
 
 // Result of registration

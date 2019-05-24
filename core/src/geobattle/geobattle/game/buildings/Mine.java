@@ -2,8 +2,6 @@ package geobattle.geobattle.game.buildings;
 
 import com.google.gson.JsonObject;
 
-import geobattle.geobattle.game.GameState;
-
 // Mine
 public final class Mine extends Building {
     public Mine(BuildingParams params) {

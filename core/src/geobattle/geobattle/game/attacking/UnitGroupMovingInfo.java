@@ -1,6 +1,5 @@
 package geobattle.geobattle.game.attacking;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 // Info about unit group moving

@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.google.gson.JsonObject;
 
-import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.units.Unit;
 import geobattle.geobattle.map.BuildingTextures;
 import geobattle.geobattle.map.GeoBattleMap;
