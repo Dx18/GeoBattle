@@ -67,4 +67,16 @@ public final class GeoBattleAssets {
 
     // Spotter texture (team color)
     public static final String SPOTTER_TEAM_COLOR = "spotterTeamColor";
+
+    // Explosion animation
+    public static final String ANIMATION_EXPLOSION = "animations/explosion.png";
+
+    // Width of explosion animation frame
+    public static final int ANIMATION_EXPLOSION_FRAME_WIDTH = 100;
+
+    // Height of explosion animation frame
+    public static final int ANIMATION_EXPLOSION_FRAME_HEIGHT = 100;
+
+    // Count of frames in explosion animation
+    public static final int ANIMATION_EXPLOSION_FRAME_COUNT = 74;
 }

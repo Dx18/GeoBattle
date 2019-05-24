@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -24,6 +25,8 @@ import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.game.units.Unit;
+import geobattle.geobattle.map.animations.AnimationInstance;
+import geobattle.geobattle.map.animations.Animations;
 import geobattle.geobattle.screens.gamescreen.GameScreenMode;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildFirstSectorMode;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.BuildMode;
@@ -72,6 +75,9 @@ public class GeoBattleMap extends Actor {
     // Textures of units
     private UnitTextures unitTextures;
 
+    // Animations
+    private Animations animations;
+
     // Data of screen mode
     private GameScreenModeData screenModeData;
 
@@ -83,6 +89,9 @@ public class GeoBattleMap extends Actor {
 
     // Saved modes of game screen
     private HashMap<GameScreenMode, GameScreenModeData> screenModes;
+
+    // Available animations
+    private ArrayList<AnimationInstance> animationInstances;
 
     // Constructor
     public GeoBattleMap(
@@ -118,6 +127,7 @@ public class GeoBattleMap extends Actor {
 
         this.buildingTextures = new BuildingTextures(assetManager);
         this.unitTextures = new UnitTextures(assetManager);
+        this.animations = new Animations(assetManager);
 
         this.pointedTile = new IntPoint((int) geolocation.x, (int) geolocation.y);
 
@@ -137,6 +147,8 @@ public class GeoBattleMap extends Actor {
         camera.position.set(0, 0, 0);
 
         this.shapeRenderer = new ShapeRenderer();
+
+        this.animationInstances = new ArrayList<AnimationInstance>();
     }
 
     // Sets screen mode
@@ -207,7 +219,16 @@ public class GeoBattleMap extends Actor {
 
     // Updates map
     @Override
-    public void act(float delta) {}
+    public void act(float delta) {
+        for (int animationInstance = 0; animationInstance < animationInstances.size();) {
+            AnimationInstance current = animationInstances.get(animationInstance);
+            current.update(delta);
+            if (current.isExpired())
+                animationInstances.remove(animationInstance);
+            else
+                animationInstance++;
+        }
+    }
 
     // Draws region of tiles
     private void drawTiles(Batch batch, int startX, int startY, int endX, int endY, int zoomLevel) {
@@ -545,6 +566,9 @@ public class GeoBattleMap extends Actor {
 
         drawBuildings(batch, visible);
         drawUnits(batch, visible);
+
+        for (AnimationInstance animationInstance : animationInstances)
+            animationInstance.draw(batch, this);
 
         if (screenModeData != null)
             screenModeData.draw(batch, this, gameState, visible);
