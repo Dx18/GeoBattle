@@ -4,6 +4,13 @@ size: 1024,1024
 format: RGBA8888
 filter: MipMap,Nearest
 repeat: none
+beacon
+  rotate: false
+  xy: 776, 66
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
 generator
   rotate: false
   xy: 2, 70
@@ -34,7 +41,7 @@ mine
   index: -1
 mineTeamColor
   rotate: false
-  xy: 388, 2
+  xy: 614, 196
   size: 192, 192
   orig: 192, 192
   offset: 0, 0
@@ -46,39 +53,32 @@ researchCenter
   orig: 224, 192
   offset: 0, 0
   index: -1
-researchCenterBackup
+researchCenterTeamColor
   rotate: false
   xy: 388, 196
   size: 224, 192
   orig: 224, 192
   offset: 0, 0
   index: -1
-researchCenterTeamColor
-  rotate: false
-  xy: 614, 196
-  size: 224, 192
-  orig: 224, 192
-  offset: 0, 0
-  index: -1
 turret
   rotate: false
-  xy: 582, 2
+  xy: 808, 196
   size: 192, 192
   orig: 192, 192
   offset: 0, 0
   index: -1
 turretTeamColor
   rotate: false
-  xy: 776, 2
+  xy: 388, 2
   size: 192, 192
   orig: 192, 192
   offset: 0, 0
   index: -1
 turretTower
   rotate: false
-  xy: 840, 238
-  size: 150, 150
-  orig: 150, 150
+  xy: 582, 2
+  size: 192, 192
+  orig: 192, 192
   offset: 0, 0
   index: -1
 
@@ -87,16 +87,9 @@ size: 1024,1024
 format: RGBA8888
 filter: MipMap,Nearest
 repeat: none
-beacon
-  rotate: false
-  xy: 2, 2
-  size: 128, 128
-  orig: 128, 128
-  offset: 0, 0
-  index: -1
 beaconTeamColor
   rotate: false
-  xy: 516, 516
+  xy: 2, 2
   size: 128, 128
   orig: 128, 128
   offset: 0, 0

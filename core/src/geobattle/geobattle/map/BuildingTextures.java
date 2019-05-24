@@ -21,6 +21,9 @@ public final class BuildingTextures {
     // Texture of turret
     public final TextureRegion turretTexture;
 
+    // Texture of turret tower
+    public final TextureRegion turretTowerTexture;
+
     // Texture of generator
     public final TextureRegion generatorTexture;
 
@@ -88,6 +91,7 @@ public final class BuildingTextures {
         beaconTexture = buildingsAtlas.findRegion(GeoBattleAssets.BEACON);
         researchCenterTexture = buildingsAtlas.findRegion(GeoBattleAssets.RESEARCH_CENTER);
         turretTexture = buildingsAtlas.findRegion(GeoBattleAssets.TURRET);
+        turretTowerTexture = buildingsAtlas.findRegion(GeoBattleAssets.TURRET_TOWER);
         generatorTexture = buildingsAtlas.findRegion(GeoBattleAssets.GENERATOR);
         mineTexture = buildingsAtlas.findRegion(GeoBattleAssets.MINE);
         hangarTexture = buildingsAtlas.findRegion(GeoBattleAssets.HANGAR);

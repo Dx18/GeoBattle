@@ -26,6 +26,9 @@ public final class GeoBattleAssets {
     // Turret texture
     public static final String TURRET = "turret";
 
+    // Turret tower texture
+    public static final String TURRET_TOWER = "turretTower";
+
     // Generator texture
     public static final String GENERATOR = "generator";
 
