@@ -478,7 +478,7 @@ public class GameEvents {
                     }
                 } else {
                     if (next.units.getLastUpdateTime() < unitGroupMovingInfo.arriveTime)
-                        next.units.setState(new UnitGroupState.Attacking(victimSector, new Building[4]));
+                        next.units.setState(new UnitGroupState.Attacking(victimSector));
                 }
             }
         }
