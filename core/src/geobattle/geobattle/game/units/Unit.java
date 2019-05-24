@@ -47,6 +47,9 @@ public abstract class Unit {
     // Returns true if was updated at least once
     private boolean wasUpdated;
 
+    // Timer of bomb
+    private double bombTimer;
+
     public static class ServerSide {
         public final UnitType type;
 
@@ -94,8 +97,20 @@ public abstract class Unit {
         this.wasUpdated = false;
     }
 
+    // Returns bomb timer
+    public double getBombTimer() {
+        return bombTimer;
+    }
+
+    // Resets bomb timer
+    public void resetBombTimer() {
+        bombTimer = 0;
+    }
+
     // Updates unit
     public void update(float delta, double destX, double destY) {
+        bombTimer += delta;
+
         if (!wasUpdated) {
             Gdx.app.log("GeoBattle", "Was not updated");
             x = destX;

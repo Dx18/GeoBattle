@@ -498,7 +498,7 @@ public class GameEvents {
             while (sectors.hasNext()) {
                 Iterator<Hangar> hangars = sectors.next().getHangars();
                 while (hangars.hasNext()) {
-                    hangars.next().units.update(delta, gameState.getTime());
+                    hangars.next().units.update(delta, gameState.getTime(), map);
                 }
             }
         }

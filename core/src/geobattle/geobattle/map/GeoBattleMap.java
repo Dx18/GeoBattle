@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import geobattle.geobattle.GeoBattleConst;
+import geobattle.geobattle.actionresults.MatchBranch;
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.PlayerState;
 import geobattle.geobattle.game.buildings.Building;
@@ -634,5 +635,19 @@ public class GeoBattleMap extends Actor {
 
     public BuildingTextures getBuildingTextures() {
         return buildingTextures;
+    }
+
+    // Handles event
+    public void handleEvent(GeoBattleMapEvent event) {
+        event.match(
+                new MatchBranch<GeoBattleMapEvent.BombDropped>() {
+                    @Override
+                    public void onMatch(GeoBattleMapEvent.BombDropped bombDropped) {
+                        animationInstances.add(new AnimationInstance(
+                                animations.explosion, bombDropped.x, bombDropped.y, 2
+                        ));
+                    }
+                }
+        );
     }
 }

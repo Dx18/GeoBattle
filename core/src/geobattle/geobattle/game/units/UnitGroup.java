@@ -13,6 +13,8 @@ import geobattle.geobattle.actionresults.MatchBranch;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
+import geobattle.geobattle.map.GeoBattleMap;
+import geobattle.geobattle.map.GeoBattleMapEvent;
 import geobattle.geobattle.util.GeoBattleMath;
 
 // Group of units
@@ -51,7 +53,7 @@ public final class UnitGroup {
     }
 
     // Updates group of units
-    public void update(final float delta, final double currentTime) {
+    public void update(final float delta, final double currentTime, final GeoBattleMap map) {
         if (state == null)
             return;
 
@@ -71,7 +73,7 @@ public final class UnitGroup {
                 new MatchBranch<UnitGroupState.Attacking>() {
                     @Override
                     public void onMatch(UnitGroupState.Attacking attacking) {
-                        updateAttacking(delta, attacking);
+                        updateAttacking(delta, attacking, map);
                     }
                 }
         );
@@ -120,7 +122,7 @@ public final class UnitGroup {
     }
 
     // Updates group of units in case if state is UnitGroupState.Attacking
-    private void updateAttacking(float delta, UnitGroupState.Attacking attacking) {
+    private void updateAttacking(float delta, UnitGroupState.Attacking attacking, GeoBattleMap map) {
         Iterator<Building> buildingsIterator = attacking.sector.getAllBuildings();
         ArrayList<Building> buildings = new ArrayList<Building>();
         while (buildingsIterator.hasNext())
@@ -150,12 +152,30 @@ public final class UnitGroup {
                         attacking.attackedBuildings[slot].x + attacking.attackedBuildings[slot].getSizeX() / 2.0,
                         attacking.attackedBuildings[slot].y + attacking.attackedBuildings[slot].getSizeY() / 2.0
                 );
+
+                if (GeoBattleMath.tileRectangleContains(
+                        attacking.attackedBuildings[slot].x, attacking.attackedBuildings[slot].y,
+                        attacking.attackedBuildings[slot].getSizeX(), attacking.attackedBuildings[slot].getSizeY(),
+                        (int) units[slot].x, (int) units[slot].y
+                ) && units[slot].getBombTimer() > 1) {
+                    map.handleEvent(new GeoBattleMapEvent.BombDropped(units[slot].x, units[slot].y));
+                    units[slot].resetBombTimer();
+                }
             } else if (buildings.size() == 1) {
                 units[slot].update(
                         delta,
                         buildings.get(0).x + Math.random() * buildings.get(0).getSizeX(),
                         buildings.get(0).y + Math.random() * buildings.get(0).getSizeY()
                 );
+
+                if (GeoBattleMath.tileRectangleContains(
+                        buildings.get(0).x, buildings.get(0).y,
+                        buildings.get(0).getSizeX(), buildings.get(0).getSizeY(),
+                        (int) units[slot].x, (int) units[slot].y
+                ) && units[slot].getBombTimer() > 1) {
+                    map.handleEvent(new GeoBattleMapEvent.BombDropped(units[slot].x, units[slot].y));
+                    units[slot].resetBombTimer();
+                }
             } else {
                 units[slot].update(
                         delta,
