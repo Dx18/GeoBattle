@@ -1,5 +1,8 @@
 package geobattle.geobattle.game.units;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import geobattle.geobattle.actionresults.MatchBranch;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.Hangar;
@@ -51,12 +54,25 @@ public abstract class UnitGroupState {
         // Sector units attacking
         public final Sector sector;
 
+        // All buildings
+        public final Building[] allBuildings;
+
         // Buildings attacked by units
         public final Building[] attackedBuildings;
 
-        public Attacking(Sector sector, Building[] attackedBuildings) {
+        public Attacking(Sector sector) {
             this.sector = sector;
-            this.attackedBuildings = attackedBuildings;
+            this.attackedBuildings = new Building[4];
+
+            ArrayList<Building> allBuildings = new ArrayList<Building>();
+
+            Iterator<Building> buildings = sector.getAllBuildings();
+            while (buildings.hasNext()) {
+                Building next = buildings.next();
+                allBuildings.add(next);
+            }
+
+            this.allBuildings = allBuildings.toArray(new Building[0]);
         }
     }
 
