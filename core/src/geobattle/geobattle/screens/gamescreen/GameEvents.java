@@ -15,7 +15,6 @@ import geobattle.geobattle.actionresults.DestroyResult;
 import geobattle.geobattle.actionresults.MatchBranch;
 import geobattle.geobattle.actionresults.ResearchResult;
 import geobattle.geobattle.actionresults.SectorBuildResult;
-import geobattle.geobattle.actionresults.StateRequestResult;
 import geobattle.geobattle.actionresults.UnitBuildResult;
 import geobattle.geobattle.actionresults.UpdateRequestResult;
 import geobattle.geobattle.game.attacking.AttackScript;
@@ -437,14 +436,6 @@ public class GameEvents {
 
                 if (!hangarIds.containsKey(next.id))
                     continue;
-
-                if (prevTimePoint == null && nextTimePoint == null) {
-                    Gdx.app.log("GeoBattle", "Both are null");
-                } else if (prevTimePoint == null) {
-                    Gdx.app.log("GeoBattle", "Next is " + nextTimePoint.time);
-                } else if (nextTimePoint == null) {
-                    Gdx.app.log("GeoBattle", "Prev is " + prevTimePoint.time);
-                }
 
                 float factor = (float) ((gameState.getTime() - prevTimePoint.time) / (nextTimePoint.time - prevTimePoint.time));
 
