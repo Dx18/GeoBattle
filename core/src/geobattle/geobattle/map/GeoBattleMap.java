@@ -566,10 +566,11 @@ public class GeoBattleMap extends Actor {
         batch.begin();
 
         drawBuildings(batch, visible);
-        drawUnits(batch, visible);
 
         for (AnimationInstance animationInstance : animationInstances)
             animationInstance.draw(batch, this);
+
+        drawUnits(batch, visible);
 
         if (screenModeData != null)
             screenModeData.draw(batch, this, gameState, visible);
