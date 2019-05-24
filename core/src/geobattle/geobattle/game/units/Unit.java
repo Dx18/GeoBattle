@@ -20,6 +20,9 @@ public abstract class Unit {
     // Max rotate speed of unit
     public final double MAX_ROTATION_SPEED = Math.PI / 2;
 
+    // Radius of minimal circle where unit can fly
+    public final double MIN_RADIUS = MIN_MOVE_SPEED / Math.sqrt(2.0 * (1 - Math.cos(MAX_ROTATION_SPEED)));
+
     // X coordinate of unit
     public double x;
 
@@ -109,6 +112,18 @@ public abstract class Unit {
         double actualAngleDelta = GeoBattleMath.normalizeAngle(targetDirection - direction);
 
         if (actualAngleDelta > maxAngleDelta) {
+            double minSpeedX = Math.cos(direction) * MIN_MOVE_SPEED * delta;
+            double minSpeedY = Math.sin(direction) * MIN_MOVE_SPEED * delta;
+
+            if (
+                    Math.pow(destX - x + minSpeedY, 2) + Math.pow(destY - y - minSpeedX, 2) < MIN_RADIUS * MIN_RADIUS ||
+                    Math.pow(destX - x - minSpeedY, 2) + Math.pow(destY - y + minSpeedX, 2) < MIN_RADIUS * MIN_RADIUS
+            ) {
+                x += Math.cos(direction) * MAX_MOVE_SPEED * delta;
+                y += Math.sin(direction) * MAX_MOVE_SPEED * delta;
+                return;
+            }
+
             direction = ((direction + maxAngleDelta) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
 
             double minDistance = MIN_MOVE_SPEED * delta;
@@ -116,6 +131,18 @@ public abstract class Unit {
             x += Math.cos(direction) * minDistance;
             y += Math.sin(direction) * minDistance;
         } else if (actualAngleDelta < -maxAngleDelta) {
+            double minSpeedX = Math.cos(direction) * MIN_MOVE_SPEED * delta;
+            double minSpeedY = Math.sin(direction) * MIN_MOVE_SPEED * delta;
+
+            if (
+                    Math.pow(destX - x + minSpeedY, 2) + Math.pow(destY - y - minSpeedX, 2) < MIN_RADIUS * MIN_RADIUS ||
+                    Math.pow(destX - x - minSpeedY, 2) + Math.pow(destY - y + minSpeedX, 2) < MIN_RADIUS * MIN_RADIUS
+            ) {
+                x += Math.cos(direction) * MAX_MOVE_SPEED * delta;
+                y += Math.sin(direction) * MAX_MOVE_SPEED * delta;
+                return;
+            }
+
             direction = ((direction - maxAngleDelta) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
 
             double minDistance = MIN_MOVE_SPEED * delta;
