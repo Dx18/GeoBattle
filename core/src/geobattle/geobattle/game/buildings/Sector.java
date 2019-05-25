@@ -13,9 +13,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 
+import geobattle.geobattle.actionresults.MatchBranch;
 import geobattle.geobattle.game.gamestatediff.HangarDiff;
 import geobattle.geobattle.game.gamestatediff.SectorDiff;
 import geobattle.geobattle.game.research.ResearchInfo;
+import geobattle.geobattle.game.units.Unit;
 import geobattle.geobattle.map.BuildingTextures;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.util.CastIterator;
@@ -60,6 +62,12 @@ public final class Sector {
     // Info about research
     private final ResearchInfo researchInfo;
 
+    // Current state of sector
+    private SectorState state;
+
+    // Time of last update
+    private double lastUpdateTime;
+
     // Comparator for buildings
     private final static Comparator<Building> buildingComparator = new Comparator<Building>() {
         @Override
@@ -77,6 +85,7 @@ public final class Sector {
         updateConstParameters();
         this.health = maxHealth;
         this.researchInfo = researchInfo;
+        setState(new SectorState.Normal());
     }
 
     // Updates `maxHealth` and `energy`
@@ -86,6 +95,86 @@ public final class Sector {
         for (Building building : buildings) {
             maxHealth += building.getBuildingType().healthBonus;
             energy += building.getBuildingType().getEnergyDelta(researchInfo);
+        }
+    }
+
+    // Updates sector
+    public void update(final float delta, double currentTime, final GeoBattleMap map) {
+        if (state == null)
+            return;
+
+        state.match(
+                new MatchBranch<SectorState.Normal>() {
+                    @Override
+                    public void onMatch(SectorState.Normal normal) {
+                        updateNormal(delta, normal);
+                    }
+                },
+                new MatchBranch<SectorState.Attacked>() {
+                    @Override
+                    public void onMatch(SectorState.Attacked attacked) {
+                        updateAttacked(delta, attacked, map);
+                    }
+                }
+        );
+
+        this.lastUpdateTime = currentTime;
+    }
+
+    // Updates sector in case if it's in normal state
+    private void updateNormal(float delta, SectorState.Normal normal) {
+        if (energy < 0)
+            return;
+
+        Iterator<Turret> turrets = getTurrets();
+        while (turrets.hasNext()) {
+            Turret turret = turrets.next();
+            turret.update(delta, null);
+        }
+    }
+
+    // Updates sector in case if it's in attacked state
+    private void updateAttacked(float delta, SectorState.Attacked attacked, GeoBattleMap map) {
+        if (energy < 0)
+            return;
+
+        for (int group = 0; group < attacked.units.size(); group++) {
+            if (attacked.units.get(group).getCount() == 0) {
+                for (int attackedUnit = 0; attackedUnit < attacked.attackedUnits.length; attackedUnit++) {
+                    if (attacked.attackedUnits[attackedUnit] != null && attacked.attackedUnits[attackedUnit].hangarId == attacked.units.get(group).hangarId)
+                        attacked.attackedUnits[attackedUnit] = null;
+                }
+                attacked.units.remove(group);
+            }
+        }
+
+        int index = 0;
+        Iterator<Turret> turrets = getTurrets();
+        while (turrets.hasNext()) {
+            Turret turret = turrets.next();
+
+            attacked.timeLeft[index] -= delta;
+            if (attacked.units.size() != 0 && (attacked.timeLeft[index] <= 0 || attacked.attackedUnits[index] == null)) {
+                int group = (int) (Math.random() * attacked.units.size());
+                int unitIndex = (int) (Math.random() * attacked.units.get(group).getCount());
+
+                int currentUnit = 0;
+                Unit unit = null;
+                Iterator<Unit> units = attacked.units.get(group).getAllUnits();
+                while (units.hasNext()) {
+                    if (currentUnit == unitIndex) {
+                        unit = units.next();
+                        break;
+                    }
+                    units.next();
+                }
+                attacked.attackedUnits[index] = unit;
+                attacked.timeLeft[index] = Math.random() * 2 + 1;
+            }
+
+            turret.update(delta, attacked.attackedUnits[index]);
+
+            index++;
         }
     }
 
@@ -295,5 +384,18 @@ public final class Sector {
             addBuilding(added);
         for (HangarDiff changed : diff.changedHangars)
             ((Hangar) getBuilding(changed.hangarId)).setUnits(changed.newUnits);
+    }
+
+    public SectorState getState() {
+        return state;
+    }
+
+    public void setState(SectorState state) {
+        this.state = state;
+    }
+
+    // Returns time of last update
+    public double getLastUpdateTime() {
+        return lastUpdateTime;
     }
 }

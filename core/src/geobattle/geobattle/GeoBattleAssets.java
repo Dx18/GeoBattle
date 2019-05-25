@@ -83,6 +83,18 @@ public final class GeoBattleAssets {
     // Count of frames in explosion animation
     public static final int ANIMATION_EXPLOSION_FRAME_COUNT = 74;
 
+    // Turret flash animation
+    public static final String ANIMATION_TURRET_FLASH = "animations/turretFlash.png";
+
+    // Width of turret flash animation frame
+    public static final int ANIMATION_TURRET_FLASH_FRAME_WIDTH = 137;
+
+    // Height of turret flash animation frame
+    public static final int ANIMATION_TURRET_FLASH_FRAME_HEIGHT = 100;
+
+    // Count of frames in turret flash animation
+    public static final int ANIMATION_TURRET_FLASH_FRAME_COUNT = 4;
+
     // Background music 1
     public static final String MUSIC_BACKGROUND_1 = "music/background1.ogg";
 

@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 
 import geobattle.geobattle.map.BuildingTextures;
 import geobattle.geobattle.map.GeoBattleMap;
+import geobattle.geobattle.map.animations.Animations;
 
 // Base class for all buildings
 public abstract class Building {
@@ -62,7 +63,7 @@ public abstract class Building {
     }
 
     // Draws building
-    public void draw(Batch batch, GeoBattleMap map, BuildingTextures buildingTextures, Color color, boolean drawIcons) {
+    public void draw(Batch batch, GeoBattleMap map, BuildingTextures buildingTextures, Animations animations, Color color, boolean drawIcons) {
         if (drawIcons) {
             map.drawTexture(
                     batch, x, y, getSizeX(), getSizeY(), 0,

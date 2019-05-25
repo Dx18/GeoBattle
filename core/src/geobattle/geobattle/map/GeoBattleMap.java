@@ -459,7 +459,7 @@ public class GeoBattleMap extends Actor {
                     ))
                         continue;
 
-                    nextBuilding.draw(batch, this, buildingTextures, player.getColor(), drawIcons);
+                    nextBuilding.draw(batch, this, buildingTextures, animations, player.getColor(), drawIcons);
                 }
             }
         }

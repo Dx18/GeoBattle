@@ -29,6 +29,9 @@ public final class UnitGroup {
     // Y coordinate of group
     private double y;
 
+    // Hangar ID
+    public final int hangarId;
+
     // State of group
     private UnitGroupState state;
 
@@ -44,6 +47,7 @@ public final class UnitGroup {
         this.x = hangar.x + hangar.getSizeX() / 2.0;
         this.y = hangar.y + hangar.getSizeY() / 2.0;
         setState(new UnitGroupState.Idle(hangar));
+        this.hangarId = hangar.id;
     }
 
     public UnitGroup(Hangar hangar) {

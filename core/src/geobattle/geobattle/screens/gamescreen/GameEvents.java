@@ -3,6 +3,7 @@ package geobattle.geobattle.screens.gamescreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntIntMap;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import geobattle.geobattle.GeoBattle;
@@ -24,8 +25,12 @@ import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
+import geobattle.geobattle.game.buildings.SectorState;
+import geobattle.geobattle.game.buildings.Turret;
 import geobattle.geobattle.game.research.ResearchInfo;
 import geobattle.geobattle.game.research.ResearchType;
+import geobattle.geobattle.game.units.Unit;
+import geobattle.geobattle.game.units.UnitGroup;
 import geobattle.geobattle.game.units.UnitGroupState;
 import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.map.GeoBattleMap;
@@ -403,11 +408,8 @@ public class GameEvents {
                     if (!hangarIds.containsKey(next.id))
                         continue;
 
-                    Gdx.app.log("GeoBattle", "Set Idle state");
                     next.units.setState(new UnitGroupState.Idle(next));
                 }
-
-                Gdx.app.log("GeoBattle", "Attack script expired");
 
                 gameState.getAttackScripts().remove(eventIndex);
             } else
@@ -429,6 +431,17 @@ public class GameEvents {
 
             TimePoint prevTimePoint = attackScript.getTimePointBefore(gameState.getTime());
             TimePoint nextTimePoint = attackScript.getTimePointAfter(gameState.getTime());
+
+            if (victimSector != null && !(victimSector.getState() instanceof SectorState.Attacked)) {
+                Iterator<Turret> turrets = victimSector.getTurrets();
+                int turretCount = 0;
+                while (turrets.hasNext()) {
+                    turretCount++;
+                    turrets.next();
+                }
+
+                victimSector.setState(new SectorState.Attacked(new ArrayList<UnitGroup>(), new Unit[turretCount]));
+            }
 
             Iterator<Hangar> hangars = attacker.getHangars();
             while (hangars.hasNext()) {
@@ -476,9 +489,16 @@ public class GameEvents {
                     if (next.units.getLastUpdateTime() < attackScript.startReturnTime) {
                         next.units.setState(new UnitGroupState.Moving(unitGroupMovingInfo.arriveX, unitGroupMovingInfo.arriveY, attackScript.startReturnTime, hangarCenterX, hangarCenterY, unitGroupMovingInfo.returnTime));
                     }
+                    if (victimSector != null && victimSector.getLastUpdateTime() < attackScript.startReturnTime) {
+                        victimSector.setState(new SectorState.Normal());
+                    }
                 } else {
-                    if (next.units.getLastUpdateTime() < unitGroupMovingInfo.arriveTime)
+                    if (victimSector != null && next.units.getLastUpdateTime() < unitGroupMovingInfo.arriveTime) {
                         next.units.setState(new UnitGroupState.Attacking(victimSector));
+                        if (victimSector.getState() instanceof SectorState.Attacked) {
+                            ((SectorState.Attacked) victimSector.getState()).units.add(next.units);
+                        }
+                    }
                 }
             }
         }
@@ -487,10 +507,12 @@ public class GameEvents {
         while (players.hasNext()) {
             Iterator<Sector> sectors = players.next().getAllSectors();
             while (sectors.hasNext()) {
-                Iterator<Hangar> hangars = sectors.next().getHangars();
+                Sector next = sectors.next();
+                Iterator<Hangar> hangars = next.getHangars();
                 while (hangars.hasNext()) {
                     hangars.next().units.update(delta, gameState.getTime(), map);
                 }
+                next.update(delta, gameState.getTime(), map);
             }
         }
     }
