@@ -147,6 +147,7 @@ public class AndroidLauncher extends AndroidApplication {
                 oSAPI
         );
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
+        config.useImmersiveMode = true;
         initialize(new GeoBattle(externalAPI), config);
     }
 

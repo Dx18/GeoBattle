@@ -406,7 +406,7 @@ public class PlayerState {
 
         JsonArray jsonSectors = object.getAsJsonArray("sectors");
         for (JsonElement jsonSector : jsonSectors)
-            player.addSector(Sector.fromJson(jsonSector.getAsJsonObject(), researchInfo));
+            player.addSector(Sector.fromJson(jsonSector.getAsJsonObject(), playerId, researchInfo));
 
         return player;
     }

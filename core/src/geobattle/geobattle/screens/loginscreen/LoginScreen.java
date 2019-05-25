@@ -12,6 +12,7 @@ import geobattle.geobattle.actionresults.AuthorizationResult;
 import geobattle.geobattle.actionresults.RegistrationResult;
 import geobattle.geobattle.screens.emailconfirmationscreen.EmailConfirmationScreen;
 import geobattle.geobattle.screens.settingsscreen.SettingsScreen;
+import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.Callback;
 import geobattle.geobattle.server.ExternalAPI;
 
@@ -80,6 +81,8 @@ public final class LoginScreen implements Screen {
     private void onAuthorizationResult(AuthorizationResult result) {
         if (result != null)
             result.apply(game, null);
+        if (result instanceof AuthorizationResult.Success)
+            Gdx.input.setOnscreenKeyboardVisible(false);
     }
 
     // Invokes when player tries to register
@@ -107,6 +110,8 @@ public final class LoginScreen implements Screen {
     private void onRegistrationResult(RegistrationResult result) {
         if (result != null)
             result.apply(game, null);
+        if (result instanceof RegistrationResult.Success)
+            Gdx.input.setOnscreenKeyboardVisible(false);
     }
 
     public void onSettings() {

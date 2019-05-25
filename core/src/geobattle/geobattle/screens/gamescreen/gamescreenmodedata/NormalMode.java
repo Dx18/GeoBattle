@@ -3,7 +3,10 @@ package geobattle.geobattle.screens.gamescreen.gamescreenmodedata;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
+import java.util.Iterator;
+
 import geobattle.geobattle.game.GameState;
+import geobattle.geobattle.game.PlayerState;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.map.GeoBattleMap;
@@ -36,8 +39,11 @@ public final class NormalMode extends GameScreenModeData {
         pointedSector = null;
 
         pointedBuilding = gameState.getCurrentPlayer().getBuilding(x, y);
-        if (pointedBuilding == null)
-            pointedSector = gameState.getCurrentPlayer().getSector(x, y);
+        if (pointedBuilding == null) {
+            Iterator<PlayerState> players = gameState.getPlayers();
+            while (pointedSector == null && players.hasNext())
+                pointedSector = players.next().getSector(x, y);
+        }
     }
 
     @Override

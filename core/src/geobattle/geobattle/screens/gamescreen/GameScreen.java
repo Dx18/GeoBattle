@@ -88,7 +88,7 @@ public final class GameScreen implements Screen {
 
         this.debugMode = true;
 
-        tilesStage.setDebugAll(true);
+        tilesStage.setDebugAll(false);
     }
 
     public I18NBundle getI18NBundle() {
@@ -224,21 +224,21 @@ public final class GameScreen implements Screen {
         tilesStage.act(delta);
         guiStage.act(delta);
 
-        StringBuilder infoText = new StringBuilder();
-        infoText.append("$ ");
-        infoText.append((int) gameState.getResources());
-
+        gui.resourcesLabel.setText(String.valueOf((int) gameState.getResources()));
         if (map.getPointedSector() != null) {
             Sector pointedSector = map.getPointedSector();
-            infoText.append("\nE: ");
-            infoText.append(pointedSector.getEnergy());
-            infoText.append("\nH: ");
-            infoText.append(pointedSector.getHealth());
-            infoText.append(" / ");
-            infoText.append(pointedSector.getMaxHealth());
+            gui.sectorInfo.setVisible(true);
+            gui.energyLabel.setText(String.valueOf(pointedSector.getEnergy()));
+            gui.healthLabel.setText(String.valueOf((int) pointedSector.getHealth()));
+            gui.nameLabel.setText(gameState.getPlayer(pointedSector.playerId).getName());
+        } else {
+            gui.sectorInfo.setVisible(false);
         }
 
-        gui.resourcesLabel.setText(infoText);
+        if (mode != GameScreenMode.NORMAL)
+            gui.currentModeLabel.setText(getI18NBundle().get(String.format("mode%s", mode.toString())));
+        else
+            gui.currentModeLabel.setText("");
 
         BuildingType selectedBuildingType = map.getSelectedBuildingType();
 

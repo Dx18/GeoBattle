@@ -8,6 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
+import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisImageButton;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -35,8 +37,17 @@ final class GameScreenGUI {
     // Label which contains info about resources
     public final VisLabel resourcesLabel;
 
-    // Label which contains info about max count of selected building type
-    public final VisLabel maxBuildingCountLabel;
+    // Info about sector
+    public final VisTable sectorInfo;
+
+    // Label which contains info about sector's energy
+    public final VisLabel energyLabel;
+
+    // Label which contains info about sector's health
+    public final VisLabel healthLabel;
+
+    // Label which contains name of player who owns selected sector
+    public final VisLabel nameLabel;
 
     // Label which shows FPS
     public final VisLabel debugInfo;
@@ -71,6 +82,18 @@ final class GameScreenGUI {
     // "Research" dialog
     public final ResearchGUI researchDialog;
 
+    // Some labels
+    public final VisTable labels;
+
+    // Label which contains info about max count of selected building type
+    public final VisLabel maxBuildingCountLabel;
+
+    // Current mode label
+    public final VisLabel currentModeLabel;
+
+    // Size of usual tool bar button
+    private int buttonSize;
+
     // Initializes GUI
     public GameScreenGUI(AssetManager assetManager, final GameScreen screen, final Stage guiStage) {
         skin = assetManager.get(GeoBattleAssets.GUI_SKIN);
@@ -80,8 +103,11 @@ final class GameScreenGUI {
         guiStage.addActor(navigationToolBar);
 
         info = new VisTable();
-        resourcesLabel = new VisLabel("<resources>", "black");
-        maxBuildingCountLabel = new VisLabel("<maxBuildingCountLabel>", "black");
+        resourcesLabel = new VisLabel("<resources>");
+        sectorInfo = new VisTable();
+        energyLabel = new VisLabel("<energy>");
+        healthLabel = new VisLabel("<health>");
+        nameLabel = new VisLabel("<name>");
         debugInfo = new VisLabel("<debugInfo>", "black");
         guiStage.addActor(info);
 
@@ -113,6 +139,13 @@ final class GameScreenGUI {
 
         researchDialog = new ResearchGUI(assetManager, screen);
 
+        labels = new VisTable();
+        currentModeLabel = new VisLabel("<currentMode>", "black");
+        currentModeLabel.setAlignment(Align.center);
+        maxBuildingCountLabel = new VisLabel("<maxBuildingCount>", "black");
+        maxBuildingCountLabel.setAlignment(Align.center);
+        guiStage.addActor(labels);
+
         reset(screen);
     }
 
@@ -127,6 +160,11 @@ final class GameScreenGUI {
 
     // Resets GUI
     public void reset(GameScreen screen) {
+        buttonSize = Math.min(
+                Gdx.graphics.getWidth() / 7,
+                Gdx.graphics.getHeight() / 7
+        );
+
         initNavigationToolBar(screen);
         initInfo();
         initToolBar(screen);
@@ -139,60 +177,116 @@ final class GameScreenGUI {
         initSelectBuildingTypeDialog(screen);
         initHangarToolBar(screen);
         initResearchDialog(screen);
+        initLabels();
     }
 
     // Initializes navigation tool bar
     private void initNavigationToolBar(final GameScreen screen) {
         navigationToolBar.reset();
         navigationToolBar.setFillParent(true);
-        VisTextButton zoomIn = new VisTextButton("+", new ChangeListener() {
+        VisImageButton zoomIn = new VisImageButton("buttonZoomIn");
+        zoomIn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.getCamera().zoomIn(1);
             }
         });
         navigationToolBar.add(zoomIn)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
         navigationToolBar.row();
-        VisTextButton zoomOut = new VisTextButton("-", new ChangeListener() {
+        VisImageButton zoomOut = new VisImageButton("buttonZoomOut");
+        zoomOut.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.getCamera().zoomOut(1);
             }
         });
         navigationToolBar.add(zoomOut)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
         navigationToolBar.row();
-        VisTextButton toPlayer = new VisTextButton("*", new ChangeListener() {
+        VisImageButton toPlayer = new VisImageButton("buttonToPlayer");
+        toPlayer.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.onMoveToPlayer();
             }
         });
         navigationToolBar.add(toPlayer)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
         navigationToolBar.left().padLeft(20).bottom().padBottom(20);
     }
 
     // Initializes information table
     private void initInfo() {
-        info.reset();
+        info.clear();
         info.setFillParent(true);
-        info.add(resourcesLabel)
+
+        final int PARAM_COUNT = 3;
+        final int ICON_SIZE = 40;
+        final int ICON_PADDING = 5;
+        final int LABEL_PADDING = 10;
+        final int SCREEN_PADDING = 20;
+        final int BACKGROUND_PADDING = 10;
+
+        final int totalLabelWidth = Gdx.graphics.getWidth() -
+                PARAM_COUNT * (ICON_SIZE + ICON_PADDING * 2 + LABEL_PADDING) -
+                SCREEN_PADDING * 2 - BACKGROUND_PADDING * 2;
+
+        VisTable globalInfo = new VisTable();
+        globalInfo.setBackground("infoBackgroundLeft");
+
+        globalInfo.add(new VisImage("resources"))
+                .width(ICON_SIZE)
+                .height(ICON_SIZE)
+                .pad(ICON_PADDING);
+        globalInfo.add(resourcesLabel)
+                .width(totalLabelWidth * 0.35f)
+                .height(ICON_SIZE)
+                .padLeft(LABEL_PADDING);
+
+        info.add(globalInfo)
+            .top();
+
+        sectorInfo.clear();
+        sectorInfo.setBackground("infoBackgroundRight");
+
+        sectorInfo.add(new VisImage("energy"))
+                .width(ICON_SIZE)
+                .height(ICON_SIZE)
+                .pad(ICON_PADDING);
+        sectorInfo.add(energyLabel)
+                .width(totalLabelWidth * 0.3f)
+                .height(ICON_SIZE)
+                .padLeft(LABEL_PADDING);
+
+        sectorInfo.add(new VisImage("health"))
+                .width(ICON_SIZE)
+                .height(ICON_SIZE)
+                .pad(ICON_PADDING);
+        sectorInfo.add(healthLabel)
+                .width(totalLabelWidth * 0.35f)
+                .height(ICON_SIZE)
+                .padLeft(LABEL_PADDING);
+
+        sectorInfo.row();
+
+        sectorInfo.add(new VisImage("person"))
+                .width(ICON_SIZE)
+                .height(ICON_SIZE)
+                .pad(ICON_PADDING);
+        sectorInfo.add(nameLabel)
                 .fillX()
-                .height(Gdx.graphics.getPpcY());
+                .height(ICON_SIZE)
+                .padLeft(LABEL_PADDING)
+                .colspan(3);
+
+        info.add(sectorInfo);
         info.row();
-        info.add(maxBuildingCountLabel)
-                .fillX()
-                .height(Gdx.graphics.getPpcY());
-        info.row();
-        info.add(debugInfo)
-                .fillX()
-                .height(Gdx.graphics.getPpcY() * 5);
-        info.left().padLeft(20).top().padTop(20);
+
+        info.left().padLeft(SCREEN_PADDING).top().padTop(SCREEN_PADDING);
     }
 
     // Initializes main tool bar
@@ -207,8 +301,8 @@ final class GameScreenGUI {
             }
         });
         toolBar.add(buildMode)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
         VisImageButton destroyMode = new VisImageButton("buttonDestroy");
         destroyMode.addListener(new ChangeListener() {
             @Override
@@ -217,8 +311,8 @@ final class GameScreenGUI {
             }
         });
         toolBar.add(destroyMode)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
         VisImageButton buildSectorMode = new VisImageButton("buttonBuildSector");
         buildSectorMode.addListener(new ChangeListener() {
             @Override
@@ -227,8 +321,8 @@ final class GameScreenGUI {
             }
         });
         toolBar.add(buildSectorMode)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
         VisImageButton research = new VisImageButton("buttonResearch");
         research.addListener(new ChangeListener() {
             @Override
@@ -237,8 +331,8 @@ final class GameScreenGUI {
             }
         });
         toolBar.add(research)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
         VisImageButton attack = new VisImageButton("buttonAttack");
         attack.addListener(new ChangeListener() {
             @Override
@@ -247,8 +341,8 @@ final class GameScreenGUI {
             }
         });
         toolBar.add(attack)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
         toolBar.right().padRight(20).bottom().padBottom(20);
     }
 
@@ -264,8 +358,8 @@ final class GameScreenGUI {
             }
         });
         buildToolBar.add(exitBuildMode)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
         VisImageButton build = new VisImageButton("buttonOk");
         build.addListener(new ChangeListener() {
             @Override
@@ -274,9 +368,9 @@ final class GameScreenGUI {
             }
         });
         buildToolBar.add(build)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
-        final VisImageButton buildingType = new VisImageButton("buttonEmpty");
+                .width(buttonSize)
+                .height(buttonSize);
+        final VisImageButton buildingType = new VisImageButton("buttonBuildingType");
         buildingType.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -284,8 +378,8 @@ final class GameScreenGUI {
             }
         });
         buildToolBar.add(buildingType)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
         buildToolBar.right().padRight(20).bottom().padBottom(20);
     }
 
@@ -311,8 +405,8 @@ final class GameScreenGUI {
             }
         });
         destroyToolBar.add(exitDestroyMode)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
         VisImageButton destroy = new VisImageButton("buttonDestroy");
         destroy.addListener(new ChangeListener() {
             @Override
@@ -321,8 +415,8 @@ final class GameScreenGUI {
             }
         });
         destroyToolBar.add(destroy)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
         destroyToolBar.right().padRight(20).bottom().padBottom(20);
     }
 
@@ -339,8 +433,8 @@ final class GameScreenGUI {
             }
         });
         buildFirstSectorToolBar.add(buildCommandCenter)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
 
         buildFirstSectorToolBar.right().padRight(20).bottom().padBottom(20);
     }
@@ -357,8 +451,8 @@ final class GameScreenGUI {
             }
         });
         buildSectorToolBar.add(exitMode)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
 
         VisImageButton buildCommandCenter = new VisImageButton("buttonOk");
         buildCommandCenter.addListener(new ChangeListener() {
@@ -368,8 +462,8 @@ final class GameScreenGUI {
             }
         });
         buildSectorToolBar.add(buildCommandCenter)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
 
         buildSectorToolBar.right().padRight(20).bottom().padBottom(20);
     }
@@ -386,8 +480,8 @@ final class GameScreenGUI {
             }
         });
         selectHangarsToolBar.add(exitMode)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
 
         VisImageButton selectHangars = new VisImageButton("buttonNext");
         selectHangars.addListener(new ChangeListener() {
@@ -397,8 +491,8 @@ final class GameScreenGUI {
             }
         });
         selectHangarsToolBar.add(selectHangars)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
 
         selectHangarsToolBar.right().padRight(20).bottom().padBottom(20);
     }
@@ -415,8 +509,8 @@ final class GameScreenGUI {
             }
         });
         selectSectorToolBar.add(exitMode)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
 
         VisImageButton selectSector = new VisImageButton("buttonOk");
         selectSector.addListener(new ChangeListener() {
@@ -426,8 +520,8 @@ final class GameScreenGUI {
             }
         });
         selectSectorToolBar.add(selectSector)
-                .width(Gdx.graphics.getPpcX())
-                .height(Gdx.graphics.getPpcY());
+                .width(buttonSize)
+                .height(buttonSize);
 
         selectSectorToolBar.right().padRight(20).bottom().padBottom(20);
     }
@@ -445,8 +539,8 @@ final class GameScreenGUI {
                 }
             });
             hangarToolBar.add(buildUnit)
-                    .width(Gdx.graphics.getPpcX())
-                    .height(Gdx.graphics.getPpcY());
+                    .width(buttonSize)
+                    .height(buttonSize);
         }
 
         hangarToolBar.right().padRight(20).top().padTop(20);
@@ -459,6 +553,21 @@ final class GameScreenGUI {
     // Shows research dialog
     private void showResearchDialog() {
         researchDialog.root.show(guiStage);
+    }
+
+    private void initLabels() {
+        labels.clear();
+        labels.setFillParent(true);
+
+        labels.add(currentModeLabel)
+                .growX()
+                .height(40);
+        labels.row();
+        labels.add(maxBuildingCountLabel)
+                .growX()
+                .height(40);
+
+        labels.top().padTop(150);
     }
 
     // Sets mode of game screen

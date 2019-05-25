@@ -56,7 +56,7 @@ public abstract class UnitBuildResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot build: not in territory");
+            game.getExternalAPI().oSAPI.showMessage("Cannot build: not enough resources");
         }
     }
 

@@ -47,6 +47,9 @@ public final class Sector {
     // ID of sector
     public final int sectorId;
 
+    // ID of player owning this sector
+    public final int playerId;
+
     // Current health of sector
     private float health;
 
@@ -77,10 +80,11 @@ public final class Sector {
     };
 
     // Creates sector
-    public Sector(int x, int y, int sectorId, ResearchInfo researchInfo) {
+    public Sector(int x, int y, int sectorId, int playerId, ResearchInfo researchInfo) {
         this.x = x;
         this.y = y;
         this.sectorId = sectorId;
+        this.playerId = playerId;
         this.buildings = new ArrayList<Building>();
         updateConstParameters();
         this.health = maxHealth;
@@ -337,7 +341,7 @@ public final class Sector {
 
     // Clones sector
     public Sector clone() {
-        Sector result = new Sector(x, y, sectorId, researchInfo.clone());
+        Sector result = new Sector(x, y, sectorId, playerId, researchInfo.clone());
 
         for (Building building : buildings)
             result.addBuilding(building.clone());
@@ -346,12 +350,12 @@ public final class Sector {
     }
 
     // Creates Sector from JSON
-    public static Sector fromJson(JsonObject object, ResearchInfo researchInfo) {
+    public static Sector fromJson(JsonObject object, int playerId, ResearchInfo researchInfo) {
         int x = object.getAsJsonPrimitive("x").getAsInt();
         int y = object.getAsJsonPrimitive("y").getAsInt();
         int sectorId = object.getAsJsonPrimitive("sectorId").getAsInt();
 
-        Sector sector = new Sector(x, y, sectorId, researchInfo);
+        Sector sector = new Sector(x, y, sectorId, playerId, researchInfo);
 
         JsonArray jsonBuildings = object.getAsJsonArray("buildings");
         for (JsonElement jsonBuilding : jsonBuildings)

@@ -30,6 +30,7 @@ public abstract class SectorBuildResult implements ActionResult {
             try {
                 gameState.getPlayer(info.playerIndex).addSector(new Sector(
                         info.x, info.y, info.id,
+                        info.playerIndex,
                         gameState.getCurrentPlayer().getResearchInfo()
                 ));
             } catch (IllegalArgumentException ignored) {
