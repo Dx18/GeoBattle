@@ -3,6 +3,7 @@ package geobattle.geobattle.actionresults;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.GameStateUpdate;
 import geobattle.geobattle.game.research.ResearchInfo;
 
@@ -73,6 +74,21 @@ public abstract class UpdateRequestResult {
         }
     }
 
+    // Couldn't get an update so got GameState
+    public static final class StateRequestSuccess extends UpdateRequestResult {
+        // State of game
+        public final GameState gameState;
+
+        public StateRequestSuccess(GameState gameState) {
+            this.gameState = gameState;
+        }
+
+        public static StateRequestSuccess fromJson(JsonObject object) {
+            GameState gameState = GameState.fromJson(object.getAsJsonObject("gameState"));
+            return new StateRequestSuccess(gameState);
+        }
+    }
+
     // Wrong auth info
     public static final class WrongAuthInfo extends UpdateRequestResult {
         public WrongAuthInfo() {}
@@ -112,6 +128,8 @@ public abstract class UpdateRequestResult {
 
         if (type.equals("UpdateRequestSuccess"))
             return UpdateRequestSuccess.fromJson(object);
+        else if (type.equals("StateRequestSuccess"))
+            return StateRequestSuccess.fromJson(object);
         else if (type.equals("WrongAuthInfo"))
             return WrongAuthInfo.fromJson(object);
         else if (type.equals("MalformedJson"))
@@ -124,12 +142,15 @@ public abstract class UpdateRequestResult {
     // Matches UpdateRequestResult
     public void match(
             MatchBranch<UpdateRequestSuccess> updateRequestSuccess,
+            MatchBranch<StateRequestSuccess> stateRequestSuccess,
             MatchBranch<WrongAuthInfo> wrongAuthInfo,
             MatchBranch<MalformedJson> malformedJson,
             MatchBranch<IncorrectData> incorrectData
     ) {
         if (updateRequestSuccess != null && this instanceof UpdateRequestSuccess)
             updateRequestSuccess.onMatch((UpdateRequestSuccess) this);
+        else if (stateRequestSuccess != null && this instanceof StateRequestSuccess)
+            stateRequestSuccess.onMatch((StateRequestSuccess) this);
         else if (wrongAuthInfo != null && this instanceof WrongAuthInfo)
             wrongAuthInfo.onMatch((WrongAuthInfo) this);
         else if (malformedJson != null && this instanceof MalformedJson)

@@ -59,6 +59,8 @@ public class GameState {
         IntFloatMap unitHealth2 = new IntFloatMap();
         unitHealth2.put(-1, UnitType.BOMBER.maxHealth * 2f);
 
+        this.lastUpdateTime = time;
+
 //        this.attackScripts.add(new AttackScript(
 //                1, 0, 0,
 //                new UnitGroupMovingInfo[] {
@@ -226,6 +228,7 @@ public class GameState {
         resources = other.resources;
         playerId = other.playerId;
         time = other.time;
+        lastUpdateTime = time;
 
         GameStateDiff diff = new GameStateDiff(this, other);
 

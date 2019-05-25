@@ -298,6 +298,14 @@ public class GameEvents {
                         }
                     }
                 },
+                new MatchBranch<UpdateRequestResult.StateRequestSuccess>() {
+                    @Override
+                    public void onMatch(UpdateRequestResult.StateRequestSuccess stateRequestSuccess) {
+                        if (gameState.getLastUpdateTime() < stateRequestSuccess.gameState.getLastUpdateTime()) {
+                            gameState.setData(stateRequestSuccess.gameState);
+                        }
+                    }
+                },
                 new MatchBranch<UpdateRequestResult.WrongAuthInfo>() {
                     @Override
                     public void onMatch(UpdateRequestResult.WrongAuthInfo wrongAuthInfo) {
@@ -389,7 +397,7 @@ public class GameEvents {
     public void onTick(float delta) {
         gameState.addTime(delta);
 
-        if (gameState.getTime() - lastUpdateTime >= 1) {
+        if (gameState.getTime() - lastUpdateTime >= 12) {
             onRequestUpdate();
             lastUpdateTime = gameState.getTime();
         }
