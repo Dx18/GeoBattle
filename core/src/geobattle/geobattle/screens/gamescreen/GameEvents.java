@@ -397,7 +397,7 @@ public class GameEvents {
     public void onTick(float delta) {
         gameState.addTime(delta);
 
-        if (gameState.getTime() - lastUpdateTime >= 12) {
+        if (gameState.getTime() - lastUpdateTime >= 1) {
             onRequestUpdate();
             lastUpdateTime = gameState.getTime();
         }
