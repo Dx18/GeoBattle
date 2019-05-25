@@ -88,7 +88,8 @@ public final class BuildingGUI {
                 VisTable result = new VisTable();
 
                 VisLabel label = new VisLabel(screen.getI18NBundle().get(String.format("building%s", item.toString())));
-                result.add(label);
+                result.add(label)
+                        .height(Math.max(50, (int) (Gdx.graphics.getPpcY() * 0.9f)));
 
                 if (item == buildingType)
                     selectView(result);
@@ -134,15 +135,17 @@ public final class BuildingGUI {
 
         root.getContentTable().add(buildingTypes.getMainTable())
                 .growX()
-                .width(Gdx.graphics.getWidth() * 0.8f)
+                .width(Gdx.graphics.getWidth() - 120)
                 .pad(5);
         root.getContentTable().row();
         root.getContentTable().add(buildingInfo)
                 .growX()
-                .width(Gdx.graphics.getWidth() * 0.8f)
+                .width(Gdx.graphics.getWidth() - 120)
                 .pad(5);
 
-        root.getButtonsTable().add(buildButton);
+        root.getButtonsTable().add(buildButton)
+                .width(Math.max(Gdx.graphics.getPpcY() * 2, (int) (buildButton.getMinWidth() * 1.2f)))
+                .height(Math.max(50, Gdx.graphics.getPpcY() * 0.9f));
 
         root.center();
     }

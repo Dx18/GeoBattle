@@ -51,15 +51,16 @@ public final class ResearchGUI {
                 }
             });
 
-            init(researchInfo, itemsTable);
+            init(researchInfo, itemsTable, screen);
         }
 
-        public void init(final ResearchInfo researchInfo, Table itemsTable) {
+        public void init(final ResearchInfo researchInfo, Table itemsTable, GameScreen screen) {
             root.clear();
 
-            VisLabel researchName = new VisLabel(researchType.toString());
+            VisLabel researchName = new VisLabel(screen.getI18NBundle().get(String.format("research%s", researchType.toString())));
             root.add(researchName)
                     .growX()
+                    .padBottom(10)
                     .colspan(researchType.getLevelCount());
             root.add(valueChange);
             root.row();
@@ -72,14 +73,14 @@ public final class ResearchGUI {
                         .expand(level == researchType.getLevelCount() - 1, false)
                         .align(Align.left);
 
-            GlyphLayout glyphLayout = new GlyphLayout();
-            glyphLayout.setText(skin.getFont("default"), "16000");
             root.add(researchButton)
+                    .width(130)
+                    .height(Math.max(50, Gdx.graphics.getPpcY() * 0.9f))
                     .align(Align.right);
 
             itemsTable.add(root)
-                    .expandX()
-                    .fillX();
+                    .width(Gdx.graphics.getWidth() - 80)
+                    .pad(5);
             itemsTable.row();
 
             setResearchLevel(researchInfo.getLevel(researchType));
@@ -120,7 +121,7 @@ public final class ResearchGUI {
     public ResearchGUI(AssetManager assetManager, final GameScreen screen) {
         skin = assetManager.get(GeoBattleAssets.GUI_SKIN);
 
-        root = new VisDialog("RESEARCH");
+        root = new VisDialog(screen.getI18NBundle().get("research"));
 
         researchTypes = new ResearchTypeItem[ResearchType.values().length];
         int index = 0;
@@ -146,18 +147,20 @@ public final class ResearchGUI {
         final ResearchInfo researchInfo = screen.getGameEvents().gameState.getCurrentPlayer().getResearchInfo();
         int index = 0;
         for (final ResearchType ignored : ResearchType.values()) {
-            researchTypes[index].init(researchInfo, root.getContentTable());
+            researchTypes[index].init(researchInfo, root.getContentTable(), screen);
             index++;
         }
 
-        VisTextButton close = new VisTextButton("Close");
+        VisTextButton close = new VisTextButton(screen.getI18NBundle().get("close"));
         close.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 root.hide();
             }
         });
-        root.getButtonsTable().add(close);
+        root.getButtonsTable().add(close)
+                .width(Math.max(Gdx.graphics.getPpcY() * 2, close.getMinWidth()))
+                .height(Math.max(50, Gdx.graphics.getPpcY() * 0.9f));
 
         root.center();
     }
