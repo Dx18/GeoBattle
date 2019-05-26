@@ -196,7 +196,7 @@ public class AndroidLauncher extends AndroidApplication {
         switch (requestCode) {
             case PERMISSIONS_REQUEST_GEOLOCATION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    requestExternalStorage();
+                    requestGeolocation();
                 } else {
                     Toast.makeText(this, "Some needed permissions were not granted", Toast.LENGTH_LONG).show();
                     finish();
@@ -205,7 +205,7 @@ public class AndroidLauncher extends AndroidApplication {
                 break;
             case PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // startGame();
+                    requestExternalStorage();
                 } else {
                     Toast.makeText(this, "Some needed permissions were not granted", Toast.LENGTH_LONG).show();
                     finish();
