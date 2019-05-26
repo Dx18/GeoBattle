@@ -25,6 +25,7 @@ import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.map.GeoBattleCamera;
 import geobattle.geobattle.map.GeoBattleMap;
+import geobattle.geobattle.screens.BackButtonProcessor;
 import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.ExternalAPI;
 
@@ -79,7 +80,8 @@ public final class GameScreen implements Screen {
                 externalAPI.geolocationAPI,
                 camera,
                 gameState,
-                assetManager
+                assetManager,
+                game.getSoundVolume()
         );
         tilesStage.addActor(map);
 
@@ -109,9 +111,17 @@ public final class GameScreen implements Screen {
 
         // Input handling
         InputMultiplexer input = new InputMultiplexer();
+        input.addProcessor(new BackButtonProcessor(new Runnable() {
+            @Override
+            public void run() {
+                gui.showExitDialog(GameScreen.this);
+            }
+        }));
         input.addProcessor(guiStage);
         input.addProcessor(new GestureDetector(new GeoBattleGestureListener()));
         Gdx.input.setInputProcessor(input);
+
+        // guiStage.setDebugAll(true);
     }
 
     public void switchTo(GameScreenMode mode) {
@@ -303,7 +313,13 @@ public final class GameScreen implements Screen {
     @Override
     public void hide() {}
     @Override
-    public void dispose() {}
+    public void dispose() {
+        map.dispose();
+    }
+
+    public void onExit() {
+        game.switchToLoginScreen();
+    }
 
     // Gesture listener for game screen
     private class GeoBattleGestureListener implements GestureDetector.GestureListener {

@@ -8,10 +8,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import com.kotcrab.vis.ui.widget.VisDialog;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisImageButton;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisTextButton;
 
 import geobattle.geobattle.GeoBattleAssets;
 import geobattle.geobattle.game.buildings.Building;
@@ -621,5 +623,34 @@ public final class GameScreenGUI {
                 hangarToolBar.setVisible(true);
                 break;
         }
+    }
+
+    public void showExitDialog(final GameScreen screen) {
+        final VisDialog dialog = new VisDialog(screen.getI18NBundle().get("exit"));
+
+        dialog.getContentTable().add(new VisLabel(screen.getI18NBundle().get("exitQuestion")));
+
+        VisTextButton yes = new VisTextButton(screen.getI18NBundle().get("yes"), new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                screen.onExit();
+                dialog.hide();
+            }
+        });
+        dialog.getButtonsTable().add(yes)
+                .width(Gdx.graphics.getPpcX())
+                .height(Gdx.graphics.getPpcY() * 0.9f);
+
+        VisTextButton no = new VisTextButton(screen.getI18NBundle().get("no"), new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                dialog.hide();
+            }
+        });
+        dialog.getButtonsTable().add(no)
+                .width(Gdx.graphics.getPpcX())
+                .height(Gdx.graphics.getPpcY() * 0.9f);
+
+        dialog.show(guiStage);
     }
 }
