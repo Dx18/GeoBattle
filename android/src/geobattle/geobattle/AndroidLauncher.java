@@ -64,13 +64,13 @@ public class AndroidLauncher extends AndroidApplication {
     private final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 101;
 
     private final char[] APP_ID = new char[] {
-            '_', '_', '_', '_', '_', '_', '_', '_', '_', '_',
-            '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'
+            'D', '6', '6', 'l', '1', 'm', 'T', 'a', 'h', 'R',
+            'C', 'a', 'u', 'm', 'S', '4', 'H', 'X', 'm', 'h'
     };
 
     private final char[] APP_CODE = new char[] {
-            '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_',
-            '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'
+            '7', 'u', 'A', 'x', 'l', 'w', 'V', 'n', 'W', 'G', '_',
+            '2', 'f', 'K', 'J', '4', 'y', 'x', 'A', 'p', 'b', 'w'
     };
 
     private SharedPreferences settings;
