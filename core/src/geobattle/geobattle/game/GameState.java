@@ -277,7 +277,14 @@ public class GameState {
     }
 
     public boolean canBuildSector(int x, int y) {
-        if (getCurrentPlayer().getAllSectors().hasNext()) {
+        PlayerState current = getCurrentPlayer();
+
+        if (current.getAllSectors().hasNext()) {
+            int cost = 50 + current.getSectorCount() * 25;
+
+            if (resources < cost)
+                return false;
+
             Sector sector = getCurrentPlayer().getAllSectors().next();
 
             if ((x - sector.x) % Sector.SECTOR_SIZE != 0 || (y - sector.y) % Sector.SECTOR_SIZE != 0)
