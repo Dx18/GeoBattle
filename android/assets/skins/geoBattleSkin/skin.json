@@ -20,6 +20,8 @@
     buttonTextUp: { name: button, color: up },
     buttonTextDown: { name: button, color: down },
     buttonTextDisabled: { name: button, color: disabled },
+    buttonMenuUp: { name: buttonMenu, color: up },
+    buttonMenuDown: { name: buttonMenu, color: down },
     buttonEmptyUp: { name: empty, color: up },
     buttonEmptyDown: { name: empty, color: down },
     buttonAttackUp: { name: attack, color: up },
@@ -49,7 +51,7 @@
     buttonHangarUp: { name: hangar, color: up },
     buttonHangarDown: { name: hangar, color: down },
     cursor: { name: slider, color: white },
-    selection: { name: slider, color: gray },
+    selection: { name: dialogTint, color: white },
     slider: { name: slider, color: up },
     sliderKnobHorizontal: { name: sliderKnobHorizontal, color: up }
     panel: { name: panel, color: up },
@@ -78,12 +80,16 @@
     default: { up: buttonTextUp, down: buttonTextDown, font: default, fontColor: white }
   },
   com.kotcrab.vis.ui.widget.VisTextButton$VisTextButtonStyle: {
-    default: { up: buttonTextUp, down: buttonTextDown, disabled: buttonTextUp, font: default, fontColor: white }
+    default: { up: buttonTextUp, down: buttonTextDown, disabled: buttonTextUp, font: default, fontColor: white },
+    menu: { up: buttonMenuUp, down: buttonMenuDown, disabled: buttonMenuUp, font: default, fontColor: white }
   },
   LabelStyle: {
     white: { font: default, fontColor: white },
     black: { font: default, fontColor: black },
-    default: white
+    default: white,
+    large: { font: large, fontColor: white },
+    medium: { font: medium, fontColor: white },
+    small: { font: small, fontColor: white }
   },
   com.kotcrab.vis.ui.widget.ListViewStyle: {
     default: { scrollPaneStyle: {} }
@@ -91,6 +97,11 @@
   TextFieldStyle: {
     default: { font: default, messageFont: default, fontColor: white, focusedFontColor: gray,
       messageFontColor: gray, background: buttonEmptyUp, focusedBackground: buttonEmptyDown,
+      cursor: cursor, selection: selection }
+  },
+  com.kotcrab.vis.ui.widget.VisTextField$VisTextFieldStyle: {
+    default: { font: default, messageFont: default, fontColor: white, focusedFontColor: gray,
+      messageFontColor: gray, background: textField, focusedBackground: textField,
       cursor: cursor, selection: selection }
   },
   SliderStyle: {

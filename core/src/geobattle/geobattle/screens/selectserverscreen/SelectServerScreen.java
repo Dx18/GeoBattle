@@ -6,7 +6,10 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
+import java.util.ArrayList;
+
 import geobattle.geobattle.GeoBattle;
+import geobattle.geobattle.server.ServerAddress;
 
 public final class SelectServerScreen implements Screen {
     private final GeoBattle game;
@@ -42,6 +45,14 @@ public final class SelectServerScreen implements Screen {
     public void resize(int width, int height) {
         guiStage.getViewport().update(width, height);
         gui.reset(this);
+    }
+
+    public ArrayList<ServerAddress> getOfficialServers() {
+        ArrayList<ServerAddress> result = new ArrayList<ServerAddress>();
+        result.add(new ServerAddress("Alpha", "78.47.182.60", 12000));
+        result.add(new ServerAddress("Beta", "78.47.182.60", 12001));
+        result.add(new ServerAddress("Gamma", "78.47.182.60", 12002));
+        return result;
     }
 
     @Override

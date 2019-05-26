@@ -3,6 +3,7 @@ package geobattle.geobattle;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
@@ -72,9 +73,13 @@ public class AndroidLauncher extends AndroidApplication {
             '_', '_', '_', '_', '_', '_', '_', '_', '_', '_', '_'
     };
 
+    private SharedPreferences settings;
+
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        settings = getSharedPreferences("default", Context.MODE_PRIVATE);
 
         startGame();
 
@@ -132,6 +137,28 @@ public class AndroidLauncher extends AndroidApplication {
                         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
                     }
                 });
+            }
+
+            @Override
+            public void saveValue(String key, String value) {
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString(key, value);
+                editor.commit();
+            }
+
+            @Override
+            public String loadValue(String key, String def) {
+                return settings.getString(key, def);
+            }
+
+            @Override
+            public String loadCertificate(String name) {
+                return null;
+            }
+
+            @Override
+            public void saveCertificate(String name, String certificate) {
+
             }
 
             @Override

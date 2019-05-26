@@ -4,13 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisTextButton;
+import com.kotcrab.vis.ui.widget.VisTextField;
 
 import geobattle.geobattle.GeoBattleAssets;
 
@@ -19,27 +19,27 @@ public final class EmailConfirmationScreenGUI {
 
     private final Stage guiStage;
 
-    public final Table emailConfirmation;
+    public final VisTable emailConfirmation;
 
-    public final TextField playerNameField;
+    public final VisTextField playerNameField;
 
-    public final TextField codeField;
+    public final VisTextField codeField;
 
     public EmailConfirmationScreenGUI(AssetManager assetManager, final EmailConfirmationScreen screen, final Stage guiStage, String name) {
         skin = assetManager.get(GeoBattleAssets.GUI_SKIN);
         this.guiStage = guiStage;
 
-        emailConfirmation = new Table();
-        playerNameField = new TextField(name == null ? "" : name, skin);
-        playerNameField.setMessageText("Name...");
+        emailConfirmation = new VisTable();
+        playerNameField = new VisTextField(name == null ? "" : name);
+        playerNameField.setMessageText(screen.getI18NBundle().get("userName"));
         playerNameField.setAlignment(Align.center);
-        codeField = new TextField("", skin);
-        codeField.setMessageText("Code from email...");
+        codeField = new VisTextField("");
+        codeField.setMessageText(screen.getI18NBundle().get("codeFromEmail"));
         codeField.setAlignment(Align.center);
         codeField.setMaxLength(4);
-        codeField.setTextFieldFilter(new TextField.TextFieldFilter() {
+        codeField.setTextFieldFilter(new VisTextField.TextFieldFilter() {
             @Override
-            public boolean acceptChar(TextField textField, char c) {
+            public boolean acceptChar(VisTextField textField, char c) {
                 return c >= '0' && c <= '9';
             }
         });
@@ -56,62 +56,54 @@ public final class EmailConfirmationScreenGUI {
         emailConfirmation.clear();
         emailConfirmation.setFillParent(true);
 
-        Label title = new Label("CONFIRM EMAIL", skin, "black");
-        emailConfirmation.add(title)
+        int contentWidth = Gdx.graphics.getWidth() - 120;
+
+        VisTable root = new VisTable();
+        root.setBackground("windowCentered");
+
+        root.add(new VisLabel(screen.getI18NBundle().get("confirmEmail"), "large"))
                 .expandX()
-                .height(Gdx.graphics.getPpcY());
-        emailConfirmation.row();
+                .pad(5)
+                .align(Align.center);
+        root.row();
 
-        emailConfirmation.add(playerNameField)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(5);
-        emailConfirmation.row();
+        root.add(playerNameField)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        root.row();
 
-        emailConfirmation.add(codeField)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(5);
-        emailConfirmation.row();
+        root.add(codeField)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        root.row();
 
-        TextButton confirm = new TextButton("Confirm", skin);
-        confirm.addListener(new ChangeListener() {
+        VisTextButton confirm = new VisTextButton(screen.getI18NBundle().get("confirm"), new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.onConfirm(playerNameField.getText(), Integer.parseInt(codeField.getText()));
             }
         });
-        emailConfirmation.add(confirm)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(15);
-        emailConfirmation.row();
+        root.add(confirm)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        root.row();
 
-        TextButton resend = new TextButton("Resend email", skin);
-        resend.addListener(new ChangeListener() {
+        VisTextButton resend = new VisTextButton(screen.getI18NBundle().get("resend"), new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.onResend(playerNameField.getText());
             }
         });
-        emailConfirmation.add(resend)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(5);
-        emailConfirmation.row();
+        root.add(resend)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        root.row();
 
-        TextButton back = new TextButton("Back", skin);
-        back.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                screen.onReturn();
-            }
-        });
-        emailConfirmation.add(back)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(5);
-
+        emailConfirmation.add(root);
         emailConfirmation.center().pad(20).top().padTop(20);
     }
 }

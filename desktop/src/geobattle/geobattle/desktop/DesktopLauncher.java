@@ -46,6 +46,26 @@ public class DesktopLauncher {
                 }
 
                 @Override
+                public void saveValue(String key, String value) {
+
+                }
+
+                @Override
+                public String loadValue(String key, String def) {
+                    return def;
+                }
+
+                @Override
+                public String loadCertificate(String name) {
+                    return null;
+                }
+
+                @Override
+                public void saveCertificate(String name, String certificate) {
+
+                }
+
+                @Override
                 public List<ServerAddress> getCustomServers() {
                     return new ArrayList<ServerAddress>();
                 }

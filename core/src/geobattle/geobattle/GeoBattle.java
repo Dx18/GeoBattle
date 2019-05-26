@@ -20,6 +20,7 @@ import geobattle.geobattle.screens.gamescreen.GameScreen;
 import geobattle.geobattle.screens.loginscreen.LoginScreen;
 import geobattle.geobattle.screens.mainmenuscreen.MainMenuScreen;
 import geobattle.geobattle.screens.selectserverscreen.SelectServerScreen;
+import geobattle.geobattle.screens.settingsscreen.SettingsScreen;
 import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.Callback;
 import geobattle.geobattle.server.ExternalAPI;
@@ -83,6 +84,10 @@ public final class GeoBattle extends Game {
 //        assetManager.load(GeoBattleAssets.BOMBER_TEAM_COLOR, Texture.class, param);
 //        assetManager.load(GeoBattleAssets.SPOTTER_TEAM_COLOR, Texture.class, param);
 
+        assetManager.load(GeoBattleAssets.MAIN_MENU_BACKGROUND, Texture.class);
+        assetManager.load(GeoBattleAssets.MAIN_MENU_TITLE, Texture.class);
+        assetManager.load(GeoBattleAssets.SETTINGS_BACKGROUND, Texture.class);
+
         assetManager.load(GeoBattleAssets.COLOR, Texture.class);
 
         // I18NBundleLoader.I18NBundleParameter i18NParam = new I18NBundleLoader.I18NBundleParameter(Locale.ROOT);
@@ -114,6 +119,14 @@ public final class GeoBattle extends Game {
 
     public I18NBundle getI18NBundle() {
         return i18NBundle;
+    }
+
+    public void switchToMainMenuScreen() {
+        setScreen(new MainMenuScreen(assetManager, this));
+    }
+
+    public void switchToSettingsScreen() {
+        setScreen(new SettingsScreen(externalAPI, assetManager, this));
     }
 
 	public void switchToLoginScreen() {
@@ -191,6 +204,8 @@ public final class GeoBattle extends Game {
 	
 	@Override
 	public void dispose() {
+        super.dispose();
+        VisUI.dispose();
         assetManager.dispose();
         getScreen().dispose();
         musicController.dispose();

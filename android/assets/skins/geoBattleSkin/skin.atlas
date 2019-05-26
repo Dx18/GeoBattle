@@ -6,99 +6,107 @@ filter: MipMap,Nearest
 repeat: none
 attack
   rotate: false
-  xy: 2, 6
+  xy: 2, 5
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 back
   rotate: false
-  xy: 204, 268
+  xy: 204, 267
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 build
   rotate: false
-  xy: 346, 410
+  xy: 346, 409
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 buildSector
   rotate: false
-  xy: 204, 166
+  xy: 204, 165
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 buildingType
   rotate: false
-  xy: 448, 410
+  xy: 448, 409
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 button
   rotate: false
-  xy: 991, 499
+  xy: 795, 396
   size: 11, 11
   split: 5, 5, 5, 5
   orig: 11, 11
   offset: 0, 0
   index: -1
+buttonMenu
+  rotate: false
+  xy: 958, 450
+  size: 59, 59
+  split: 29, 29, 29, 29
+  orig: 59, 59
+  offset: 0, 0
+  index: -1
 destroy
   rotate: false
-  xy: 550, 410
+  xy: 550, 409
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 dialogTint
   rotate: false
-  xy: 306, 341
+  xy: 2, 2
   size: 1, 1
   orig: 1, 1
   offset: 0, 0
   index: -1
 empty
   rotate: false
-  xy: 652, 410
+  xy: 652, 409
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 energy
   rotate: false
-  xy: 2, 310
+  xy: 2, 309
   size: 200, 200
   orig: 200, 200
   offset: 0, 0
   index: -1
 hangar
   rotate: false
-  xy: 754, 410
+  xy: 754, 409
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 health
   rotate: false
-  xy: 2, 108
+  xy: 2, 107
   size: 200, 200
   orig: 200, 200
   offset: 0, 0
   index: -1
 infoBackgroundBottom
   rotate: false
-  xy: 958, 438
+  xy: 754, 353
   size: 13, 13
   orig: 13, 13
   offset: 0, 0
   index: -1
 infoBackgroundLeft
   rotate: false
-  xy: 206, 10
+  xy: 256, 18
   size: 11, 11
   split: 5, 5, 5, 5
   orig: 11, 11
@@ -106,7 +114,7 @@ infoBackgroundLeft
   index: -1
 infoBackgroundRight
   rotate: false
-  xy: 247, 51
+  xy: 958, 414
   size: 11, 11
   split: 5, 5, 5, 5
   orig: 11, 11
@@ -114,7 +122,7 @@ infoBackgroundRight
   index: -1
 listItemDeselected
   rotate: false
-  xy: 754, 379
+  xy: 339, 364
   size: 5, 3
   split: 3, 1, 1, 1
   orig: 5, 3
@@ -122,7 +130,7 @@ listItemDeselected
   index: -1
 listItemSelected
   rotate: false
-  xy: 804, 405
+  xy: 339, 359
   size: 5, 3
   split: 3, 1, 1, 1
   orig: 5, 3
@@ -130,21 +138,21 @@ listItemSelected
   index: -1
 next
   rotate: false
-  xy: 856, 410
+  xy: 856, 409
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 ok
   rotate: false
-  xy: 104, 6
+  xy: 104, 5
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 panel
   rotate: false
-  xy: 206, 23
+  xy: 754, 368
   size: 39, 39
   split: 19, 19, 19, 19
   orig: 39, 39
@@ -152,71 +160,87 @@ panel
   index: -1
 person
   rotate: false
-  xy: 204, 370
+  xy: 204, 369
   size: 140, 140
   orig: 140, 140
   offset: 0, 0
   index: -1
 research
   rotate: false
-  xy: 206, 64
+  xy: 206, 63
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 researchIndicator
   rotate: false
-  xy: 754, 384
+  xy: 206, 5
   size: 48, 24
   orig: 48, 24
   offset: 0, 0
   index: -1
 resources
   rotate: false
-  xy: 346, 308
+  xy: 346, 307
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 slider
   rotate: false
-  xy: 206, 2
-  size: 6, 6
-  orig: 6, 6
+  xy: 991, 444
+  size: 4, 4
+  orig: 4, 4
   offset: 0, 0
   index: -1
 sliderKnobHorizontal
   rotate: false
-  xy: 306, 344
-  size: 12, 24
-  orig: 12, 24
+  xy: 306, 288
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+textField
+  rotate: false
+  xy: 206, 31
+  size: 100, 30
+  split: 1, 1, 1, 1
+  orig: 100, 30
   offset: 0, 0
   index: -1
 toPlayer
   rotate: false
-  xy: 448, 308
+  xy: 448, 307
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 window
   rotate: false
-  xy: 958, 453
+  xy: 306, 310
   size: 31, 57
   split: 15, 15, 46, 10
   orig: 31, 57
   offset: 0, 0
   index: -1
+windowCentered
+  rotate: false
+  xy: 958, 427
+  size: 31, 21
+  split: 15, 15, 10, 10
+  orig: 31, 21
+  offset: 0, 0
+  index: -1
 zoomIn
   rotate: false
-  xy: 550, 308
+  xy: 550, 307
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 zoomOut
   rotate: false
-  xy: 652, 308
+  xy: 652, 307
   size: 100, 100
   orig: 100, 100
   offset: 0, 0

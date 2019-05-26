@@ -2,21 +2,20 @@ package geobattle.geobattle.screens.loginscreen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Slider;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.kotcrab.vis.ui.widget.VisImage;
+import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisSlider;
+import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisTextButton;
+import com.kotcrab.vis.ui.widget.VisTextField;
 
 import geobattle.geobattle.GeoBattleAssets;
 
@@ -26,78 +25,78 @@ final class LoginScreenGUI {
     private final Skin skin;
 
     // Switch between "Login" and "Register" modes
-    public final Table loginRegisterSwitch;
+    public final VisTable loginRegisterSwitch;
 
     // Login form
-    public final Table loginScreen;
+    public final VisTable loginScreen;
 
     // User name in login form
-    public final TextField loginUserName;
+    public final VisTextField loginUserName;
 
     // Password in login form
-    public final TextField loginPassword;
+    public final VisTextField loginPassword;
 
     // Register form
-    public final Table registerScreen;
+    public final VisTable registerScreen;
 
     // User name in register form
-    public final TextField registerUserName;
+    public final VisTextField registerUserName;
 
     // Email in register form
-    public final TextField registerEmail;
+    public final VisTextField registerEmail;
 
     // Password in register form
-    public final TextField registerPassword;
+    public final VisTextField registerPassword;
 
     // Repeat password in register form
-    public final TextField registerRepeatPassword;
+    public final VisTextField registerRepeatPassword;
 
     // Pick color form
-    public final Table pickColorScreen;
+    public final VisTable pickColorScreen;
 
     // Picked color
-    public final Image pickColorResult;
+    public final VisImage pickColorResult;
 
     // Red component of picked color
-    public final Slider pickColorR;
+    public final VisSlider pickColorR;
 
     // Green component of picked color
-    public final Slider pickColorG;
+    public final VisSlider pickColorG;
 
     // Blue component of picked color
-    public final Slider pickColorB;
+    public final VisSlider pickColorB;
 
     public LoginScreenGUI(AssetManager assetManager, final LoginScreen screen, final Stage guiStage) {
         skin = assetManager.get(GeoBattleAssets.GUI_SKIN);
 
-        loginRegisterSwitch = new Table();
+        loginRegisterSwitch = new VisTable();
         guiStage.addActor(loginRegisterSwitch);
 
-        loginScreen = new Table();
-        loginUserName = new TextField("", skin);
-        loginUserName.setMessageText("User name...");
+        loginScreen = new VisTable();
+        loginUserName = new VisTextField("");
+        loginUserName.setMessageText(screen.getI18NBundle().get("userName"));
         loginUserName.setAlignment(Align.center);
-        loginPassword = new TextField("", skin);
-        loginPassword.setMessageText("Password...");
+        loginPassword = new VisTextField("");
+        loginPassword.setMessageText(screen.getI18NBundle().get("password"));
         loginPassword.setAlignment(Align.center);
         loginPassword.setPasswordMode(true);
         loginPassword.setPasswordCharacter('*');
         guiStage.addActor(loginScreen);
 
-        registerScreen = new Table();
-        registerUserName = new TextField("", skin);
-        registerUserName.setMessageText("User name...");
+        registerScreen = new VisTable();
+        registerUserName = new VisTextField("");
+        registerUserName.setMessageText(screen.getI18NBundle().get("userName"));
         registerUserName.setAlignment(Align.center);
-        registerEmail = new TextField("", skin);
-        registerEmail.setMessageText("Email...");
+        registerEmail = new VisTextField("");
+        registerEmail.setMessageText(screen.getI18NBundle().get("email"));
         registerEmail.setAlignment(Align.center);
-        registerPassword = new TextField("", skin);
-        registerPassword.setMessageText("Password...");
+        registerPassword = new VisTextField("");
+        registerPassword.setMessageText(screen.getI18NBundle().get("password"));
         registerPassword.setAlignment(Align.center);
         registerPassword.setPasswordMode(true);
         registerPassword.setPasswordCharacter('*');
-        registerRepeatPassword = new TextField("", skin);
-        registerRepeatPassword.setMessageText("Repeat password...");
+        registerRepeatPassword = new VisTextField("");
+        registerRepeatPassword.setMessageText(screen.getI18NBundle().get("repeatPassword"));
         registerRepeatPassword.setAlignment(Align.center);
         registerRepeatPassword.setPasswordMode(true);
         registerRepeatPassword.setPasswordCharacter('*');
@@ -110,14 +109,18 @@ final class LoginScreenGUI {
             }
         };
 
-        pickColorScreen = new Table();
-        pickColorResult = new Image(new TextureRegionDrawable(assetManager.get(GeoBattleAssets.COLOR, Texture.class)));
-        pickColorR = new Slider(0, 1, 1 / 255f, false, skin);
+        pickColorScreen = new VisTable();
+        pickColorResult = new VisImage(new TextureRegionDrawable(assetManager.get(GeoBattleAssets.COLOR, Texture.class)));
+        pickColorR = new VisSlider(0, 1, 1 / 255f, false);
+        pickColorR.setValue((float) Math.random());
         pickColorR.addListener(updateColor);
-        pickColorG = new Slider(0, 1, 1 / 255f, false, skin);
+        pickColorG = new VisSlider(0, 1, 1 / 255f, false);
+        pickColorG.setValue((float) Math.random());
         pickColorG.addListener(updateColor);
-        pickColorB = new Slider(0, 1, 1 / 255f, false, skin);
+        pickColorB = new VisSlider(0, 1, 1 / 255f, false);
+        pickColorB.setValue((float) Math.random());
         pickColorB.addListener(updateColor);
+        ((ChangeListener) updateColor).changed(null, null);
         guiStage.addActor(pickColorScreen);
 
         reset(screen);
@@ -137,51 +140,41 @@ final class LoginScreenGUI {
         loginRegisterSwitch.reset();
         loginRegisterSwitch.setFillParent(true);
 
-        TextButton loginMode = new TextButton("LOGIN", skin);
-        loginMode.addListener(new ChangeListener() {
+        VisTextButton loginMode = new VisTextButton(screen.getI18NBundle().get("login"), "menu", new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 setMode(LoginScreenMode.LOGIN);
             }
         });
         loginRegisterSwitch.add(loginMode)
-                .width(Gdx.graphics.getWidth() / 2)
+                .growX()
+                // .width(Gdx.graphics.getWidth() / 2)
                 .height(Gdx.graphics.getPpcY());
 
-        TextButton registerMode = new TextButton("REGISTER", skin);
-        registerMode.addListener(new ChangeListener() {
+        VisTextButton registerMode = new VisTextButton(screen.getI18NBundle().get("register"), "menu", new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 setMode(LoginScreenMode.REGISTER);
             }
         });
         loginRegisterSwitch.add(registerMode)
-                .width(Gdx.graphics.getWidth() / 2)
+                .growX()
+                // .width(Gdx.graphics.getWidth() / 2)
                 .height(Gdx.graphics.getPpcY());
 
         loginRegisterSwitch.row();
 
-        TextButton settings = new TextButton("SETTINGS", skin);
-        settings.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                screen.onSettings();
-            }
-        });
-        loginRegisterSwitch.add(settings)
-                .width(Gdx.graphics.getWidth() / 2)
-                .height(Gdx.graphics.getPpcY());
-
-        TextButton emailConfirmation = new TextButton("EMAIL CONF.", skin);
-        emailConfirmation.addListener(new ChangeListener() {
+        VisTextButton emailConfirmation = new VisTextButton(screen.getI18NBundle().get("confirmEmail"), "menu", new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.onEmailConfirmation();
             }
         });
         loginRegisterSwitch.add(emailConfirmation)
-                .width(Gdx.graphics.getWidth() / 2)
-                .height(Gdx.graphics.getPpcY());
+                .growX()
+                .height(Gdx.graphics.getPpcY())
+                .padTop(10)
+                .colspan(2);
 
         loginRegisterSwitch.center().bottom().padBottom(20);
     }
@@ -191,36 +184,41 @@ final class LoginScreenGUI {
         loginScreen.reset();
         loginScreen.setFillParent(true);
 
-        Label loginLabel = new Label("LOGIN", skin, "black");
-        loginScreen.add(loginLabel)
+        int contentWidth = Gdx.graphics.getWidth() - 120;
+
+        VisTable root = new VisTable();
+        root.setBackground("windowCentered");
+
+        root.add(new VisLabel(screen.getI18NBundle().get("login"), "large"))
                 .expandX()
-                .height(Gdx.graphics.getPpcY());
-        loginScreen.row();
+                .pad(5)
+                .align(Align.center);
+        root.row();
 
-        loginScreen.add(loginUserName)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(5);
-        loginScreen.row();
+        root.add(loginUserName)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        root.row();
 
-        loginScreen.add(loginPassword)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(5);
-        loginScreen.row();
+        root.add(loginPassword)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        root.row();
 
-        TextButton login = new TextButton("Login", skin);
-        login.addListener(new ChangeListener() {
+        VisTextButton login = new VisTextButton(screen.getI18NBundle().get("login"), new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.onLogin();
             }
         });
-        loginScreen.add(login)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(15);
+        root.add(login)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
 
+        loginScreen.add(root);
         loginScreen.center().pad(20).top().padTop(20);
     }
 
@@ -229,61 +227,65 @@ final class LoginScreenGUI {
         registerScreen.reset();
         registerScreen.setFillParent(true);
 
-        Label registerLabel = new Label("REGISTER", skin, "black");
-        registerScreen.add(registerLabel)
+        int contentWidth = Gdx.graphics.getWidth() - 120;
+
+        VisTable root = new VisTable();
+        root.setBackground("windowCentered");
+
+        root.add(new VisLabel(screen.getI18NBundle().get("register"), "large"))
                 .expandX()
-                .height(Gdx.graphics.getPpcY());
-        registerScreen.row();
+                .pad(5)
+                .align(Align.center);
+        root.row();
 
-        registerScreen.add(registerUserName)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(5);
-        registerScreen.row();
+        root.add(registerUserName)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        root.row();
 
-        registerScreen.add(registerEmail)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(5);
-        registerScreen.row();
+        root.add(registerEmail)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        root.row();
 
-        registerScreen.add(registerPassword)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(5);
-        registerScreen.row();
+        root.add(registerPassword)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        root.row();
 
-        registerScreen.add(registerRepeatPassword)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(5);
-        registerScreen.row();
+        root.add(registerRepeatPassword)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        root.row();
 
-        TextButton registerPickColor = new TextButton("Pick color...", skin);
-        registerPickColor.addListener(new ChangeListener() {
+        VisTextButton registerPickColor = new VisTextButton(screen.getI18NBundle().get("pickColor"), new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 setMode(LoginScreenMode.PICK_COLOR);
             }
         });
-        registerScreen.add(registerPickColor)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(5);
-        registerScreen.row();
+        root.add(registerPickColor)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        root.row();
 
-        TextButton register = new TextButton("Register", skin);
-        register.addListener(new ChangeListener() {
+        VisTextButton register = new VisTextButton(screen.getI18NBundle().get("register"), new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.onRegister();
             }
         });
-        registerScreen.add(register)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(15);
+        root.add(register)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
 
+        registerScreen.add(root);
         registerScreen.center().pad(20).top().padTop(20);
     }
 
@@ -291,49 +293,53 @@ final class LoginScreenGUI {
         pickColorScreen.reset();
         pickColorScreen.setFillParent(true);
 
-        Label pickColorLabel = new Label("PICK COLOR", skin, "black");
-        pickColorScreen.add(pickColorLabel)
+        int contentWidth = Gdx.graphics.getWidth() - 120;
+
+        VisTable root = new VisTable();
+        root.setBackground("windowCentered");
+
+        root.add(new VisLabel(screen.getI18NBundle().get("pickColor"), "large"))
                 .expandX()
-                .height(Gdx.graphics.getPpcY());
-        pickColorScreen.row();
+                .pad(5)
+                .align(Align.center);
+        root.row();
 
-        pickColorResult.setColor(Color.BLACK);
-        pickColorScreen.add(pickColorResult)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(5);
-        pickColorScreen.row();
+        root.add(pickColorResult)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        root.row();
 
-        pickColorScreen.add(pickColorR)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(5);
-        pickColorScreen.row();
+        root.add(pickColorR)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        root.row();
 
-        pickColorScreen.add(pickColorG)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(5);
-        pickColorScreen.row();
+        root.add(pickColorG)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        root.row();
 
-        pickColorScreen.add(pickColorB)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(5);
-        pickColorScreen.row();
+        root.add(pickColorB)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        root.row();
 
-        TextButton pickColor = new TextButton("Pick", skin);
-        pickColor.addListener(new ChangeListener() {
+        VisTextButton pickColor = new VisTextButton(screen.getI18NBundle().get("pickColor"), new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 setMode(LoginScreenMode.REGISTER);
             }
         });
-        pickColorScreen.add(pickColor)
-                .fillX()
-                .height(Gdx.graphics.getPpcY())
-                .padTop(15);
+        root.add(pickColor)
+                .width(contentWidth)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
 
+        pickColorScreen.add(root);
         pickColorScreen.center().pad(20).top().padTop(20);
     }
 

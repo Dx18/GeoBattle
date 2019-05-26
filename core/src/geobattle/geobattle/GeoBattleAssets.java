@@ -71,6 +71,15 @@ public final class GeoBattleAssets {
     // Spotter texture (team color)
     public static final String SPOTTER_TEAM_COLOR = "spotterTeamColor";
 
+    // Background of main menu
+    public static final String MAIN_MENU_BACKGROUND = "mainMenu/background.png";
+
+    // Title on main menu
+    public static final String MAIN_MENU_TITLE = "mainMenu/title.png";
+
+    // Background of settings
+    public static final String SETTINGS_BACKGROUND = "settings/background.png";
+
     // Explosion animation
     public static final String ANIMATION_EXPLOSION = "animations/explosion.png";
 

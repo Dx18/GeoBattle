@@ -32,8 +32,9 @@ public final class MainMenuScreenGUI {
     private void resetMenu(final MainMenuScreen screen) {
         menu.clear();
         menu.setFillParent(true);
+        menu.setRound(true);
 
-        VisTextButton play = new VisTextButton(screen.getI18NBundle().get("play"), new ChangeListener() {
+        VisTextButton play = new VisTextButton(screen.getI18NBundle().get("play"), "menu", new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.onPlay();
@@ -41,10 +42,11 @@ public final class MainMenuScreenGUI {
         });
         menu.add(play)
                 .growX()
+                .padTop(10)
                 .height(Gdx.graphics.getPpcY());
         menu.row();
 
-        VisTextButton settings = new VisTextButton(screen.getI18NBundle().get("settings"), new ChangeListener() {
+        VisTextButton settings = new VisTextButton(screen.getI18NBundle().get("settings"), "menu", new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.onSettings();
@@ -52,10 +54,11 @@ public final class MainMenuScreenGUI {
         });
         menu.add(settings)
                 .growX()
+                .padTop(10)
                 .height(Gdx.graphics.getPpcY());
         menu.row();
 
-        VisTextButton exit = new VisTextButton(screen.getI18NBundle().get("exit"), new ChangeListener() {
+        VisTextButton exit = new VisTextButton(screen.getI18NBundle().get("exit"), "menu", new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.onExit();
@@ -63,6 +66,7 @@ public final class MainMenuScreenGUI {
         });
         menu.add(exit)
                 .growX()
+                .padTop(10)
                 .height(Gdx.graphics.getPpcY());
 
         menu.bottom().right().pad(20).padLeft(Gdx.graphics.getWidth() / 3);
