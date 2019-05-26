@@ -111,6 +111,9 @@ public final class SettingsScreen implements Screen {
         game.setMusicVolume(
                 Float.parseFloat(externalAPI.oSAPI.loadValue("musicVolume", "0.5"))
         );
+        game.setSoundVolume(
+                Float.parseFloat(externalAPI.oSAPI.loadValue("soundVolume", "0.5"))
+        );
         game.switchToMainMenuScreen();
     }
 
