@@ -4,19 +4,25 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.utils.Disposable;
 
+// Music controller for game
 public final class GeoBattleMusicController implements Disposable {
+    // Array of tracks
     private final String[] tracks;
 
-    private int currentTrack;
-
+    // Music
     private Music music;
 
-    public GeoBattleMusicController(String[] tracks) {
+    // Volume of music
+    private float volume;
+
+    public GeoBattleMusicController(String[] tracks, float volume) {
         this.tracks = tracks;
+        this.volume = volume;
     }
 
+    // Starts playing next track
     public void nextTrack() {
-        currentTrack = (int) (Math.random() * tracks.length);
+        int currentTrack = (int) (Math.random() * tracks.length);
 
         if (music != null) {
             music.stop();
@@ -30,7 +36,14 @@ public final class GeoBattleMusicController implements Disposable {
                 nextTrack();
             }
         });
+        music.setVolume(volume);
         music.play();
+    }
+
+    public void setVolume(float volume) {
+        if (music != null)
+            music.setVolume(volume);
+        this.volume = volume;
     }
 
     @Override

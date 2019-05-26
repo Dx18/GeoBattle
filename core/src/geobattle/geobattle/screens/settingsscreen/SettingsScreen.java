@@ -108,6 +108,9 @@ public final class SettingsScreen implements Screen {
                 externalAPI.oSAPI.loadValue("ip", "78.47.182.60"),
                 Integer.parseInt(externalAPI.oSAPI.loadValue("port", "12000"))
         );
+        game.setMusicVolume(
+                Float.parseFloat(externalAPI.oSAPI.loadValue("musicVolume", "0.5"))
+        );
         game.switchToMainMenuScreen();
     }
 

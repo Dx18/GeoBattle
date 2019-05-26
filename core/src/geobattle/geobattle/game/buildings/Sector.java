@@ -111,7 +111,7 @@ public final class Sector {
                 new MatchBranch<SectorState.Normal>() {
                     @Override
                     public void onMatch(SectorState.Normal normal) {
-                        updateNormal(delta, normal);
+                        updateNormal(delta, normal, map);
                     }
                 },
                 new MatchBranch<SectorState.Attacked>() {
@@ -126,14 +126,14 @@ public final class Sector {
     }
 
     // Updates sector in case if it's in normal state
-    private void updateNormal(float delta, SectorState.Normal normal) {
+    private void updateNormal(float delta, SectorState.Normal normal, GeoBattleMap map) {
         if (energy < 0)
             return;
 
         Iterator<Turret> turrets = getTurrets();
         while (turrets.hasNext()) {
             Turret turret = turrets.next();
-            turret.update(delta, null);
+            turret.update(delta, null, map);
         }
     }
 
@@ -176,7 +176,7 @@ public final class Sector {
                 attacked.timeLeft[index] = Math.random() * 2 + 1;
             }
 
-            turret.update(delta, attacked.attackedUnits[index]);
+            turret.update(delta, attacked.attackedUnits[index], map);
 
             index++;
         }

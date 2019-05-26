@@ -5,6 +5,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.TextureLoader;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -39,11 +40,13 @@ public final class GeoBattle extends Game {
 	// Music controller
 	private GeoBattleMusicController musicController;
 
+	private float soundVolume;
+
 	// Constructor
     public GeoBattle(ExternalAPI externalAPI) {
         this.externalAPI = externalAPI;
     }
-    
+
     @Override
 	public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
@@ -88,6 +91,9 @@ public final class GeoBattle extends Game {
         assetManager.load(GeoBattleAssets.MAIN_MENU_TITLE, Texture.class);
         assetManager.load(GeoBattleAssets.SETTINGS_BACKGROUND, Texture.class);
 
+        assetManager.load(GeoBattleAssets.SOUND_SHOTS, Sound.class);
+        assetManager.load(GeoBattleAssets.SOUND_EXPLOSION, Sound.class);
+
         assetManager.load(GeoBattleAssets.COLOR, Texture.class);
 
         // I18NBundleLoader.I18NBundleParameter i18NParam = new I18NBundleLoader.I18NBundleParameter(Locale.ROOT);
@@ -102,16 +108,30 @@ public final class GeoBattle extends Game {
             VisUI.load(assetManager.get(GeoBattleAssets.GUI_SKIN, Skin.class));
 //        VisUI.load();
 
+        soundVolume = Float.parseFloat(externalAPI.oSAPI.loadValue("soundVolume", "0.5"));
+
         musicController = new GeoBattleMusicController(new String[] {
                 GeoBattleAssets.MUSIC_BACKGROUND_1,
                 GeoBattleAssets.MUSIC_BACKGROUND_2,
                 GeoBattleAssets.MUSIC_BACKGROUND_3
-        });
+        }, Float.parseFloat(externalAPI.oSAPI.loadValue("musicVolume", "0.5")));
         musicController.nextTrack();
 
         // setScreen(new LoginScreen(externalAPI, assetManager, this));
         setScreen(new MainMenuScreen(assetManager, this));
 	}
+
+	public void setMusicVolume(float volume) {
+        musicController.setVolume(volume);
+    }
+
+    public void setSoundVolume(float volume) {
+        this.soundVolume = volume;
+    }
+
+    public float getSoundVolume() {
+        return soundVolume;
+    }
 
 	public ExternalAPI getExternalAPI() {
         return externalAPI;

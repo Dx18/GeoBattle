@@ -22,20 +22,33 @@ public final class Turret extends Building {
     // True if turret has target
     private boolean hasTarget;
 
+    // ID of sound
+    private long soundId;
+
     public Turret(BuildingParams params) {
         super(params, BuildingType.TURRET);
+        soundId = -1;
     }
 
     // Updates turret
-    public void update(float delta, Unit unit) {
+    public void update(float delta, Unit unit, GeoBattleMap map) {
         hasTarget = unit != null;
         if (unit == null) {
             direction += IDLE_ROTATION_SPEED * delta;
+
+            if (soundId != -1) {
+                soundId = -1;
+                map.stopShotsSound(soundId);
+            }
         } else {
             direction = GeoBattleMath.getDirection(
                     unit.x - x - getSizeX() / 2.0,
                     unit.y - y - getSizeY() / 2.0
             );
+
+            if (soundId == -1) {
+                soundId = map.playShotsSound(x, y);
+            }
         }
     }
 

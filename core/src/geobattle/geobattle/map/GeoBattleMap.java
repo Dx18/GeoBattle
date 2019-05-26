@@ -21,6 +21,7 @@ import geobattle.geobattle.GeoBattleConst;
 import geobattle.geobattle.actionresults.MatchBranch;
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.PlayerState;
+import geobattle.geobattle.game.SoundInstance;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Hangar;
@@ -94,11 +95,20 @@ public class GeoBattleMap extends Actor {
     // Available animations
     private ArrayList<AnimationInstance> animationInstances;
 
+    // Volume of sound
+    private float soundVolume;
+
+    // Sounds (available)
+    private Sounds sounds;
+
+    // Sound instances
+    private HashMap<Long, SoundInstance> soundInstances;
+
     // Constructor
     public GeoBattleMap(
             TileRequestPool tileRequestPool, GeolocationAPI geolocationAPI,
             GeoBattleCamera camera, GameState gameState,
-            AssetManager assetManager
+            AssetManager assetManager, float soundVolume
     ) {
         Vector2 geolocation = GeoBattleMath.latLongToMercator(
                 geolocationAPI.getCurrentCoordinates()
@@ -129,6 +139,7 @@ public class GeoBattleMap extends Actor {
         this.buildingTextures = new BuildingTextures(assetManager);
         this.unitTextures = new UnitTextures(assetManager);
         this.animations = new Animations(assetManager);
+        this.sounds = new Sounds(assetManager);
 
         this.pointedTile = new IntPoint((int) geolocation.x, (int) geolocation.y);
 
@@ -150,6 +161,9 @@ public class GeoBattleMap extends Actor {
         this.shapeRenderer = new ShapeRenderer();
 
         this.animationInstances = new ArrayList<AnimationInstance>();
+        this.soundInstances = new HashMap<Long, SoundInstance>();
+
+        this.soundVolume = soundVolume;
     }
 
     // Sets screen mode
@@ -647,8 +661,25 @@ public class GeoBattleMap extends Actor {
                         animationInstances.add(new AnimationInstance(
                                 animations.explosion, bombDropped.x, bombDropped.y, 2
                         ));
+                        sounds.explosion.play(soundVolume);
                     }
                 }
         );
+    }
+
+    public long playShotsSound(double x, double y) {
+        long soundId = sounds.shots.play(soundVolume);
+        sounds.shots.setLooping(soundId, true);
+
+        soundInstances.put(soundId, new SoundInstance(sounds.shots, soundId, x, y));
+
+        return soundId;
+    }
+
+    public void stopShotsSound(long soundId) {
+        if (soundInstances.containsKey(soundId)) {
+            sounds.shots.stop(soundId);
+            soundInstances.remove(soundId);
+        }
     }
 }

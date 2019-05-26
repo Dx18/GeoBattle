@@ -112,4 +112,10 @@ public final class GeoBattleAssets {
 
     // Background music 3
     public static final String MUSIC_BACKGROUND_3 = "music/background3.ogg";
+
+    // Sound of turret shots
+    public static final String SOUND_SHOTS = "sounds/shots.ogg";
+
+    // Sound of explosion
+    public static final String SOUND_EXPLOSION = "sounds/explosion.ogg";
 }
