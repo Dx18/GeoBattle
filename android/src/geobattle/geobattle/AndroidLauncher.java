@@ -1,11 +1,9 @@
 package geobattle.geobattle;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -27,25 +25,22 @@ import geobattle.geobattle.server.implementation.SocketServer;
 import geobattle.geobattle.server.implementation.TileRequestPool;
 
 public class AndroidLauncher extends AndroidApplication {
-    FixedGeolocationAPI geolocationAPI;
+    private class GeoBattleLocationListener implements  LocationListener {
+        private final String provider;
 
-    ExternalAPI externalAPI;
+        public GeoBattleLocationListener(String provider) {
+            this.provider = provider;
+        }
 
-    LocationManager locationManager;
-
-    LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
             geolocationAPI.setLongitude((float) location.getLongitude());
             geolocationAPI.setLatitude((float) location.getLatitude());
         }
 
-        @SuppressLint("MissingPermission")
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-            String newProvider = getBestGeolocationProvider();
-            locationManager.removeUpdates(locationListener);
-            locationManager.requestLocationUpdates(newProvider, 0, 0, this);
+
         }
 
         @Override
@@ -57,7 +52,19 @@ public class AndroidLauncher extends AndroidApplication {
         public void onProviderDisabled(String provider) {
 
         }
-    };
+    }
+
+    FixedGeolocationAPI geolocationAPI;
+
+    ExternalAPI externalAPI;
+
+    LocationManager gpsLocationManager;
+
+    LocationListener gpsLocationListener;
+
+    LocationManager networkLocationManager;
+
+    LocationListener networkLocationListener;
 
     private final int PERMISSIONS_REQUEST_GEOLOCATION = 100;
 
@@ -86,12 +93,12 @@ public class AndroidLauncher extends AndroidApplication {
         requestGeolocation();
     }
 
-    private String getBestGeolocationProvider() {
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-
-        return locationManager.getBestProvider(criteria, true);
-    }
+//    private String getBestGeolocationProvider() {
+//        Criteria criteria = new Criteria();
+//        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+//
+//        return locationManager.getBestProvider(criteria, true);
+//    }
 
     private void requestGeolocation() {
         if (
@@ -100,15 +107,20 @@ public class AndroidLauncher extends AndroidApplication {
         ) {
             requestPermissions(new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, PERMISSIONS_REQUEST_GEOLOCATION);
         } else {
-            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            Location initial = locationManager.getLastKnownLocation(getBestGeolocationProvider());
+            gpsLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            networkLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+            Location initial = gpsLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (initial == null)
+                initial = gpsLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
             if (initial != null) {
                 geolocationAPI.setLongitude((float) initial.getLongitude());
                 geolocationAPI.setLatitude((float) initial.getLatitude());
+            } else {
+                geolocationAPI.setLongitude(44.432085f);
+                geolocationAPI.setLatitude(48.649366f);
             }
-
-            // locationManager.requestLocationUpdates(getBestGeolocationProvider(), 0, 0, locationListener);
 
             requestExternalStorage();
         }
@@ -210,7 +222,10 @@ public class AndroidLauncher extends AndroidApplication {
     protected void onResume() {
         try {
             super.onResume();
-            locationManager.requestLocationUpdates(getBestGeolocationProvider(), 0, 0, locationListener);
+            gpsLocationListener = new GeoBattleLocationListener(LocationManager.GPS_PROVIDER);
+            gpsLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsLocationListener);
+            networkLocationListener = new GeoBattleLocationListener(LocationManager.NETWORK_PROVIDER);
+            networkLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocationListener);
         } catch (SecurityException e) {
             finish();
         } catch (Exception e) {
@@ -222,7 +237,8 @@ public class AndroidLauncher extends AndroidApplication {
     protected void onPause() {
         try {
             super.onPause();
-            locationManager.removeUpdates(locationListener);
+            gpsLocationManager.removeUpdates(gpsLocationListener);
+            networkLocationManager.removeUpdates(networkLocationListener);
         } catch (Exception e) {
             e.printStackTrace();
         }
