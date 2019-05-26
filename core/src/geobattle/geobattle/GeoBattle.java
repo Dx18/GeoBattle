@@ -3,11 +3,13 @@ package geobattle.geobattle;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.TextureLoader;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.kotcrab.vis.ui.VisUI;
@@ -40,7 +42,14 @@ public final class GeoBattle extends Game {
 	// Music controller
 	private GeoBattleMusicController musicController;
 
+	// Volume of sound
 	private float soundVolume;
+
+	// Stage with GUI
+	private Stage guiStage;
+
+	// Overlaying GUI of game
+	private GeoBattleGUI gui;
 
 	// Constructor
     public GeoBattle(ExternalAPI externalAPI) {
@@ -81,12 +90,6 @@ public final class GeoBattle extends Game {
         assetManager.load(GeoBattleAssets.ANIMATION_EXPLOSION, Texture.class);
         assetManager.load(GeoBattleAssets.ANIMATION_TURRET_FLASH, Texture.class);
 
-//        assetManager.load(GeoBattleAssets.BOMBER, Texture.class, param);
-//        assetManager.load(GeoBattleAssets.SPOTTER, Texture.class, param);
-
-//        assetManager.load(GeoBattleAssets.BOMBER_TEAM_COLOR, Texture.class, param);
-//        assetManager.load(GeoBattleAssets.SPOTTER_TEAM_COLOR, Texture.class, param);
-
         assetManager.load(GeoBattleAssets.MAIN_MENU_BACKGROUND, Texture.class);
         assetManager.load(GeoBattleAssets.MAIN_MENU_TITLE, Texture.class);
         assetManager.load(GeoBattleAssets.SETTINGS_BACKGROUND, Texture.class);
@@ -96,8 +99,6 @@ public final class GeoBattle extends Game {
 
         assetManager.load(GeoBattleAssets.COLOR, Texture.class);
 
-        // I18NBundleLoader.I18NBundleParameter i18NParam = new I18NBundleLoader.I18NBundleParameter(Locale.ROOT);
-
         assetManager.load(GeoBattleAssets.I18N, I18NBundle.class);
 
         assetManager.finishLoading();
@@ -106,7 +107,6 @@ public final class GeoBattle extends Game {
 
         if (!VisUI.isLoaded())
             VisUI.load(assetManager.get(GeoBattleAssets.GUI_SKIN, Skin.class));
-//        VisUI.load();
 
         soundVolume = Float.parseFloat(externalAPI.oSAPI.loadValue("soundVolume", "0.5"));
 
@@ -117,8 +117,10 @@ public final class GeoBattle extends Game {
         }, Float.parseFloat(externalAPI.oSAPI.loadValue("musicVolume", "0.5")));
         musicController.nextTrack();
 
-        // setScreen(new LoginScreen(externalAPI, assetManager, this));
         setScreen(new MainMenuScreen(assetManager, this));
+
+        guiStage = new Stage();
+        gui = new GeoBattleGUI(assetManager, this, guiStage, 3);
 	}
 
 	public void setMusicVolume(float volume) {
@@ -161,7 +163,17 @@ public final class GeoBattle extends Game {
         setScreen(new SelectServerScreen(assetManager, this));
     }
 
-	public void onAuthInfoObtained(final AuthInfo authInfo) {
+    @Override
+    public void setScreen(Screen screen) {
+        super.setScreen(screen);
+        Gdx.input.setOnscreenKeyboardVisible(false);
+    }
+
+    public void showMessage(String message) {
+        gui.addMessage(new GeoBattleGUI.GeoBattleMessage(message, 3));
+    }
+
+    public void onAuthInfoObtained(final AuthInfo authInfo) {
         externalAPI.server.requestState(authInfo, new Callback<StateRequestResult>() {
             @Override
             public void onResult(final StateRequestResult result) {
@@ -220,6 +232,11 @@ public final class GeoBattle extends Game {
 	@Override
 	public void render() {
         super.render();
+
+        gui.update(Gdx.graphics.getDeltaTime());
+
+        guiStage.act();
+        guiStage.draw();
 	}
 	
 	@Override
