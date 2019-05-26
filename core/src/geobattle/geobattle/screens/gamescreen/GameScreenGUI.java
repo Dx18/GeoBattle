@@ -6,22 +6,19 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisImageButton;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
-import com.kotcrab.vis.ui.widget.VisTextButton;
 
 import geobattle.geobattle.GeoBattleAssets;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
-import geobattle.geobattle.game.units.UnitType;
 
 // GUI for game screen
-final class GameScreenGUI {
+public final class GameScreenGUI {
     // GUI skin
     private final Skin skin;
 
@@ -79,6 +76,9 @@ final class GameScreenGUI {
     // Tool bar for hangar
     public final VisTable hangarToolBar;
 
+    // "Unit building" dialog
+    public final UnitBuildingGUI hangarDialog;
+
     // "Research" dialog
     public final ResearchGUI researchDialog;
 
@@ -93,6 +93,9 @@ final class GameScreenGUI {
 
     // Size of usual tool bar button
     private int buttonSize;
+
+    // Selected building
+    private Building selectedBuilding;
 
     // Initializes GUI
     public GameScreenGUI(AssetManager assetManager, final GameScreen screen, final Stage guiStage) {
@@ -137,6 +140,8 @@ final class GameScreenGUI {
         hangarToolBar = new VisTable();
         guiStage.addActor(hangarToolBar);
 
+        hangarDialog = new UnitBuildingGUI(assetManager, screen);
+
         researchDialog = new ResearchGUI(assetManager, screen);
 
         labels = new VisTable();
@@ -176,6 +181,7 @@ final class GameScreenGUI {
         initSelectSectorToolBar(screen);
         initSelectBuildingTypeDialog(screen);
         initHangarToolBar(screen);
+        initHangarDialog(screen);
         initResearchDialog(screen);
         initLabels();
     }
@@ -530,20 +536,28 @@ final class GameScreenGUI {
         hangarToolBar.clear();
         hangarToolBar.setFillParent(true);
 
-        for (final UnitType unitType : UnitType.values()) {
-            TextButton buildUnit = new TextButton(unitType.name.substring(0, 1), skin);
-            buildUnit.addListener(new ChangeListener() {
-                @Override
-                public void changed(ChangeEvent event, Actor actor) {
-                    screen.getGameEvents().onUnitBuild(unitType);
-                }
-            });
-            hangarToolBar.add(buildUnit)
-                    .width(buttonSize)
-                    .height(buttonSize);
-        }
+        VisImageButton hangar = new VisImageButton("buttonHangar");
+        hangar.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                showHangarDialog();
+            }
+        });
+        hangarToolBar.add(hangar)
+                .width(buttonSize)
+                .height(buttonSize);
 
-        hangarToolBar.right().padRight(20).top().padTop(20);
+        hangarToolBar.right().padRight(20).bottom().padBottom(20 + buttonSize);
+    }
+
+    // Initializes hangar dialog
+    private void initHangarDialog(GameScreen screen) {
+        hangarDialog.init(screen);
+    }
+
+    // Shows hangar dialog
+    private void showHangarDialog() {
+        hangarDialog.root.show(guiStage);
     }
 
     private void initResearchDialog(final GameScreen screen) {
@@ -592,6 +606,11 @@ final class GameScreenGUI {
     }
 
     public void onBuildingSelected(Building building) {
+        if (building == selectedBuilding)
+            return;
+
+        selectedBuilding = building;
+
         hangarToolBar.setVisible(false);
 
         if (building == null)

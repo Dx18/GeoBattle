@@ -75,6 +75,13 @@ energy
   orig: 200, 200
   offset: 0, 0
   index: -1
+hangar
+  rotate: false
+  xy: 754, 410
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
 health
   rotate: false
   xy: 2, 108
@@ -107,7 +114,7 @@ infoBackgroundRight
   index: -1
 listItemDeselected
   rotate: false
-  xy: 652, 379
+  xy: 754, 379
   size: 5, 3
   split: 3, 1, 1, 1
   orig: 5, 3
@@ -115,7 +122,7 @@ listItemDeselected
   index: -1
 listItemSelected
   rotate: false
-  xy: 702, 405
+  xy: 804, 405
   size: 5, 3
   split: 3, 1, 1, 1
   orig: 5, 3
@@ -123,14 +130,14 @@ listItemSelected
   index: -1
 next
   rotate: false
-  xy: 754, 410
+  xy: 856, 410
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 ok
   rotate: false
-  xy: 856, 410
+  xy: 104, 6
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
@@ -152,21 +159,21 @@ person
   index: -1
 research
   rotate: false
-  xy: 104, 6
+  xy: 206, 64
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 researchIndicator
   rotate: false
-  xy: 652, 384
+  xy: 754, 384
   size: 48, 24
   orig: 48, 24
   offset: 0, 0
   index: -1
 resources
   rotate: false
-  xy: 206, 64
+  xy: 346, 308
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
@@ -187,7 +194,7 @@ sliderKnobHorizontal
   index: -1
 toPlayer
   rotate: false
-  xy: 346, 308
+  xy: 448, 308
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
@@ -202,14 +209,14 @@ window
   index: -1
 zoomIn
   rotate: false
-  xy: 448, 308
+  xy: 550, 308
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 zoomOut
   rotate: false
-  xy: 550, 308
+  xy: 652, 308
   size: 100, 100
   orig: 100, 100
   offset: 0, 0

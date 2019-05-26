@@ -258,6 +258,8 @@ public final class GameScreen implements Screen {
             ));
         }
 
+        gui.onBuildingSelected(map.getPointedBuilding());
+
         if (debugMode) {
             gui.debugInfo.setText(String.format(
                     Locale.US,
@@ -314,8 +316,6 @@ public final class GameScreen implements Screen {
 
             map.setPointedTile(point.x, point.y, false);
             Building pointed = map.getPointedBuilding();
-
-            gui.onBuildingSelected(pointed);
 
             return true;
         }

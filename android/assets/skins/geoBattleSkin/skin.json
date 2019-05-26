@@ -46,6 +46,8 @@
     buttonZoomOutDown: { name: zoomOut, color: down },
     buttonToPlayerUp: { name: toPlayer, color: up },
     buttonToPlayerDown: { name: toPlayer, color: down },
+    buttonHangarUp: { name: hangar, color: up },
+    buttonHangarDown: { name: hangar, color: down },
     cursor: { name: slider, color: white },
     selection: { name: slider, color: gray },
     slider: { name: slider, color: up },
@@ -69,6 +71,7 @@
     buttonZoomIn: { up: buttonZoomInUp, down: buttonZoomInDown },
     buttonZoomOut: { up: buttonZoomOutUp, down: buttonZoomOutDown },
     buttonToPlayer: { up: buttonToPlayerUp, down: buttonToPlayerDown },
+    buttonHangar: { up: buttonHangarUp, down: buttonHangarDown },
     default: buttonEmpty
   },
   TextButtonStyle: {

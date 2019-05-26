@@ -54,6 +54,12 @@ public final class BuildingGUI {
         energy = new VisLabel("");
         maxCount = new VisLabel("");
         buildButton = new VisTextButton("");
+        buildButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                root.hide();
+            }
+        });
 
         init(screen);
     }
@@ -125,13 +131,6 @@ public final class BuildingGUI {
         adapter.getSelection().setSize(1);
         adapter.getSelection().set(0, buildingType);
         buildingTypes.getClickListener().clicked(buildingType);
-
-        buildButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                root.hide();
-            }
-        });
 
         root.getContentTable().add(buildingTypes.getMainTable())
                 .growX()
