@@ -36,7 +36,6 @@ public abstract class UnitBuildResult implements ActionResult {
             } catch (IllegalArgumentException e) {
                 // Unit already added
             }
-            gameState.setResources(gameState.getResources() - cost);
         }
     }
 

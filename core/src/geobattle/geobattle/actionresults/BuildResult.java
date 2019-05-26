@@ -36,7 +36,6 @@ public abstract class BuildResult implements ActionResult {
             } catch (IllegalArgumentException ignored) {
                 // Building already added
             }
-            gameState.setResources(gameState.getResources() - cost);
         }
 
         @Override
