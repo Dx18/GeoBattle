@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import com.kotcrab.vis.ui.widget.VisImageButton;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisSlider;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -29,6 +30,9 @@ public final class SettingsScreenGUI {
 
     public final VisTextField port;
 
+    // Table with button which hides keyboard
+    public final VisTable hideKeyboard;
+
     // OS API
     private OSAPI oSAPI;
 
@@ -47,11 +51,15 @@ public final class SettingsScreenGUI {
         port.setMessageText(screen.getI18NBundle().get("port"));
         guiStage.addActor(settings);
 
+        hideKeyboard = new VisTable();
+        guiStage.addActor(hideKeyboard);
+
         reset(screen);
     }
 
     public void reset(SettingsScreen screen) {
         initSettings(screen);
+        initHideKeyboard();
     }
 
     private void initSettings(final SettingsScreen screen) {
@@ -113,7 +121,26 @@ public final class SettingsScreenGUI {
                 .pad(5);
 
         settings.add(root);
-        settings.center().pad(20).top().padTop(20);
+        settings.center().pad(20).top().padTop(40 + Gdx.graphics.getPpcY() * 0.9f);
+    }
+
+    // Initializes hide keyboard button
+    private void initHideKeyboard() {
+        hideKeyboard.clear();
+        hideKeyboard.setFillParent(true);
+
+        VisImageButton hide = new VisImageButton("buttonHideKeyboard");
+        hide.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Gdx.input.setOnscreenKeyboardVisible(false);
+            }
+        });
+        hideKeyboard.add(hide)
+                .width(Gdx.graphics.getPpcY() * 0.9f)
+                .height(Gdx.graphics.getPpcY() * 0.9f);
+
+        hideKeyboard.top().padTop(20).right().padRight(20);
     }
 
     private boolean saveSettings() {

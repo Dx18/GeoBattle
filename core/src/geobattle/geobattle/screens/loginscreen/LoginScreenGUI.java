@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.widget.VisImage;
+import com.kotcrab.vis.ui.widget.VisImageButton;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisSlider;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -65,6 +66,9 @@ final class LoginScreenGUI {
 
     // Blue component of picked color
     public final VisSlider pickColorB;
+
+    // Table with button which hides keyboard
+    public final VisTable hideKeyboard;
 
     public LoginScreenGUI(AssetManager assetManager, final LoginScreen screen, final Stage guiStage) {
         skin = assetManager.get(GeoBattleAssets.GUI_SKIN);
@@ -123,6 +127,9 @@ final class LoginScreenGUI {
         ((ChangeListener) updateColor).changed(null, null);
         guiStage.addActor(pickColorScreen);
 
+        hideKeyboard = new VisTable();
+        guiStage.addActor(hideKeyboard);
+
         reset(screen);
     }
 
@@ -132,6 +139,7 @@ final class LoginScreenGUI {
         initLoginScreen(screen);
         initRegisterScreen(screen);
         initPickColorScreen(screen);
+        initHideKeyboard();
         setMode(LoginScreenMode.LOGIN);
     }
 
@@ -219,7 +227,7 @@ final class LoginScreenGUI {
                 .pad(5);
 
         loginScreen.add(root);
-        loginScreen.center().pad(20).top().padTop(20);
+        loginScreen.center().pad(20).top().padTop(40 + Gdx.graphics.getPpcY() * 0.9f);
     }
 
     // Initializes register form
@@ -286,7 +294,7 @@ final class LoginScreenGUI {
                 .pad(5);
 
         registerScreen.add(root);
-        registerScreen.center().pad(20).top().padTop(20);
+        registerScreen.center().pad(20).top().padTop(40 + Gdx.graphics.getPpcY() * 0.9f);
     }
 
     private void initPickColorScreen(LoginScreen screen) {
@@ -340,7 +348,26 @@ final class LoginScreenGUI {
                 .pad(5);
 
         pickColorScreen.add(root);
-        pickColorScreen.center().pad(20).top().padTop(20);
+        pickColorScreen.center().pad(20).top().padTop(40 + Gdx.graphics.getPpcY() * 0.9f);
+    }
+
+    // Initializes hide keyboard button
+    private void initHideKeyboard() {
+        hideKeyboard.clear();
+        hideKeyboard.setFillParent(true);
+
+        VisImageButton hide = new VisImageButton("buttonHideKeyboard");
+        hide.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Gdx.input.setOnscreenKeyboardVisible(false);
+            }
+        });
+        hideKeyboard.add(hide)
+                .width(Gdx.graphics.getPpcY() * 0.9f)
+                .height(Gdx.graphics.getPpcY() * 0.9f);
+
+        hideKeyboard.top().padTop(20).right().padRight(20);
     }
 
     // Sets mode of GUI

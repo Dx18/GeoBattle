@@ -50,6 +50,8 @@
     buttonToPlayerDown: { name: toPlayer, color: down },
     buttonHangarUp: { name: hangar, color: up },
     buttonHangarDown: { name: hangar, color: down },
+    buttonHideKeyboardUp: { name: hideKeyboard, color: up },
+    buttonHideKeyboardDown: { name: hideKeyboard, color: down },
     cursor: { name: slider, color: white },
     selection: { name: dialogTint, color: white },
     slider: { name: slider, color: up },
@@ -74,6 +76,7 @@
     buttonZoomOut: { up: buttonZoomOutUp, down: buttonZoomOutDown },
     buttonToPlayer: { up: buttonToPlayerUp, down: buttonToPlayerDown },
     buttonHangar: { up: buttonHangarUp, down: buttonHangarDown },
+    buttonHideKeyboard: { up: buttonHideKeyboardUp, down: buttonHideKeyboardDown },
     default: buttonEmpty
   },
   TextButtonStyle: {

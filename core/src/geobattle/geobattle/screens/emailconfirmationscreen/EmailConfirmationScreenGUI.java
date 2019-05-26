@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import com.kotcrab.vis.ui.widget.VisImageButton;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
@@ -24,6 +25,9 @@ public final class EmailConfirmationScreenGUI {
     public final VisTextField playerNameField;
 
     public final VisTextField codeField;
+
+    // Table with button which hides keyboard
+    public final VisTable hideKeyboard;
 
     public EmailConfirmationScreenGUI(AssetManager assetManager, final EmailConfirmationScreen screen, final Stage guiStage, String name) {
         skin = assetManager.get(GeoBattleAssets.GUI_SKIN);
@@ -45,11 +49,15 @@ public final class EmailConfirmationScreenGUI {
         });
         guiStage.addActor(emailConfirmation);
 
+        hideKeyboard = new VisTable();
+        guiStage.addActor(hideKeyboard);
+
         reset(screen);
     }
 
     public void reset(EmailConfirmationScreen screen) {
         initEmailConfirmation(screen);
+        initHideKeyboard();
     }
 
     private void initEmailConfirmation(final EmailConfirmationScreen screen) {
@@ -104,6 +112,25 @@ public final class EmailConfirmationScreenGUI {
         root.row();
 
         emailConfirmation.add(root);
-        emailConfirmation.center().pad(20).top().padTop(20);
+        emailConfirmation.center().pad(20).top().padTop(40 + Gdx.graphics.getPpcY() * 0.9f);
+    }
+
+    // Initializes hide keyboard button
+    private void initHideKeyboard() {
+        hideKeyboard.clear();
+        hideKeyboard.setFillParent(true);
+
+        VisImageButton hide = new VisImageButton("buttonHideKeyboard");
+        hide.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Gdx.input.setOnscreenKeyboardVisible(false);
+            }
+        });
+        hideKeyboard.add(hide)
+                .width(Gdx.graphics.getPpcY() * 0.9f)
+                .height(Gdx.graphics.getPpcY() * 0.9f);
+
+        hideKeyboard.top().padTop(20).right().padRight(20);
     }
 }
