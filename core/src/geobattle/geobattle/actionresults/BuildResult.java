@@ -54,7 +54,7 @@ public abstract class BuildResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot build: collision found");
+            game.showMessage(game.getI18NBundle().get("buildResultCollisionFound"));
         }
     }
 
@@ -74,7 +74,7 @@ public abstract class BuildResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot build: collision found");
+            game.showMessage(game.getI18NBundle().get("buildResultNotEnoughResources"));
         }
     }
 
@@ -94,7 +94,7 @@ public abstract class BuildResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot build: building limit exceeded");
+            game.showMessage(game.getI18NBundle().format("buildResultBuildingLimitExceeded", max));
         }
     }
 
@@ -108,7 +108,7 @@ public abstract class BuildResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot build: not in territory");
+            game.showMessage(game.getI18NBundle().get("buildResultNotInTerritory"));
         }
     }
 
@@ -122,7 +122,7 @@ public abstract class BuildResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot build: sector is blocked");
+            game.showMessage(game.getI18NBundle().get("buildResultSectorBlocked"));
         }
     }
 

@@ -60,7 +60,7 @@ public abstract class SectorBuildResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot build sector: not enough resources");
+            game.showMessage(game.getI18NBundle().format("sectorBuildResultNotEnoughResources", required));
         }
     }
 
@@ -80,7 +80,7 @@ public abstract class SectorBuildResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot build sector: not enough resources");
+            game.showMessage(game.getI18NBundle().get("sectorBuildResultIntersectsWithEnemy"));
         }
     }
 
@@ -94,7 +94,7 @@ public abstract class SectorBuildResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot build sector: wrong position of sector");
+            game.showMessage(game.getI18NBundle().get("sectorBuildResultWrongPosition"));
         }
     }
 

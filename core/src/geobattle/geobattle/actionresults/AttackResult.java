@@ -44,7 +44,7 @@ public abstract class AttackResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot attack: sector is not attackable");
+            game.showMessage(game.getI18NBundle().get("attackResultNotAttackable"));
         }
     }
 
@@ -58,7 +58,7 @@ public abstract class AttackResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot attack: some hangars are already used");
+            game.showMessage(game.getI18NBundle().get("attackResultHangarsAlreadyUsed"));
         }
     }
 

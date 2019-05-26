@@ -2,8 +2,6 @@ package geobattle.geobattle.actionresults;
 
 import com.google.gson.JsonObject;
 
-import java.util.Locale;
-
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.screens.gamescreen.GameScreenMode;
@@ -47,11 +45,7 @@ public abstract class EmailConfirmationResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage(String.format(
-                    Locale.US,
-                    "Wrong code. Tries left: %d",
-                    triesLeft
-            ));
+            game.showMessage(game.getI18NBundle().format("emailConfirmationResultWrongCode", triesLeft));
             if (triesLeft <= 0)
                 game.switchToLoginScreen();
         }
@@ -67,7 +61,7 @@ public abstract class EmailConfirmationResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Player with same name already confirmed email or does not exist");
+            game.showMessage(game.getI18NBundle().get("emailConfirmationResultDoesNotExist"));
         }
     }
 

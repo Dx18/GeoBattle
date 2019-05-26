@@ -25,6 +25,7 @@ public abstract class RegistrationResult implements ActionResult {
         @Override
         public void apply(GeoBattle game, GameState gameState) {
             game.switchToEmailConfirmationScreen(name);
+            game.showMessage(game.getI18NBundle().get("registrationResultSuccess"));
         }
     }
 
@@ -38,7 +39,7 @@ public abstract class RegistrationResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot register: invalid email");
+            game.showMessage(game.getI18NBundle().get("registrationResultInvalidEmail"));
         }
     }
 
@@ -52,7 +53,7 @@ public abstract class RegistrationResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot register: player with same email exists");
+            game.showMessage(game.getI18NBundle().get("registrationResultEmailExists"));
         }
     }
 
@@ -82,7 +83,7 @@ public abstract class RegistrationResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot register: invalid name length");
+            game.showMessage(game.getI18NBundle().format("registrationResultInvalidNameLength", min, max));
         }
     }
 
@@ -107,7 +108,7 @@ public abstract class RegistrationResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot register: invalid password length");
+            game.showMessage(game.getI18NBundle().format("registrationResultInvalidPasswordLength", min));
         }
     }
 
@@ -121,7 +122,7 @@ public abstract class RegistrationResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot register: invalid symbols in name");
+            game.showMessage(game.getI18NBundle().get("registrationResultInvalidNameSymbols"));
         }
     }
 
@@ -135,7 +136,7 @@ public abstract class RegistrationResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot register: player with same name exists");
+            game.showMessage(game.getI18NBundle().get("registrationResultNameExists"));
         }
     }
 

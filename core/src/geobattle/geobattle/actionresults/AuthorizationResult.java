@@ -39,7 +39,7 @@ public abstract class AuthorizationResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot login: pair not found");
+            game.showMessage(game.getI18NBundle().get("authorizationResultPairNotFound"));
         }
     }
 

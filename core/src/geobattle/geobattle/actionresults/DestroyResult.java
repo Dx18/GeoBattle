@@ -49,7 +49,7 @@ public abstract class DestroyResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot destroy: you are not owning this building");
+            game.showMessage(game.getI18NBundle().get("destroyResultNotOwningBuilding"));
         }
     }
 
@@ -63,7 +63,7 @@ public abstract class DestroyResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot destroy: sector is blocked");
+            game.showMessage(game.getI18NBundle().get("destroyResultSectorBlocked"));
         }
     }
 

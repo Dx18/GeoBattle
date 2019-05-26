@@ -50,7 +50,7 @@ public abstract class ResearchResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot research: not enough resources");
+            game.showMessage(game.getI18NBundle().format("researchResultNotEnoughResources", required));
         }
     }
 
@@ -64,7 +64,7 @@ public abstract class ResearchResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot research: max level reached");
+            game.showMessage(game.getI18NBundle().get("researchResultMaxLevel"));
         }
     }
 

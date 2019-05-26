@@ -18,7 +18,7 @@ public abstract class ResendEmailResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Check your email");
+            game.showMessage(game.getI18NBundle().get("resendEmailResultEmailResent"));
         }
     }
 
@@ -32,7 +32,7 @@ public abstract class ResendEmailResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Player with same name already confirmed email or does not exist");
+            game.showMessage(game.getI18NBundle().get("resendEmailResultDoesNotExist"));
         }
     }
 

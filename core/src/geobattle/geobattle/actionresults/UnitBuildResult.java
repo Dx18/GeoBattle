@@ -55,7 +55,7 @@ public abstract class UnitBuildResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot build: not enough resources");
+            game.showMessage(game.getI18NBundle().get("unitBuildResultNotEnoughResources"));
         }
     }
 
@@ -69,7 +69,7 @@ public abstract class UnitBuildResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot build: no place in hangar");
+            game.showMessage(game.getI18NBundle().get("unitBuildResultNoPlaceInHangar"));
         }
     }
 
@@ -83,7 +83,7 @@ public abstract class UnitBuildResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.getExternalAPI().oSAPI.showMessage("Cannot build: sector is blocked");
+            game.showMessage(game.getI18NBundle().get("unitBuildResultSectorBlocked"));
         }
     }
 
