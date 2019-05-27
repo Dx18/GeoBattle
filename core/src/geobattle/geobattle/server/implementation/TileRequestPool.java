@@ -101,6 +101,9 @@ public final class TileRequestPool {
 
     // Reads pixmap from cache. Does not create a new thread
     private Pixmap readFromCache(TileRequest tileRequest) {
+        if (cachePath == null)
+            return null;
+
         String fileName = String.format(
                 Locale.US,
                 "%d_%d_%d.png",
@@ -129,6 +132,9 @@ public final class TileRequestPool {
 
     // Writes pixmap to cache. Does not create a new thread
     private void writeToCache(Pixmap pixmap, TileRequest tileRequest) {
+        if (cachePath == null)
+            return;
+
         String fileName = String.format(
                 Locale.US,
                 "%d_%d_%d.png",
