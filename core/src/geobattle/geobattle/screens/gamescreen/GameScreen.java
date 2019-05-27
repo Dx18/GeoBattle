@@ -117,7 +117,7 @@ public final class GameScreen implements Screen {
 
         // guiStage.setDebugAll(true);
 
-        game.setMessagePad(Gdx.graphics.getHeight() * 2 / 3f, true);
+        game.setMessagePad(250, true);
     }
 
     public void switchTo(GameScreenMode mode) {
