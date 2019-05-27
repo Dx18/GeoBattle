@@ -155,11 +155,11 @@ public final class GeoBattle extends Game {
     }
 
 	public void switchToLoginScreen() {
-        setScreen(new LoginScreen(externalAPI, assetManager, this));
+        setScreen(new LoginScreen(assetManager, this));
     }
 
     public void switchToEmailConfirmationScreen(String name) {
-        setScreen(new EmailConfirmationScreen(externalAPI, assetManager, this, name));
+        setScreen(new EmailConfirmationScreen(assetManager, this, name));
     }
 
     public void switchToSelectServerScreen() {
@@ -214,7 +214,7 @@ public final class GeoBattle extends Game {
     }
 
     public void onGameStateObtained(GameState gameState, AuthInfo authInfo) {
-        setScreen(new GameScreen(externalAPI, gameState, assetManager, authInfo, this));
+        setScreen(new GameScreen(gameState, assetManager, authInfo, this));
     }
 
     private void onStateRequestResult(StateRequestResult result, final AuthInfo authInfo) {
@@ -244,7 +244,7 @@ public final class GeoBattle extends Game {
 
     public void onExitGame(final AuthInfo authInfo) {
         externalAPI.server.invalidatePlayerToken(authInfo.id, authInfo.token, null);
-        setScreen(new LoginScreen(externalAPI, assetManager, this));
+        setScreen(new LoginScreen(assetManager, this));
     }
 
 	@Override

@@ -27,7 +27,6 @@ import geobattle.geobattle.map.GeoBattleCamera;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.screens.BackButtonProcessor;
 import geobattle.geobattle.server.AuthInfo;
-import geobattle.geobattle.server.ExternalAPI;
 
 // Game screen
 public final class GameScreen implements Screen {
@@ -65,7 +64,7 @@ public final class GameScreen implements Screen {
     private boolean debugMode;
 
     // Constructor
-    public GameScreen(ExternalAPI externalAPI, GameState gameState, AssetManager assetManager, AuthInfo authInfo, GeoBattle game) {
+    public GameScreen(GameState gameState, AssetManager assetManager, AuthInfo authInfo, GeoBattle game) {
         this.assetManager = assetManager;
         this.gameState = gameState;
         this.game = game;
@@ -76,16 +75,11 @@ public final class GameScreen implements Screen {
         camera = new GeoBattleCamera(width, height);
         tilesStage = new Stage(new ScalingViewport(Scaling.stretch, width, height, camera), new SpriteBatch(8191));
         map = new GeoBattleMap(
-                externalAPI.tileRequestPool,
-                externalAPI.geolocationAPI,
-                camera,
-                gameState,
-                assetManager,
-                game.getSoundVolume()
+                camera, gameState, assetManager, game.getSoundVolume(), game
         );
         tilesStage.addActor(map);
 
-        this.gameEvents = new GameEvents(externalAPI.server, externalAPI.oSAPI, gameState, authInfo, this, map, game);
+        this.gameEvents = new GameEvents(gameState, authInfo, this, map, game);
         map.setSelectedBuildingType(BuildingType.GENERATOR);
 
         this.debugMode = true;

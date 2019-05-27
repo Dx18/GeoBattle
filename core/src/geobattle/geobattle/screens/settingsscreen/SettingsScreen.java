@@ -13,15 +13,8 @@ import com.badlogic.gdx.utils.I18NBundle;
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.GeoBattleAssets;
 import geobattle.geobattle.screens.BackButtonProcessor;
-import geobattle.geobattle.server.ExternalAPI;
 
 public final class SettingsScreen implements Screen {
-    // External API
-    private final ExternalAPI externalAPI;
-
-    // Asset manager
-    private final AssetManager assetManager;
-
     // Stage where all GUI is
     private Stage guiStage;
 
@@ -37,10 +30,11 @@ public final class SettingsScreen implements Screen {
     // Sprite batch for drawing background
     private SpriteBatch batch;
 
-    public SettingsScreen(ExternalAPI externalAPI, AssetManager assetManager, GeoBattle game) {
-        this.externalAPI = externalAPI;
-        this.assetManager = assetManager;
+    public SettingsScreen(AssetManager assetManager, GeoBattle game) {
         this.game = game;
+
+        guiStage = new Stage();
+        gui = new SettingsScreenGUI(assetManager, this, game.getExternalAPI().oSAPI, guiStage);
 
         background = assetManager.get(GeoBattleAssets.SETTINGS_BACKGROUND, Texture.class);
         batch = new SpriteBatch();
@@ -49,9 +43,6 @@ public final class SettingsScreen implements Screen {
     // Shows screen
     @Override
     public void show() {
-        guiStage = new Stage();
-        gui = new SettingsScreenGUI(assetManager, this, externalAPI.oSAPI, guiStage);
-
         InputMultiplexer input = new InputMultiplexer();
         input.addProcessor(new BackButtonProcessor(new Runnable() {
             @Override
@@ -106,15 +97,15 @@ public final class SettingsScreen implements Screen {
     }
 
     public void onSaveSettings() {
-        externalAPI.server.setAddress(
-                externalAPI.oSAPI.loadValue("ip", "78.47.182.60"),
-                Integer.parseInt(externalAPI.oSAPI.loadValue("port", "12000"))
+        game.getExternalAPI().server.setAddress(
+                game.getExternalAPI().oSAPI.loadValue("ip", "78.47.182.60"),
+                Integer.parseInt(game.getExternalAPI().oSAPI.loadValue("port", "12000"))
         );
         game.setMusicVolume(
-                Float.parseFloat(externalAPI.oSAPI.loadValue("musicVolume", "0.5"))
+                Float.parseFloat(game.getExternalAPI().oSAPI.loadValue("musicVolume", "0.5"))
         );
         game.setSoundVolume(
-                Float.parseFloat(externalAPI.oSAPI.loadValue("soundVolume", "0.5"))
+                Float.parseFloat(game.getExternalAPI().oSAPI.loadValue("soundVolume", "0.5"))
         );
         game.switchToMainMenuScreen();
     }

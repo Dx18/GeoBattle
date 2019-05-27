@@ -19,13 +19,9 @@ import geobattle.geobattle.screens.BackButtonProcessor;
 import geobattle.geobattle.screens.emailconfirmationscreen.EmailConfirmationScreen;
 import geobattle.geobattle.screens.settingsscreen.SettingsScreen;
 import geobattle.geobattle.server.Callback;
-import geobattle.geobattle.server.ExternalAPI;
 
 // Login screen
 public final class LoginScreen implements Screen {
-    // External API
-    private final ExternalAPI externalAPI;
-
     // Asset manager
     private final AssetManager assetManager;
 
@@ -44,10 +40,12 @@ public final class LoginScreen implements Screen {
     // Sprite batch used for drawing background
     private final SpriteBatch batch;
 
-    public LoginScreen(ExternalAPI externalAPI, AssetManager assetManager, GeoBattle game) {
-        this.externalAPI = externalAPI;
+    public LoginScreen(AssetManager assetManager, GeoBattle game) {
         this.assetManager = assetManager;
         this.game = game;
+
+        guiStage = new Stage();
+        gui = new LoginScreenGUI(assetManager, this, guiStage);
 
         background = assetManager.get(GeoBattleAssets.MAIN_MENU_BACKGROUND);
         batch = new SpriteBatch();
@@ -56,9 +54,6 @@ public final class LoginScreen implements Screen {
     // Shows screen
     @Override
     public void show() {
-        guiStage = new Stage();
-        gui = new LoginScreenGUI(assetManager, this, guiStage);
-
         InputMultiplexer input = new InputMultiplexer();
         input.addProcessor(new BackButtonProcessor(new Runnable() {
             @Override
@@ -119,7 +114,7 @@ public final class LoginScreen implements Screen {
         String password = gui.loginPassword.getText();
 
         if (!userName.isEmpty() && !password.isEmpty())
-            externalAPI.server.login(userName, password, new Callback<AuthorizationResult>() {
+            game.getExternalAPI().server.login(userName, password, new Callback<AuthorizationResult>() {
                 @Override
                 public void onResult(final AuthorizationResult result) {
                     Gdx.app.postRunnable(new Runnable() {
@@ -146,7 +141,7 @@ public final class LoginScreen implements Screen {
         Color color = gui.pickColorResult.getColor();
 
         if (!userName.isEmpty() && !email.isEmpty() && !password.isEmpty() && password.equals(repeatPassword))
-            externalAPI.server.register(userName, email, password, color, new Callback<RegistrationResult>() {
+            game.getExternalAPI().server.register(userName, email, password, color, new Callback<RegistrationResult>() {
                 @Override
                 public void onResult(final RegistrationResult result) {
                     Gdx.app.postRunnable(new Runnable() {
@@ -165,11 +160,11 @@ public final class LoginScreen implements Screen {
     }
 
     public void onSettings() {
-        game.setScreen(new SettingsScreen(externalAPI, assetManager, game));
+        game.setScreen(new SettingsScreen(assetManager, game));
     }
 
     public void onEmailConfirmation() {
-        game.setScreen(new EmailConfirmationScreen(externalAPI, assetManager, game, null));
+        game.setScreen(new EmailConfirmationScreen(assetManager, game, null));
     }
 
     // Invokes when window is resized

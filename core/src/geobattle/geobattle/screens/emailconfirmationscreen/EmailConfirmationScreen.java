@@ -16,13 +16,8 @@ import geobattle.geobattle.actionresults.EmailConfirmationResult;
 import geobattle.geobattle.actionresults.ResendEmailResult;
 import geobattle.geobattle.screens.BackButtonProcessor;
 import geobattle.geobattle.server.Callback;
-import geobattle.geobattle.server.ExternalAPI;
 
 public final class EmailConfirmationScreen implements Screen {
-    private final ExternalAPI externalAPI;
-
-    private final AssetManager assetManager;
-
     private final GeoBattle game;
 
     private final Stage guiStage;
@@ -33,9 +28,7 @@ public final class EmailConfirmationScreen implements Screen {
 
     private final SpriteBatch batch;
 
-    public EmailConfirmationScreen(ExternalAPI externalAPI, AssetManager assetManager, GeoBattle game, String name) {
-        this.externalAPI = externalAPI;
-        this.assetManager = assetManager;
+    public EmailConfirmationScreen(AssetManager assetManager, GeoBattle game, String name) {
         this.game = game;
         guiStage = new Stage();
         gui = new EmailConfirmationScreenGUI(assetManager, this, guiStage, name);
@@ -103,7 +96,7 @@ public final class EmailConfirmationScreen implements Screen {
         if (playerName.isEmpty() || code < 0 || code >= 10000)
             return;
 
-        externalAPI.server.requestEmailConfirmation(playerName, code, new Callback<EmailConfirmationResult>() {
+        game.getExternalAPI().server.requestEmailConfirmation(playerName, code, new Callback<EmailConfirmationResult>() {
             @Override
             public void onResult(final EmailConfirmationResult result) {
                 Gdx.app.postRunnable(new Runnable() {
@@ -126,7 +119,7 @@ public final class EmailConfirmationScreen implements Screen {
         if (playerName.isEmpty())
             return;
 
-        externalAPI.server.requestEmailResend(playerName, new Callback<ResendEmailResult>() {
+        game.getExternalAPI().server.requestEmailResend(playerName, new Callback<ResendEmailResult>() {
             @Override
             public void onResult(final ResendEmailResult result) {
                 Gdx.app.postRunnable(new Runnable() {

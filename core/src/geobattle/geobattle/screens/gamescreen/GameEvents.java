@@ -38,16 +38,12 @@ import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.SelectHangarsMo
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.SelectSectorMode;
 import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.Callback;
-import geobattle.geobattle.server.OSAPI;
-import geobattle.geobattle.server.Server;
 import geobattle.geobattle.util.IntPoint;
 
 // Game events
 public class GameEvents {
     // Game server
-    public final Server server;
-
-    public final OSAPI oSAPI;
+    private final GeoBattle game;
 
     // Game state
     public final GameState gameState;
@@ -60,11 +56,7 @@ public class GameEvents {
 
     private double lastUpdateTime;
 
-    public final GeoBattle game;
-
-    public GameEvents(Server server, OSAPI oSAPI, GameState gameState, AuthInfo authInfo, GameScreen screen, GeoBattleMap map, GeoBattle game) {
-        this.server = server;
-        this.oSAPI = oSAPI;
+    public GameEvents(GameState gameState, AuthInfo authInfo, GameScreen screen, GeoBattleMap map, GeoBattle game) {
         this.gameState = gameState;
         this.authInfo = authInfo;
         this.screen = screen;
@@ -81,7 +73,7 @@ public class GameEvents {
         if (!gameState.canBuildSector(coords.x, coords.y))
             return;
 
-        server.requestSectorBuild(authInfo, coords.x, coords.y, new Callback<SectorBuildResult>() {
+        game.getExternalAPI().server.requestSectorBuild(authInfo, coords.x, coords.y, new Callback<SectorBuildResult>() {
             @Override
             public void onResult(final SectorBuildResult result) {
                 Gdx.app.postRunnable(new Runnable() {
@@ -104,7 +96,7 @@ public class GameEvents {
         if (!gameState.canBuildSector(coords.x, coords.y))
             return;
 
-        server.requestSectorBuild(authInfo, coords.x, coords.y, new Callback<SectorBuildResult>() {
+        game.getExternalAPI().server.requestSectorBuild(authInfo, coords.x, coords.y, new Callback<SectorBuildResult>() {
             @Override
             public void onResult(final SectorBuildResult result) {
                 Gdx.app.postRunnable(new Runnable() {
@@ -134,7 +126,7 @@ public class GameEvents {
         if (!gameState.canBuildBuilding(map.getSelectedBuildingType(), coords.x, coords.y))
             return;
 
-        server.requestBuild(authInfo, buildingType, coords.x, coords.y, new Callback<BuildResult>() {
+        game.getExternalAPI().server.requestBuild(authInfo, buildingType, coords.x, coords.y, new Callback<BuildResult>() {
             @Override
             public void onResult(final BuildResult result) {
                 Gdx.app.postRunnable(new Runnable() {
@@ -164,7 +156,7 @@ public class GameEvents {
         Building building = map.getPointedBuilding();
 
         if (building != null)
-            server.requestDestroy(authInfo, building.id, new Callback<DestroyResult>() {
+            game.getExternalAPI().server.requestDestroy(authInfo, building.id, new Callback<DestroyResult>() {
                 @Override
                 public void onResult(final DestroyResult result) {
                     Gdx.app.postRunnable(new Runnable() {
@@ -190,7 +182,7 @@ public class GameEvents {
     public void onUnitBuild(UnitType unitType) {
         Building building = map.getPointedBuilding();
 
-        server.requestUnitBuild(authInfo, unitType, building, new Callback<UnitBuildResult>() {
+        game.getExternalAPI().server.requestUnitBuild(authInfo, unitType, building, new Callback<UnitBuildResult>() {
             @Override
             public void onResult(final UnitBuildResult result) {
                 Gdx.app.postRunnable(new Runnable() {
@@ -211,7 +203,7 @@ public class GameEvents {
     }
 
     public void onRequestUpdate() {
-        server.requestUpdate(authInfo, gameState.getLastUpdateTime(), new Callback<UpdateRequestResult>() {
+        game.getExternalAPI().server.requestUpdate(authInfo, gameState.getLastUpdateTime(), new Callback<UpdateRequestResult>() {
             @Override
             public void onResult(final UpdateRequestResult result) {
                 Gdx.app.postRunnable(new Runnable() {
@@ -258,7 +250,7 @@ public class GameEvents {
                 new MatchBranch<UpdateRequestResult.WrongAuthInfo>() {
                     @Override
                     public void onMatch(UpdateRequestResult.WrongAuthInfo wrongAuthInfo) {
-                        oSAPI.showMessage("Not authorized!");
+                        game.getExternalAPI().oSAPI.showMessage("Not authorized!");
                         game.switchToLoginScreen();
                         // Gdx.app.error("GeoBattle", "Not authorized!");
                         // Gdx.app.exit();
@@ -267,20 +259,20 @@ public class GameEvents {
                 new MatchBranch<UpdateRequestResult.MalformedJson>() {
                     @Override
                     public void onMatch(UpdateRequestResult.MalformedJson malformedJson) {
-                        oSAPI.showMessage("Cannot build: JSON request is not well-formed. Probable bug. Tell the developers");
+                        game.getExternalAPI().oSAPI.showMessage("Cannot build: JSON request is not well-formed. Probable bug. Tell the developers");
                     }
                 },
                 new MatchBranch<UpdateRequestResult.IncorrectData>() {
                     @Override
                     public void onMatch(UpdateRequestResult.IncorrectData incorrectData) {
-                        oSAPI.showMessage("Cannot build: incorrect data");
+                        game.getExternalAPI().oSAPI.showMessage("Cannot build: incorrect data");
                     }
                 }
         );
     }
 
     public void onResearch(ResearchType researchType) {
-        server.requestResearch(authInfo, researchType, new Callback<ResearchResult>() {
+        game.getExternalAPI().server.requestResearch(authInfo, researchType, new Callback<ResearchResult>() {
             @Override
             public void onResult(final ResearchResult result) {
                 Gdx.app.postRunnable(new Runnable() {
@@ -323,7 +315,7 @@ public class GameEvents {
             hangar++;
         }
 
-        server.requestAttack(authInfo, attackerId, victimId, hangarIds, sectorId, new Callback<AttackResult>() {
+        game.getExternalAPI().server.requestAttack(authInfo, attackerId, victimId, hangarIds, sectorId, new Callback<AttackResult>() {
             @Override
             public void onResult(final AttackResult result) {
                 Gdx.app.postRunnable(new Runnable() {

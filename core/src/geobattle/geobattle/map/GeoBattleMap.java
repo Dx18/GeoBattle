@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.GeoBattleConst;
 import geobattle.geobattle.actionresults.MatchBranch;
 import geobattle.geobattle.game.GameState;
@@ -38,7 +39,6 @@ import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.GameScreenModeD
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.NormalMode;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.SelectHangarsMode;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.SelectSectorMode;
-import geobattle.geobattle.server.GeolocationAPI;
 import geobattle.geobattle.server.implementation.TileRequestPool;
 import geobattle.geobattle.util.CoordinateConverter;
 import geobattle.geobattle.util.GeoBattleMath;
@@ -48,10 +48,13 @@ import geobattle.geobattle.util.IntRect;
 // Class for game and map rendering
 public class GeoBattleMap extends Actor {
     // Tile API
-    private TileRequestPool tileRequestPool;
+    // private TileRequestPool tileRequestPool;
 
     // Geolocation API
-    private GeolocationAPI geolocationAPI;
+    // private GeolocationAPI geolocationAPI;
+
+    // Game
+    private final GeoBattle game;
 
     // Tree of tiles
     private TileTree tiles;
@@ -109,17 +112,18 @@ public class GeoBattleMap extends Actor {
 
     // Constructor
     public GeoBattleMap(
-            TileRequestPool tileRequestPool, GeolocationAPI geolocationAPI,
             GeoBattleCamera camera, GameState gameState,
-            AssetManager assetManager, float soundVolume
+            AssetManager assetManager, float soundVolume,
+            GeoBattle game
     ) {
+        this.game = game;
+
         Vector2 geolocation = GeoBattleMath.latLongToMercator(
-                geolocationAPI.getCurrentCoordinates()
+                this.game.getExternalAPI().geolocationAPI.getCurrentCoordinates()
         );
 
         // Initializing all fields
-        this.tileRequestPool = tileRequestPool;
-        this.tileRequestPool.setOnLoadListener(new TileRequestPool.TileRequestCallback() {
+        this.game.getExternalAPI().tileRequestPool.setOnLoadListener(new TileRequestPool.TileRequestCallback() {
             @Override
             public void onLoad(final Pixmap pixmap, final int x, final int y, final int zoomLevel) {
                 Gdx.app.postRunnable(new Runnable() {
@@ -130,7 +134,6 @@ public class GeoBattleMap extends Actor {
                 });
             }
         });
-        this.geolocationAPI = geolocationAPI;
         this.tiles = new TileTree((int) geolocation.x, (int) geolocation.y);
         this.tileCounter = new TileCounter();
 
@@ -227,7 +230,7 @@ public class GeoBattleMap extends Actor {
     // `x` and `y` - position of camera in real world
     public void moveToPlayer() {
         Vector2 coords = GeoBattleMath.latLongToMercator(
-                geolocationAPI.getCurrentCoordinates()
+                game.getExternalAPI().geolocationAPI.getCurrentCoordinates()
         );
         camera.position.set(
                 CoordinateConverter.realWorldToWorld(coords.x, xOffset),
@@ -253,7 +256,7 @@ public class GeoBattleMap extends Actor {
     private void drawTiles(Batch batch, int startX, int startY, int endX, int endY, int zoomLevel) {
         for (int x = startX; x <= endX; x += (1 << (19 - zoomLevel)))
             for (int y = startY; y <= endY; y += (1 << (19 - zoomLevel))) {
-                Texture tile = tiles.getTile(x, y, zoomLevel, xOffset, yOffset, tileRequestPool, tileCounter);
+                Texture tile = tiles.getTile(x, y, zoomLevel, xOffset, yOffset, game.getExternalAPI().tileRequestPool, tileCounter);
 
                 if (tile != null)
                     batch.draw(
@@ -630,7 +633,7 @@ public class GeoBattleMap extends Actor {
             screenModeData.draw(shapeRenderer, this, gameState, visible);
 
         // Drawing player
-        Vector2 playerCoords = GeoBattleMath.latLongToMercator(geolocationAPI.getCurrentCoordinates());
+        Vector2 playerCoords = GeoBattleMath.latLongToMercator(game.getExternalAPI().geolocationAPI.getCurrentCoordinates());
         drawRegionRect(
                 CoordinateConverter.realWorldToWorld(playerCoords.x, xOffset) - 0.05f,
                 CoordinateConverter.realWorldToWorld(playerCoords.y, yOffset) - 0.05f,
