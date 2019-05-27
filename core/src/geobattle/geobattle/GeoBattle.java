@@ -20,6 +20,7 @@ import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.screens.LoadingScreen;
 import geobattle.geobattle.screens.emailconfirmationscreen.EmailConfirmationScreen;
 import geobattle.geobattle.screens.gamescreen.GameScreen;
+import geobattle.geobattle.screens.helpscreen.HelpScreen;
 import geobattle.geobattle.screens.loginscreen.LoginScreen;
 import geobattle.geobattle.screens.mainmenuscreen.MainMenuScreen;
 import geobattle.geobattle.screens.selectserverscreen.SelectServerScreen;
@@ -163,6 +164,10 @@ public final class GeoBattle extends Game {
 
     public void switchToSelectServerScreen() {
         setScreen(new SelectServerScreen(assetManager, this));
+    }
+
+    public void switchToHelpScreen() {
+        setScreen(new HelpScreen(assetManager, this));
     }
 
     @Override

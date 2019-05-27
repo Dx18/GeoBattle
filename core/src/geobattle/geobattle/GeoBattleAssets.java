@@ -127,4 +127,7 @@ public final class GeoBattleAssets {
 
     // Sound of explosion
     public static final String SOUND_EXPLOSION = "sounds/explosion.ogg";
+
+    // File with game help
+    public static final String HELP = "help.txt";
 }

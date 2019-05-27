@@ -58,6 +58,18 @@ public final class MainMenuScreenGUI {
                 .height(Gdx.graphics.getPpcY());
         menu.row();
 
+        VisTextButton help = new VisTextButton(screen.getI18NBundle().get("help"), "menu", new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                screen.onHelp();
+            }
+        });
+        menu.add(help)
+                .growX()
+                .padTop(10)
+                .height(Gdx.graphics.getPpcY());
+        menu.row();
+
         VisTextButton exit = new VisTextButton(screen.getI18NBundle().get("exit"), "menu", new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {

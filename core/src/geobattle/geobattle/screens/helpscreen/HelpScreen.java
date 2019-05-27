@@ -1,4 +1,4 @@
-package geobattle.geobattle.screens.mainmenuscreen;
+package geobattle.geobattle.screens.helpscreen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -14,49 +14,27 @@ import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.GeoBattleAssets;
 import geobattle.geobattle.screens.BackButtonProcessor;
 
-public final class MainMenuScreen implements Screen {
+public final class HelpScreen implements Screen {
     private final GeoBattle game;
 
     private final Stage guiStage;
 
-    private final MainMenuScreenGUI gui;
+    private final HelpScreenGUI gui;
 
-    private final Texture background;
+    // Background texture
+    private Texture background;
 
-    private final Texture title;
+    // Sprite batch for drawing background
+    private SpriteBatch batch;
 
-    private final SpriteBatch batch;
-
-    public MainMenuScreen(AssetManager assetManager, GeoBattle game) {
+    public HelpScreen(AssetManager assetManager, GeoBattle game) {
         this.game = game;
 
-        guiStage = new Stage();
-        gui = new MainMenuScreenGUI(assetManager, this, guiStage);
-
-        background = assetManager.get(GeoBattleAssets.MAIN_MENU_BACKGROUND);
-        title = assetManager.get(GeoBattleAssets.MAIN_MENU_TITLE);
+        background = assetManager.get(GeoBattleAssets.MAIN_MENU_BACKGROUND, Texture.class);
         batch = new SpriteBatch();
-    }
 
-    public I18NBundle getI18NBundle() {
-        return game.getI18NBundle();
-    }
-
-    public void onPlay() {
-        game.switchToLoginScreen();
-//        game.switchToSelectServerScreen();
-    }
-
-    public void onSettings() {
-        game.switchToSettingsScreen();
-    }
-
-    public void onHelp() {
-        game.switchToHelpScreen();
-    }
-
-    public void onExit() {
-        Gdx.app.exit();
+        guiStage = new Stage();
+        gui = new HelpScreenGUI(assetManager, this, guiStage);
     }
 
     @Override
@@ -65,8 +43,7 @@ public final class MainMenuScreen implements Screen {
         input.addProcessor(new BackButtonProcessor(new Runnable() {
             @Override
             public void run() {
-                game.dispose();
-                Gdx.app.exit();
+                game.switchToMainMenuScreen();
             }
         }));
         input.addProcessor(guiStage);
@@ -74,7 +51,11 @@ public final class MainMenuScreen implements Screen {
         Gdx.input.setInputProcessor(input);
         Gdx.input.setCatchBackKey(true);
 
-        game.setMessagePad(Gdx.graphics.getHeight() / 3f, false);
+        game.setMessagePad(20, true);
+    }
+
+    public I18NBundle getI18NBundle() {
+        return game.getI18NBundle();
     }
 
     @Override
@@ -84,9 +65,6 @@ public final class MainMenuScreen implements Screen {
 
         float screenRatio = (float) Gdx.graphics.getWidth() / Gdx.graphics.getHeight();
         float textureRatio = (float) background.getWidth() / background.getHeight();
-
-        float titleScreenRatio = 3 * screenRatio;
-        float titleTextureRatio = (float) title.getWidth() / title.getHeight();
 
         float x, y, width, height;
         if (screenRatio >= textureRatio) {
@@ -105,26 +83,8 @@ public final class MainMenuScreen implements Screen {
             height = background.getHeight() * scale;
         }
 
-        float titleX, titleY, titleWidth, titleHeight;
-        if (titleScreenRatio >= titleTextureRatio) {
-            float scale = (float) Gdx.graphics.getHeight() / 3 / title.getHeight();
-
-            titleX = (Gdx.graphics.getWidth() - title.getWidth() * scale) / 2;
-            titleY = Gdx.graphics.getHeight() * 2 / 3f;
-            titleWidth = title.getWidth() * scale;
-            titleHeight = Gdx.graphics.getHeight() / 3f;
-        } else {
-            float scale = (float) Gdx.graphics.getWidth() / title.getWidth();
-
-            titleX = 0;
-            titleY = Gdx.graphics.getHeight() * 2 / 3f + (Gdx.graphics.getHeight() / 3f - title.getHeight() * scale) / 2;
-            titleWidth = Gdx.graphics.getWidth();
-            titleHeight = title.getHeight() * scale;
-        }
-
         batch.begin();
         batch.draw(background, x, y, width, height);
-        batch.draw(title, titleX, titleY, titleWidth, titleHeight);
         batch.end();
 
         guiStage.act();
@@ -133,8 +93,7 @@ public final class MainMenuScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        guiStage.getViewport().update(width, height);
-        gui.reset(this);
+
     }
 
     @Override
