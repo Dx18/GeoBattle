@@ -81,30 +81,60 @@ public final class SettingsScreenGUI {
 
         volumeRoot.add(new VisLabel(screen.getI18NBundle().get("soundVolume")))
                 .width(contentWidth * 0.45f)
-                .height(Gdx.graphics.getPpcY() * 0.9f);
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
         volumeRoot.add(soundVolume)
-                .growX();
+                .growX()
+                .pad(5);
         volumeRoot.row();
         volumeRoot.add(new VisLabel(screen.getI18NBundle().get("musicVolume")))
                 .width(contentWidth * 0.45f)
-                .height(Gdx.graphics.getPpcY() * 0.9f);
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
         volumeRoot.add(musicVolume)
-                .growX();
+                .growX()
+                .pad(5);
 
         root.add(volumeRoot)
                 .fillX();
         root.row();
 
-        root.add(ip)
-                .width(contentWidth)
-                .height(Gdx.graphics.getPpcY() * 0.9f)
-                .pad(5);
-        root.row();
+        VisTable serverRoot = new VisTable();
 
-        root.add(port)
-                .width(contentWidth)
+        serverRoot.add(ip)
+                .growX()
                 .height(Gdx.graphics.getPpcY() * 0.9f)
                 .pad(5);
+        VisImageButton resetIp = new VisImageButton("buttonBack");
+        resetIp.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                ip.setText("78.47.182.60");
+            }
+        });
+        serverRoot.add(resetIp)
+                .width(Gdx.graphics.getPpcY() * 0.9f)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        serverRoot.row();
+        serverRoot.add(port)
+                .growX()
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        VisImageButton resetPort = new VisImageButton("buttonBack");
+        resetPort.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                port.setText("12000");
+            }
+        });
+        serverRoot.add(resetPort)
+                .width(Gdx.graphics.getPpcY() * 0.9f)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+
+        root.add(serverRoot)
+                .fillX();
         root.row();
 
         TextButton saveSettings = new TextButton(screen.getI18NBundle().get("save"), skin);
