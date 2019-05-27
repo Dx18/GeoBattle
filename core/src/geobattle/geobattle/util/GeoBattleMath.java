@@ -1,6 +1,7 @@
 package geobattle.geobattle.util;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 // Some GeoBattle-specific math
@@ -87,5 +88,47 @@ public class GeoBattleMath {
     // Normalizes angle to range [-PI; PI]
     public static double normalizeAngle(double angle) {
         return angle - 2 * MathUtils.PI * Math.floor((angle + Math.PI) / Math.PI / 2);
+    }
+
+    public static Rectangle scaleToFit(float width1, float height1, float width2, float height2) {
+        float innerRatio = width1 / height1;
+        float outerRatio = width2 / height2;
+
+        if (innerRatio <= outerRatio) {
+            float scale = height2 / height1;
+
+            return new Rectangle(
+                    (width2 - width1 * scale) / 2, 0,
+                    width1 * scale, height2
+            );
+        } else {
+            float scale = width2 / width1;
+
+            return new Rectangle(
+                    0, (height2 - height1 * scale) / 2,
+                    width2, height1 * scale
+            );
+        }
+    }
+
+    public static Rectangle scaleToCover(float width1, float height1, float width2, float height2) {
+        float innerRatio = width1 / height1;
+        float outerRatio = width2 / height2;
+
+        if (innerRatio <= outerRatio) {
+            float scale = width2 / width1;
+
+            return new Rectangle(
+                    0, (height2 - height1 * scale) / 2,
+                    width2, height1 * scale
+            );
+        } else {
+            float scale = height2 / height1;
+
+            return new Rectangle(
+                    (width2 - width1 * scale) / 2, 0,
+                    width1 * scale, height2
+            );
+        }
     }
 }
