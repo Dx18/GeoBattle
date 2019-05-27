@@ -45,7 +45,7 @@ public final class ResearchGUI {
                 public void changed(ChangeEvent event, Actor actor) {
                     // researchInfo.incrementLevel(researchType);
                     // setResearchLevel(researchInfo.getLevel(researchType));
-                    screen.getGameEvents().onResearch(researchType);
+                    screen.getGameEvents().onResearchEvent(researchType);
                     Gdx.app.log("GeoBattle", "Research");
                 }
             });

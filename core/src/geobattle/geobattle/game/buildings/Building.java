@@ -66,16 +66,18 @@ public abstract class Building {
     public void draw(Batch batch, GeoBattleMap map, BuildingTextures buildingTextures, Animations animations, Color color, boolean drawIcons) {
         if (drawIcons) {
             map.drawTexture(
-                    batch, x, y, getSizeX(), getSizeY(), 0,
+                    batch, x, y, getSizeX(), getSizeY(),
                     buildingTextures.getIconTexture(buildingType), color
             );
         } else {
             map.drawTexture(
-                    batch, x, y, getSizeX(), getSizeY(), 0.5f,
+                    batch, x - 0.5, y - 0.5,
+                    getSizeX() + 1, getSizeY() + 1,
                     buildingTextures.getTexture(buildingType), Color.WHITE
             );
             map.drawTexture(
-                    batch, x, y, getSizeX(), getSizeY(), 0.5f,
+                    batch, x - 0.5, y - 0.5,
+                    getSizeX() + 1, getSizeY() + 1,
                     buildingTextures.getTeamColorTexture(buildingType), color
             );
         }

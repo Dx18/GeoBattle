@@ -75,7 +75,7 @@ public final class GameScreen implements Screen {
         camera = new GeoBattleCamera(width, height);
         tilesStage = new Stage(new ScalingViewport(Scaling.stretch, width, height, camera), new SpriteBatch(8191));
         map = new GeoBattleMap(
-                camera, gameState, assetManager, game.getSoundVolume(), game
+                camera, gameState, assetManager, game
         );
         tilesStage.addActor(map);
 
@@ -266,23 +266,23 @@ public final class GameScreen implements Screen {
 
         gui.onBuildingSelected(map.getPointedBuilding());
 
-        if (debugMode) {
-            gui.debugInfo.setText(String.format(
-                    Locale.US,
-                    "%d FPS\nPointed tile: %s, %s\nPointed object: %s\nLoading tiles:%d\nLoaded tiles: %d\nMemory used: %d MB",
-                    Gdx.graphics.getFramesPerSecond(),
-                    map.getPointedTile() == null ? "<null>" : map.getPointedTile().x,
-                    map.getPointedTile() == null ? "<null>" : map.getPointedTile().y,
-                    map.getPointedBuilding() == null
-                            ? (map.getPointedSector() == null ? "<null>" : "sector")
-                            : map.getPointedBuilding().getBuildingType().toString(),
-                    map.getTileCounter().getRequestedCount(),
-                    map.getTileCounter().getLoadedCount(),
-                    Gdx.app.getJavaHeap() >> 20
-            ));
-        } else {
-            gui.debugInfo.setText("");
-        }
+//        if (debugMode) {
+//            gui.debugInfo.setText(String.format(
+//                    Locale.US,
+//                    "%d FPS\nPointed tile: %s, %s\nPointed object: %s\nLoading tiles:%d\nLoaded tiles: %d\nMemory used: %d MB",
+//                    Gdx.graphics.getFramesPerSecond(),
+//                    map.getPointedTile() == null ? "<null>" : map.getPointedTile().x,
+//                    map.getPointedTile() == null ? "<null>" : map.getPointedTile().y,
+//                    map.getPointedBuilding() == null
+//                            ? (map.getPointedSector() == null ? "<null>" : "sector")
+//                            : map.getPointedBuilding().getBuildingType().toString(),
+//                    map.getTileCounter().getRequestedCount(),
+//                    map.getTileCounter().getLoadedCount(),
+//                    Gdx.app.getJavaHeap() >> 20
+//            ));
+//        } else {
+//            gui.debugInfo.setText("");
+//        }
 
         if (gameState.getCurrentPlayer().getResearchCenters().hasNext())
             gui.researchDialog.unlockButtons();
@@ -327,7 +327,6 @@ public final class GameScreen implements Screen {
             camera.getPickRay(x, y).getEndPoint(point, 0);
 
             map.setPointedTile(point.x, point.y, false);
-            Building pointed = map.getPointedBuilding();
 
             return true;
         }

@@ -40,7 +40,7 @@ public final class AnimationInstance {
         if (age < 0 || age >= lifeDuration)
             return;
 
-        map.drawCenteredTextureSubTiles(
+        map.drawCenteredTexture(
                 batch, x, y, 3, 3, 0,
                 animationInfo.getFrame((int) (age / lifeDuration * animationInfo.getFrameCount())), Color.WHITE
         );

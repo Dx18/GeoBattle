@@ -191,22 +191,22 @@ public final class Sector {
                     batch,
                     x + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2,
                     y + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2,
-                    Sector.BEACON_SIZE, Sector.BEACON_SIZE, 0,
+                    Sector.BEACON_SIZE, Sector.BEACON_SIZE,
                     textures.beaconIconTexture, color
             );
         } else {
             map.drawTexture(
                     batch,
-                    x + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2,
-                    y + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2,
-                    Sector.BEACON_SIZE, Sector.BEACON_SIZE, 0.5f,
+                    x + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2 - 0.5,
+                    y + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2 - 0.5,
+                    Sector.BEACON_SIZE + 1, Sector.BEACON_SIZE + 1,
                     textures.beaconTexture, Color.WHITE
             );
             map.drawTexture(
                     batch,
-                    x + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2,
-                    y + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2,
-                    Sector.BEACON_SIZE, Sector.BEACON_SIZE, 0.5f,
+                    x + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2 - 0.5,
+                    y + Sector.SECTOR_SIZE / 2 - Sector.BEACON_SIZE / 2 - 0.5,
+                    Sector.BEACON_SIZE + 1, Sector.BEACON_SIZE + 1,
                     textures.beaconTeamColorTexture, color
             );
         }

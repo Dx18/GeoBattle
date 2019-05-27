@@ -56,7 +56,7 @@ public final class Turret extends Building {
     public void draw(Batch batch, GeoBattleMap map, BuildingTextures buildingTextures, Animations animations, Color color, boolean drawIcons) {
         super.draw(batch, map, buildingTextures, animations, color, drawIcons);
         if (!drawIcons) {
-            map.drawCenteredTextureSubTiles(
+            map.drawCenteredTexture(
                     batch, x + getSizeX() / 2.0, y + getSizeY() / 2.0,
                     getSizeX() + 1, getSizeY() + 1,
                     direction, buildingTextures.turretTowerTexture, Color.WHITE
@@ -64,7 +64,7 @@ public final class Turret extends Building {
 
             if (hasTarget) {
                 int frame = (int) (Math.random() * animations.turretFlash.getFrameCount());
-                map.drawCenteredTextureSubTiles(
+                map.drawCenteredTexture(
                         batch,
                         x + getSizeX() / 2.0 + Math.cos(direction) * GeoBattleConst.TURRET_FLASH_ORIGIN,
                         y + getSizeY() / 2.0 + Math.sin(direction) * GeoBattleConst.TURRET_FLASH_ORIGIN,

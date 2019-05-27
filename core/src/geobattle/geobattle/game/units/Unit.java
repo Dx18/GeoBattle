@@ -185,11 +185,11 @@ public abstract class Unit {
         if (drawIcons) {
 
         } else {
-            map.drawCenteredTextureSubTiles(
+            map.drawCenteredTexture(
                     batch, x, y, getSizeX(), getSizeY(), direction,
                     unitTextures.getTexture(getUnitType()), Color.WHITE
             );
-            map.drawCenteredTextureSubTiles(
+            map.drawCenteredTexture(
                     batch, x, y, getSizeX(), getSizeY(), direction,
                     unitTextures.getTeamColorTexture(getUnitType()), color
             );

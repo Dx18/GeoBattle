@@ -9,6 +9,7 @@ import java.util.Iterator;
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
+import geobattle.geobattle.map.BuildingTextures;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.util.GeoBattleMath;
 import geobattle.geobattle.util.IntRect;
@@ -16,9 +17,12 @@ import geobattle.geobattle.util.IntRect;
 public final class BuildMode extends GameScreenModeData {
     private BuildingType buildingType;
 
-    public BuildMode(int pointedTileX, int pointedTileY, BuildingType buildingType) {
+    private final BuildingTextures buildingTextures;
+
+    public BuildMode(int pointedTileX, int pointedTileY, BuildingType buildingType, BuildingTextures buildingTextures) {
         super(pointedTileX, pointedTileY);
         this.buildingType = buildingType;
+        this.buildingTextures = buildingTextures;
     }
 
     public void setBuildingType(BuildingType buildingType) {
@@ -35,8 +39,9 @@ public final class BuildMode extends GameScreenModeData {
                 : new Color(1, 0, 0, 0.3f);
 
         map.drawTexture(
-                batch, buildX, buildY, buildingType.sizeX, buildingType.sizeY, 0.5f,
-                map.getBuildingTextures().getTexture(buildingType), color
+                batch, buildX - 0.5, buildY - 0.5,
+                buildingType.sizeX + 1, buildingType.sizeY + 1,
+                buildingTextures.getTexture(buildingType), color
         );
     }
 

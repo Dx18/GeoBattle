@@ -372,7 +372,7 @@ public final class GameScreenGUI {
         build.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                screen.getGameEvents().onRequestBuild();
+                screen.getGameEvents().onBuildEvent();
             }
         });
         buildToolBar.add(build)
@@ -419,7 +419,7 @@ public final class GameScreenGUI {
         destroy.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                screen.getGameEvents().onRequestDestroy();
+                screen.getGameEvents().onDestroyEvent();
             }
         });
         destroyToolBar.add(destroy)
@@ -437,7 +437,7 @@ public final class GameScreenGUI {
         buildCommandCenter.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                screen.getGameEvents().onRequestBuildFirstSector();
+                screen.getGameEvents().onFirstSectorBuildEvent();
             }
         });
         buildFirstSectorToolBar.add(buildCommandCenter)
@@ -466,7 +466,7 @@ public final class GameScreenGUI {
         buildCommandCenter.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                screen.getGameEvents().onRequestBuildSector();
+                screen.getGameEvents().onSectorBuildEvent();
             }
         });
         buildSectorToolBar.add(buildCommandCenter)

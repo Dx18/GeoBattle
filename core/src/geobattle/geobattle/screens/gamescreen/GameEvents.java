@@ -38,6 +38,7 @@ import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.SelectHangarsMo
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.SelectSectorMode;
 import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.Callback;
+import geobattle.geobattle.util.GeoBattleMath;
 import geobattle.geobattle.util.IntPoint;
 
 // Game events
@@ -48,12 +49,16 @@ public class GameEvents {
     // Game state
     public final GameState gameState;
 
+    // Auth info
     public final AuthInfo authInfo;
 
+    // Screen
     public final GameScreen screen;
 
+    // Map
     public final GeoBattleMap map;
 
+    // Time of last update
     private double lastUpdateTime;
 
     public GameEvents(GameState gameState, AuthInfo authInfo, GameScreen screen, GeoBattleMap map, GeoBattle game) {
@@ -65,15 +70,20 @@ public class GameEvents {
         this.lastUpdateTime = gameState.getTime();
     }
 
-    public void onRequestBuildFirstSector() {
-        IntPoint coords = map.getPointedTile();
-        coords.x -= Sector.SECTOR_SIZE / 2;
-        coords.y -= Sector.SECTOR_SIZE / 2;
+    // Invokes when player requests first sector building
+    public void onFirstSectorBuildEvent() {
+        IntPoint coordinates = map.getPointedTile();
 
-        if (!gameState.canBuildSector(coords.x, coords.y))
+        if (!GeoBattleMath.tileRectangleContains(map.getVisibleRect(), coordinates.x, coordinates.y))
             return;
 
-        game.getExternalAPI().server.requestSectorBuild(authInfo, coords.x, coords.y, new Callback<SectorBuildResult>() {
+        coordinates.x -= Sector.SECTOR_SIZE / 2;
+        coordinates.y -= Sector.SECTOR_SIZE / 2;
+
+        if (!gameState.canBuildSector(coordinates.x, coordinates.y))
+            return;
+
+        game.getExternalAPI().server.requestSectorBuild(authInfo, coordinates.x, coordinates.y, new Callback<SectorBuildResult>() {
             @Override
             public void onResult(final SectorBuildResult result) {
                 Gdx.app.postRunnable(new Runnable() {
@@ -86,17 +96,21 @@ public class GameEvents {
         }, null);
     }
 
-    public void onRequestBuildSector() {
+    // Invokes when player requests sector building
+    public void onSectorBuildEvent() {
+        IntPoint coordinates = map.getPointedTile();
+
+        if (!GeoBattleMath.tileRectangleContains(map.getVisibleRect(), coordinates.x, coordinates.y))
+            return;
+
         Sector sector = gameState.getCurrentPlayer().getAllSectors().next();
+        coordinates.x -= ((coordinates.x - sector.x) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;
+        coordinates.y -= ((coordinates.y - sector.y) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;
 
-        IntPoint coords = map.getPointedTile();
-        coords.x -= ((coords.x - sector.x) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;
-        coords.y -= ((coords.y - sector.y) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;
-
-        if (!gameState.canBuildSector(coords.x, coords.y))
+        if (!gameState.canBuildSector(coordinates.x, coordinates.y))
             return;
 
-        game.getExternalAPI().server.requestSectorBuild(authInfo, coords.x, coords.y, new Callback<SectorBuildResult>() {
+        game.getExternalAPI().server.requestSectorBuild(authInfo, coordinates.x, coordinates.y, new Callback<SectorBuildResult>() {
             @Override
             public void onResult(final SectorBuildResult result) {
                 Gdx.app.postRunnable(new Runnable() {
@@ -109,6 +123,7 @@ public class GameEvents {
         }, null);
     }
 
+    // Invokes when player receives sector building result
     private void onSectorBuildResult(SectorBuildResult result) {
         if (result != null) {
             result.apply(game, gameState);
@@ -116,17 +131,21 @@ public class GameEvents {
         }
     }
 
-    // Invokes when user requests building
-    public void onRequestBuild() {
+    // Invokes when player requests building
+    public void onBuildEvent() {
         BuildingType buildingType = map.getSelectedBuildingType();
-        IntPoint coords = map.getPointedTile();
-        coords.x -= buildingType.sizeX / 2;
-        coords.y -= buildingType.sizeY / 2;
+        IntPoint coordinates = map.getPointedTile();
 
-        if (!gameState.canBuildBuilding(map.getSelectedBuildingType(), coords.x, coords.y))
+        if (!GeoBattleMath.tileRectangleContains(map.getVisibleRect(), coordinates.x, coordinates.y))
             return;
 
-        game.getExternalAPI().server.requestBuild(authInfo, buildingType, coords.x, coords.y, new Callback<BuildResult>() {
+        coordinates.x -= buildingType.sizeX / 2;
+        coordinates.y -= buildingType.sizeY / 2;
+
+        if (!gameState.canBuildBuilding(map.getSelectedBuildingType(), coordinates.x, coordinates.y))
+            return;
+
+        game.getExternalAPI().server.requestBuild(authInfo, buildingType, coordinates.x, coordinates.y, new Callback<BuildResult>() {
             @Override
             public void onResult(final BuildResult result) {
                 Gdx.app.postRunnable(new Runnable() {
@@ -143,7 +162,7 @@ public class GameEvents {
         map.setSelectedBuildingType(type);
     }
 
-    // Invokes when user receives build result
+    // Invokes when player receives building result
     private void onBuildResult(BuildResult result) {
         if (result != null) {
             result.apply(game, gameState);
@@ -151,8 +170,13 @@ public class GameEvents {
         }
     }
 
-    // Invokes when user requests building destroying
-    public void onRequestDestroy() {
+    // Invokes when player requests building destroying
+    public void onDestroyEvent() {
+        IntPoint coordinates = map.getPointedTile();
+
+        if (!GeoBattleMath.tileRectangleContains(map.getVisibleRect(), coordinates.x, coordinates.y))
+            return;
+
         Building building = map.getPointedBuilding();
 
         if (building != null)
@@ -171,7 +195,7 @@ public class GameEvents {
         screen.switchToNormalMode();
     }
 
-    // Invokes when user receives destroy result
+    // Invokes when player receives destroy result
     private void onDestroyResult(DestroyResult result) {
         if (result != null) {
             result.apply(game, gameState);
@@ -179,6 +203,7 @@ public class GameEvents {
         }
     }
 
+    // Invokes when player requests unit building
     public void onUnitBuild(UnitType unitType) {
         Building building = map.getPointedBuilding();
 
@@ -195,6 +220,7 @@ public class GameEvents {
         }, null);
     }
 
+    // Invokes when player receives unit building result
     private void onUnitBuildResult(UnitBuildResult result) {
         if (result != null) {
             result.apply(game, gameState);
@@ -202,21 +228,23 @@ public class GameEvents {
         }
     }
 
-    public void onRequestUpdate() {
+    // Invokes when client requests update
+    public void onUpdateRequestEvent() {
         game.getExternalAPI().server.requestUpdate(authInfo, gameState.getLastUpdateTime(), new Callback<UpdateRequestResult>() {
             @Override
             public void onResult(final UpdateRequestResult result) {
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
                     public void run() {
-                        onRequestUpdateResult(result);
+                        onUpdateRequestResult(result);
                     }
                 });
             }
         }, null);
     }
 
-    private void onRequestUpdateResult(UpdateRequestResult result) {
+    // Invokes when client receives update result
+    private void onUpdateRequestResult(UpdateRequestResult result) {
         result.match(
                 new MatchBranch<UpdateRequestResult.UpdateRequestSuccess>() {
                     @Override
@@ -242,9 +270,8 @@ public class GameEvents {
                 new MatchBranch<UpdateRequestResult.StateRequestSuccess>() {
                     @Override
                     public void onMatch(UpdateRequestResult.StateRequestSuccess stateRequestSuccess) {
-                        if (gameState.getLastUpdateTime() < stateRequestSuccess.gameState.getLastUpdateTime()) {
+                        if (gameState.getLastUpdateTime() < stateRequestSuccess.gameState.getLastUpdateTime())
                             gameState.setData(stateRequestSuccess.gameState);
-                        }
                     }
                 },
                 new MatchBranch<UpdateRequestResult.WrongAuthInfo>() {
@@ -271,7 +298,8 @@ public class GameEvents {
         );
     }
 
-    public void onResearch(ResearchType researchType) {
+    // Invokes when player requests research
+    public void onResearchEvent(ResearchType researchType) {
         game.getExternalAPI().server.requestResearch(authInfo, researchType, new Callback<ResearchResult>() {
             @Override
             public void onResult(final ResearchResult result) {
@@ -285,6 +313,7 @@ public class GameEvents {
         }, null);
     }
 
+    // Invokes when player receives research result
     private void onResearchResult(ResearchResult result) {
         if (result != null) {
             result.apply(game, gameState);
@@ -292,14 +321,13 @@ public class GameEvents {
         }
     }
 
+    // Invokes when player wants to attack another player
     public void onRequestAttack() {
         SelectHangarsMode selectHangarsMode = (SelectHangarsMode) map.getScreenModeData(GameScreenMode.SELECT_HANGARS);
-        Gdx.app.log("GeoBattle", "onRequestAttack: count is " + selectHangarsMode.getSelectedHangarsCount());
         if (selectHangarsMode.getSelectedHangarsCount() == 0)
             return;
 
         SelectSectorMode selectSectorMode = (SelectSectorMode) map.getScreenModeData(GameScreenMode.SELECT_SECTOR);
-        Gdx.app.log("GeoBattle", "onRequestAttack: pointed sector is " + selectSectorMode.getPointedSector());
         if (selectSectorMode.getPointedSector() == null)
             return;
 
@@ -328,6 +356,7 @@ public class GameEvents {
         }, null);
     }
 
+    // Invokes when player receives attack result
     private void onAttackResult(AttackResult result) {
         if (result != null) {
             result.apply(game, gameState);
@@ -335,11 +364,12 @@ public class GameEvents {
         }
     }
 
+    // Invokes every frame
     public void onTick(float delta) {
         gameState.addTime(delta);
 
         if (gameState.getTime() - lastUpdateTime >= 1) {
-            onRequestUpdate();
+            onUpdateRequestEvent();
             lastUpdateTime = gameState.getTime();
         }
 

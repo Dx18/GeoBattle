@@ -101,9 +101,6 @@ public class GeoBattleMap extends Actor {
     // Available animations
     private ArrayList<AnimationInstance> animationInstances;
 
-    // Volume of sound
-    private float soundVolume;
-
     // Sounds (available)
     private Sounds sounds;
 
@@ -113,7 +110,7 @@ public class GeoBattleMap extends Actor {
     // Constructor
     public GeoBattleMap(
             GeoBattleCamera camera, GameState gameState,
-            AssetManager assetManager, float soundVolume,
+            AssetManager assetManager,
             GeoBattle game
     ) {
         this.game = game;
@@ -148,16 +145,19 @@ public class GeoBattleMap extends Actor {
         this.animations = new Animations(assetManager);
         this.sounds = new Sounds(assetManager);
 
+        this.animationInstances = new ArrayList<AnimationInstance>();
+        this.soundInstances = new HashMap<Long, SoundInstance>();
+
         this.pointedTile = new IntPoint((int) geolocation.x, (int) geolocation.y);
 
         this.screenModes = new HashMap<GameScreenMode, GameScreenModeData>();
-        this.screenModes.put(GameScreenMode.BUILD_FIRST_SECTOR, new BuildFirstSectorMode((int) geolocation.x, (int) geolocation.y));
-        this.screenModes.put(GameScreenMode.BUILD_SECTOR, new BuildSectorMode((int) geolocation.x, (int) geolocation.y));
-        this.screenModes.put(GameScreenMode.NORMAL, new NormalMode((int) geolocation.x, (int) geolocation.y, this.gameState));
-        this.screenModes.put(GameScreenMode.BUILD, new BuildMode((int) geolocation.x, (int) geolocation.y, BuildingType.GENERATOR));
-        this.screenModes.put(GameScreenMode.DESTROY, new DestroyMode((int) geolocation.x, (int) geolocation.y, this.gameState));
-        this.screenModes.put(GameScreenMode.SELECT_HANGARS, new SelectHangarsMode((int) geolocation.x, (int) geolocation.y, this.gameState));
-        this.screenModes.put(GameScreenMode.SELECT_SECTOR, new SelectSectorMode((int) geolocation.x, (int) geolocation.y, this.gameState));
+        this.screenModes.put(GameScreenMode.BUILD_FIRST_SECTOR, new BuildFirstSectorMode(0, 0));
+        this.screenModes.put(GameScreenMode.BUILD_SECTOR, new BuildSectorMode(0, 0));
+        this.screenModes.put(GameScreenMode.NORMAL, new NormalMode(0, 0, this.gameState));
+        this.screenModes.put(GameScreenMode.BUILD, new BuildMode(0, 0, BuildingType.GENERATOR, buildingTextures));
+        this.screenModes.put(GameScreenMode.DESTROY, new DestroyMode(0, 0, this.gameState));
+        this.screenModes.put(GameScreenMode.SELECT_HANGARS, new SelectHangarsMode(0, 0, this.gameState));
+        this.screenModes.put(GameScreenMode.SELECT_SECTOR, new SelectSectorMode(0, 0, this.gameState));
 
         setScreenMode(GameScreenMode.NORMAL, false);
 
@@ -166,11 +166,6 @@ public class GeoBattleMap extends Actor {
         camera.position.set(0, 0, 0);
 
         this.shapeRenderer = new ShapeRenderer();
-
-        this.animationInstances = new ArrayList<AnimationInstance>();
-        this.soundInstances = new HashMap<Long, SoundInstance>();
-
-        this.soundVolume = soundVolume;
     }
 
     // Sets screen mode
@@ -187,7 +182,7 @@ public class GeoBattleMap extends Actor {
     public Building getPointedBuilding() {
         if (screenModeData instanceof NormalMode)
             return ((NormalMode) screenModeData).getPointedBuilding();
-        else if (screenModeData instanceof DestroyMode)
+        if (screenModeData instanceof DestroyMode)
             return ((DestroyMode) screenModeData).getPointedBuilding();
         return null;
     }
@@ -196,6 +191,8 @@ public class GeoBattleMap extends Actor {
     public Sector getPointedSector() {
         if (screenModeData instanceof NormalMode)
             return ((NormalMode) screenModeData).getPointedSector();
+        if (screenModeData instanceof SelectSectorMode)
+            return ((SelectSectorMode) screenModeData).getPointedSector();
         return null;
     }
 
@@ -216,14 +213,6 @@ public class GeoBattleMap extends Actor {
     // Returns tile where player points
     public IntPoint getPointedTile() {
         return pointedTile.clone();
-    }
-
-    public int getPointedTileX() {
-        return pointedTile.x;
-    }
-
-    public int getPointedTileY() {
-        return pointedTile.y;
     }
 
     // Sets real world position of camera
@@ -269,16 +258,15 @@ public class GeoBattleMap extends Actor {
             }
     }
 
-    public void drawTexture(Batch batch, int subTileX, int subTileY, int subTileWidth, int subTileHeight, float subTilePadding, TextureRegion texture, Color color) {
+    // Draws texture on map
+    public void drawTexture(Batch batch, double subTileX, double subTileY, double subTileWidth, double subTileHeight, TextureRegion texture, Color color) {
         if (texture == null)
             return;
 
-        float padding = CoordinateConverter.subTilesToRealWorld(subTilePadding, GeoBattleConst.SUBDIVISION);
-
-        float x = CoordinateConverter.subTilesToWorld(subTileX, xOffset, GeoBattleConst.SUBDIVISION) - padding;
-        float y = CoordinateConverter.subTilesToWorld(subTileY, yOffset, GeoBattleConst.SUBDIVISION) - padding;
-        float width = CoordinateConverter.subTilesToRealWorld(subTileWidth, GeoBattleConst.SUBDIVISION) + padding * 2;
-        float height = CoordinateConverter.subTilesToRealWorld(subTileHeight, GeoBattleConst.SUBDIVISION) + padding * 2;
+        float x = CoordinateConverter.subTilesToWorld(subTileX, xOffset, GeoBattleConst.SUBDIVISION);
+        float y = CoordinateConverter.subTilesToWorld(subTileY, yOffset, GeoBattleConst.SUBDIVISION);
+        float width = CoordinateConverter.subTilesToRealWorld(subTileWidth, GeoBattleConst.SUBDIVISION);
+        float height = CoordinateConverter.subTilesToRealWorld(subTileHeight, GeoBattleConst.SUBDIVISION);
 
         Color prev = batch.getColor().cpy();
         batch.setColor(color);
@@ -288,7 +276,11 @@ public class GeoBattleMap extends Actor {
         batch.setColor(prev);
     }
 
-    public void drawCenteredTextureSubTiles(Batch batch, double subTileX, double subTileY, double subTileWidth, double subTileHeight, double direction, TextureRegion texture, Color color) {
+    // Draws centered texture on map
+    public void drawCenteredTexture(Batch batch, double subTileX, double subTileY, double subTileWidth, double subTileHeight, double direction, TextureRegion texture, Color color) {
+        if (texture == null)
+            return;
+
         float width = CoordinateConverter.subTilesToRealWorld(subTileWidth, GeoBattleConst.SUBDIVISION);
         float height = CoordinateConverter.subTilesToRealWorld(subTileHeight, GeoBattleConst.SUBDIVISION);
         float x = CoordinateConverter.subTilesToWorld(subTileX, xOffset, GeoBattleConst.SUBDIVISION);
@@ -305,6 +297,7 @@ public class GeoBattleMap extends Actor {
         batch.setColor(prev);
     }
 
+    // Draws region rect in sub-tile coordinates
     public void drawRegionRectSubTiles(int x, int y, int width, int height, Color color) {
         drawRegionRectAdvanced(
                 CoordinateConverter.subTilesToWorld(x, xOffset, GeoBattleConst.SUBDIVISION),
@@ -317,6 +310,7 @@ public class GeoBattleMap extends Actor {
         );
     }
 
+    // Draws advanced region rect in sub-tile coordinates
     public void drawRegionRectAdvancedSubTiles(int x, int y, int width, int height, Color mainColor, Color borderColor, int borderInfo) {
         drawRegionRectAdvanced(
                 CoordinateConverter.subTilesToWorld(x, xOffset, GeoBattleConst.SUBDIVISION),
@@ -329,11 +323,12 @@ public class GeoBattleMap extends Actor {
         );
     }
 
-    // Draws rect on map
+    // Draws region rect in world coordinates
     public void drawRegionRect(float x, float y, float width, float height, Color color) {
         drawRegionRectAdvanced(x, y, width, height, color, new Color(color.r, color.g, color.b, 1), 0x1111);
     }
 
+    // Draws advanced region rect in sub-tile coordinates
     public void drawRegionRectAdvanced(float x, float y, float width, float height, Color mainColor, Color borderColor, int borderInfo) {
         final int BORDER_TYPE_SIZE = 4;
         final int BORDER_TYPE_MASK = (1 << BORDER_TYPE_SIZE) - 1;
@@ -418,6 +413,7 @@ public class GeoBattleMap extends Actor {
         }
     }
 
+    // Draws multiple textures in one square
     private void drawMultipleTexturesSubTiles(Batch batch, ArrayList<TextureRegion> textures, int x, int y, int squareSize, Color color) {
         int inRow = 1;
         while (inRow * inRow < textures.size())
@@ -428,16 +424,15 @@ public class GeoBattleMap extends Actor {
             double textureX = x + (double) squareSize * (index % textures.size()) / inRow;
             double textureY = y + (double) squareSize * (index / textures.size()) / inRow;
 
-            drawCenteredTextureSubTiles(
+            drawCenteredTexture(
                     batch, textureX + textureSize / 2, textureY + textureSize / 2,
                     textureSize, textureSize, 0, textures.get(index), color
             );
         }
     }
 
-    // Draws sectors and selections
-    private void drawSectorsAndSelections(IntRect visible) {
-        // Drawing sectors...
+    // Draws sectors
+    private void drawSectors(IntRect visible) {
         Iterator<PlayerState> players = gameState.getPlayers();
         while (players.hasNext()) {
             PlayerState player = players.next();
@@ -586,6 +581,16 @@ public class GeoBattleMap extends Actor {
         }
     }
 
+    // Returns rectangle visible by camera
+    public IntRect getVisibleRect() {
+        return new IntRect(
+                CoordinateConverter.worldToSubTiles(camera.position.x - camera.viewportWidth / 2, xOffset, GeoBattleConst.SUBDIVISION),
+                CoordinateConverter.worldToSubTiles(camera.position.y - camera.viewportHeight / 2, yOffset, GeoBattleConst.SUBDIVISION),
+                CoordinateConverter.realWorldToSubTiles(camera.viewportWidth, GeoBattleConst.SUBDIVISION),
+                CoordinateConverter.realWorldToSubTiles(camera.viewportHeight, GeoBattleConst.SUBDIVISION)
+        );
+    }
+
     @Override
     public void draw(Batch batch, float parentAlpha) {
         shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
@@ -615,19 +620,14 @@ public class GeoBattleMap extends Actor {
             });
         }
 
-        IntRect visible = new IntRect(
-                CoordinateConverter.worldToSubTiles(camera.position.x - camera.viewportWidth / 2, xOffset, GeoBattleConst.SUBDIVISION),
-                CoordinateConverter.worldToSubTiles(camera.position.y - camera.viewportHeight / 2, yOffset, GeoBattleConst.SUBDIVISION),
-                CoordinateConverter.realWorldToSubTiles(camera.viewportWidth, GeoBattleConst.SUBDIVISION),
-                CoordinateConverter.realWorldToSubTiles(camera.viewportHeight, GeoBattleConst.SUBDIVISION)
-        );
+        IntRect visible = getVisibleRect();
 
         batch.end();
         Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        drawSectorsAndSelections(visible);
+        drawSectors(visible);
 
         if (screenModeData != null)
             screenModeData.draw(shapeRenderer, this, gameState, visible);
@@ -637,7 +637,7 @@ public class GeoBattleMap extends Actor {
         drawRegionRect(
                 CoordinateConverter.realWorldToWorld(playerCoords.x, xOffset) - 0.05f,
                 CoordinateConverter.realWorldToWorld(playerCoords.y, yOffset) - 0.05f,
-                0.1f, 0.1f, Color.CYAN
+                0.1f, 0.1f, Color.BLUE
         );
 
         shapeRenderer.end();
@@ -705,18 +705,11 @@ public class GeoBattleMap extends Actor {
             ((BuildMode) screenModeData).setBuildingType(selectedBuildingType);
     }
 
+    // Returns selected building type
     public BuildingType getSelectedBuildingType() {
         if (screenModeData instanceof BuildMode)
             return ((BuildMode) screenModeData).getBuildingType();
         return null;
-    }
-
-    public TileCounter getTileCounter() {
-        return tileCounter;
-    }
-
-    public BuildingTextures getBuildingTextures() {
-        return buildingTextures;
     }
 
     // Handles event
@@ -728,14 +721,15 @@ public class GeoBattleMap extends Actor {
                         animationInstances.add(new AnimationInstance(
                                 animations.explosion, bombDropped.x, bombDropped.y, 2
                         ));
-                        sounds.explosion.play(soundVolume);
+                        sounds.explosion.play(game.getSoundVolume());
                     }
                 }
         );
     }
 
+    // Plays sound of shots
     public long playShotsSound(double x, double y) {
-        long soundId = sounds.shots.play(soundVolume);
+        long soundId = sounds.shots.play(game.getSoundVolume());
         sounds.shots.setLooping(soundId, true);
 
         soundInstances.put(soundId, new SoundInstance(sounds.shots, soundId, x, y));
@@ -743,6 +737,7 @@ public class GeoBattleMap extends Actor {
         return soundId;
     }
 
+    // Stops sound of shots
     public void stopShotsSound(long soundId) {
         if (soundInstances.containsKey(soundId)) {
             sounds.shots.stop(soundId);
