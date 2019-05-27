@@ -167,6 +167,8 @@ public final class GeoBattle extends Game {
 
     @Override
     public void setScreen(Screen screen) {
+        if (screen != null)
+            screen.dispose();
         super.setScreen(screen);
         Gdx.input.setOnscreenKeyboardVisible(false);
     }
