@@ -71,6 +71,15 @@ public final class GeoBattleAssets {
     // Spotter texture (team color)
     public static final String SPOTTER_TEAM_COLOR = "spotterTeamColor";
 
+    // Atlas with sector states textures
+    public static final String SECTOR_STATES_ATLAS = "sectorStatesAtlas/sectorStates.atlas";
+
+    // Blocked sector
+    public static final String SECTOR_STATE_BLOCKED = "blocked";
+
+    // Sector without energy
+    public static final String SECTOR_STATE_NO_ENERGY = "noEnergy";
+
     // Background of main menu
     public static final String MAIN_MENU_BACKGROUND = "mainMenu/background.png";
 

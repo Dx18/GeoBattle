@@ -87,6 +87,8 @@ public final class GeoBattle extends Game {
 
         assetManager.load(GeoBattleAssets.UNITS_ATLAS, TextureAtlas.class);
 
+        assetManager.load(GeoBattleAssets.SECTOR_STATES_ATLAS, TextureAtlas.class);
+
         assetManager.load(GeoBattleAssets.ANIMATION_EXPLOSION, Texture.class);
         assetManager.load(GeoBattleAssets.ANIMATION_TURRET_FLASH, Texture.class);
 

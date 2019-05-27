@@ -13,5 +13,8 @@ building_icons_:
 units_:
 	$(PACK) units $(ASSETS_DEST)/unitsAtlas units $(PACK_FILE)
 
+sector_states_:
+	$(PACK) sectorStates $(ASSETS_DEST)/sectorStatesAtlas sectorStates $(PACK_FILE)
+
 gui_:
 	$(PACK) gui $(ASSETS_DEST)/skins/geoBattleSkin/ skin $(PACK_FILE)

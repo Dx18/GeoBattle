@@ -77,6 +77,9 @@ public class GeoBattleMap extends Actor {
     // Textures of units
     private UnitTextures unitTextures;
 
+    // Textures of sector states
+    private SectorStateTextures sectorStateTextures;
+
     // Animations
     private Animations animations;
 
@@ -138,6 +141,7 @@ public class GeoBattleMap extends Actor {
 
         this.buildingTextures = new BuildingTextures(assetManager);
         this.unitTextures = new UnitTextures(assetManager);
+        this.sectorStateTextures = new SectorStateTextures(assetManager);
         this.animations = new Animations(assetManager);
         this.sounds = new Sounds(assetManager);
 
@@ -411,6 +415,23 @@ public class GeoBattleMap extends Actor {
         }
     }
 
+    private void drawMultipleTexturesSubTiles(Batch batch, ArrayList<TextureRegion> textures, int x, int y, int squareSize, Color color) {
+        int inRow = 1;
+        while (inRow * inRow < textures.size())
+            inRow++;
+
+        double textureSize = (double) squareSize / inRow;
+        for (int index = 0; index < textures.size(); index++) {
+            double textureX = x + (double) squareSize * (index % textures.size()) / inRow;
+            double textureY = y + (double) squareSize * (index / textures.size()) / inRow;
+
+            drawCenteredTextureSubTiles(
+                    batch, textureX + textureSize / 2, textureY + textureSize / 2,
+                    textureSize, textureSize, 0, textures.get(index), color
+            );
+        }
+    }
+
     // Draws sectors and selections
     private void drawSectorsAndSelections(IntRect visible) {
         // Drawing sectors...
@@ -434,6 +455,47 @@ public class GeoBattleMap extends Actor {
 
                 drawRegionRectSubTiles(
                         next.x, next.y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE, playerSectorColor
+                );
+            }
+        }
+    }
+
+    // Draws states of sectors
+    private void drawSectorStates(Batch batch, IntRect visible) {
+        if (Math.min(visible.width, visible.height) < 100)
+            return;
+        if (Math.min(visible.width, visible.height) >= 400)
+            return;
+
+        final int padding = Sector.SECTOR_SIZE / 3;
+
+        Iterator<PlayerState> players = gameState.getPlayers();
+        while (players.hasNext()) {
+            PlayerState player = players.next();
+
+            Iterator<Sector> sectors = player.getAllSectors();
+            while (sectors.hasNext()) {
+                Sector next = sectors.next();
+
+                if (!GeoBattleMath.tileRectanglesIntersect(
+                        visible.x, visible.y,
+                        visible.width, visible.height,
+                        next.x, next.y,
+                        Sector.SECTOR_SIZE, Sector.SECTOR_SIZE
+                ))
+                    continue;
+
+                ArrayList<TextureRegion> toDraw = new ArrayList<TextureRegion>();
+                if (next.isBlocked())
+                    toDraw.add(sectorStateTextures.blocked);
+                if (next.getEnergy() < 0)
+                    toDraw.add(sectorStateTextures.noEnergy);
+
+                drawMultipleTexturesSubTiles(
+                        batch, toDraw,
+                        next.x + padding, next.y + padding,
+                        Sector.SECTOR_SIZE - 2 * padding,
+                        new Color(1, 1, 1, 0.6f)
                 );
             }
         }
@@ -553,8 +615,8 @@ public class GeoBattleMap extends Actor {
         IntRect visible = new IntRect(
                 CoordinateConverter.worldToSubTiles(camera.position.x - camera.viewportWidth / 2, xOffset, GeoBattleConst.SUBDIVISION),
                 CoordinateConverter.worldToSubTiles(camera.position.y - camera.viewportHeight / 2, yOffset, GeoBattleConst.SUBDIVISION),
-                CoordinateConverter.worldToSubTiles(camera.position.x + camera.viewportWidth / 2, xOffset, GeoBattleConst.SUBDIVISION),
-                CoordinateConverter.worldToSubTiles(camera.position.y + camera.viewportHeight / 2, yOffset, GeoBattleConst.SUBDIVISION)
+                CoordinateConverter.realWorldToSubTiles(camera.viewportWidth, GeoBattleConst.SUBDIVISION),
+                CoordinateConverter.realWorldToSubTiles(camera.viewportHeight, GeoBattleConst.SUBDIVISION)
         );
 
         batch.end();
@@ -585,6 +647,8 @@ public class GeoBattleMap extends Actor {
             animationInstance.draw(batch, this);
 
         drawUnits(batch, visible);
+
+        drawSectorStates(batch, visible);
 
         if (screenModeData != null)
             screenModeData.draw(batch, this, gameState, visible);

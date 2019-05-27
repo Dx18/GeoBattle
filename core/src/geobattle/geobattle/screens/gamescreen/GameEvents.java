@@ -351,6 +351,15 @@ public class GameEvents {
             lastUpdateTime = gameState.getTime();
         }
 
+        {
+            Iterator<PlayerState> players = gameState.getPlayers();
+            while (players.hasNext()) {
+                Iterator<Sector> sectors = players.next().getAllSectors();
+                while (sectors.hasNext())
+                    sectors.next().setBlocked(false);
+            }
+        }
+
         for (int eventIndex = 0; eventIndex < gameState.getAttackScripts().size();) {
             if (gameState.getAttackScripts().get(eventIndex).isExpired(gameState.getTime())) {
                 AttackScript attackScript = gameState.getAttackScripts().get(eventIndex);
@@ -389,6 +398,9 @@ public class GameEvents {
             TimePoint prevTimePoint = attackScript.getTimePointBefore(gameState.getTime());
             TimePoint nextTimePoint = attackScript.getTimePointAfter(gameState.getTime());
 
+            if (victimSector != null)
+                victimSector.setBlocked(true);
+
             if (victimSector != null && !(victimSector.getState() instanceof SectorState.Attacked)) {
                 Iterator<Turret> turrets = victimSector.getTurrets();
                 int turretCount = 0;
@@ -406,6 +418,8 @@ public class GameEvents {
 
                 if (!hangarIds.containsKey(next.id))
                     continue;
+
+                attacker.getSector(next.sectorId).setBlocked(true);
 
                 float factor = (float) ((gameState.getTime() - prevTimePoint.time) / (nextTimePoint.time - prevTimePoint.time));
 

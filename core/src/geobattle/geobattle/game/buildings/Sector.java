@@ -59,6 +59,9 @@ public final class Sector {
     // Energy of sector
     private int energy;
 
+    // Is sector blocked
+    private boolean blocked;
+
     // Buildings in sector
     private ArrayList<Building> buildings;
 
@@ -378,6 +381,16 @@ public final class Sector {
 
     public int getEnergy() {
         return energy;
+    }
+
+    // Sets block state of sector
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
+    }
+
+    // Returns true if sector is blocked
+    public boolean isBlocked() {
+        return blocked;
     }
 
     // Applies SectorDiff to sector
