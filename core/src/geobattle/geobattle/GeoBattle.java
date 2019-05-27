@@ -151,7 +151,7 @@ public final class GeoBattle extends Game {
     }
 
     public void switchToSettingsScreen() {
-        setScreen(new SettingsScreen(externalAPI, assetManager, this));
+        setScreen(new SettingsScreen(assetManager, this));
     }
 
 	public void switchToLoginScreen() {
