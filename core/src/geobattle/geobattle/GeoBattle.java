@@ -117,10 +117,10 @@ public final class GeoBattle extends Game {
         }, Float.parseFloat(externalAPI.oSAPI.loadValue("musicVolume", "0.5")));
         musicController.nextTrack();
 
-        setScreen(new MainMenuScreen(assetManager, this));
-
         guiStage = new Stage();
         gui = new GeoBattleGUI(assetManager, this, guiStage, 3);
+
+        setScreen(new MainMenuScreen(assetManager, this));
 	}
 
 	public void setMusicVolume(float volume) {
@@ -169,8 +169,17 @@ public final class GeoBattle extends Game {
         Gdx.input.setOnscreenKeyboardVisible(false);
     }
 
+    // Shows message
     public void showMessage(String message) {
         gui.addMessage(new GeoBattleGUI.GeoBattleMessage(message, 3));
+    }
+
+    // Sets position of message
+    public void setMessagePad(float pad, boolean fromTop) {
+        if (fromTop)
+            gui.root.top().padTop(pad);
+        else
+            gui.root.bottom().padBottom(pad);
     }
 
     public void onAuthInfoObtained(final AuthInfo authInfo) {

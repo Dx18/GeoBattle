@@ -69,6 +69,8 @@ public final class MainMenuScreen implements Screen {
 
         Gdx.input.setInputProcessor(input);
         Gdx.input.setCatchBackKey(true);
+
+        game.setMessagePad(Gdx.graphics.getHeight() / 3f, false);
     }
 
     @Override

@@ -57,6 +57,8 @@ public final class EmailConfirmationScreen implements Screen {
 
         Gdx.input.setInputProcessor(input);
         Gdx.input.setCatchBackKey(true);
+
+        game.setMessagePad(20, true);
     }
 
     public I18NBundle getI18NBundle() {
