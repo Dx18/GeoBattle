@@ -122,62 +122,6 @@ public class GameEvents {
             result.apply(game, gameState);
             screen.switchTo(result.screenModeAfterApply());
         }
-//        result.match(
-//                new MatchBranch<SectorBuildResult.SectorBuilt>() {
-//                    @Override
-//                    public void onMatch(SectorBuildResult.SectorBuilt sectorBuilt) {
-//                        try {
-//                            gameState.getPlayer(sectorBuilt.info.playerIndex).addSector(new Sector(
-//                                    sectorBuilt.info.x,
-//                                    sectorBuilt.info.y,
-//                                    sectorBuilt.info.id,
-//                                    gameState.get
-//                                    gameState.getCurrentPlayer().getResearchInfo()
-//                            ));
-//                        } catch (IllegalArgumentException ignored) {}
-//                        screen.switchToNormalMode();
-//                    }
-//                },
-//                new MatchBranch<SectorBuildResult.NotEnoughResources>() {
-//                    @Override
-//                    public void onMatch(SectorBuildResult.NotEnoughResources notEnoughResources) {
-//                        oSAPI.showMessage("Cannot build sector: not enough resources");
-//                    }
-//                },
-//                new MatchBranch<SectorBuildResult.IntersectsWithEnemy>() {
-//                    @Override
-//                    public void onMatch(SectorBuildResult.IntersectsWithEnemy intersectsWithEnemy) {
-//                        oSAPI.showMessage("Cannot build sector: not enough resources");
-//                    }
-//                },
-//                new MatchBranch<SectorBuildResult.WrongPosition>() {
-//                    @Override
-//                    public void onMatch(SectorBuildResult.WrongPosition wrongPosition) {
-//                        oSAPI.showMessage("Cannot build sector: wrong position of sector");
-//                    }
-//                },
-//                new MatchBranch<SectorBuildResult.WrongAuthInfo>() {
-//                    @Override
-//                    public void onMatch(SectorBuildResult.WrongAuthInfo wrongAuthInfo) {
-//                        oSAPI.showMessage("Not authorized!");
-//                        game.switchToLoginScreen();
-//                        // Gdx.app.error("GeoBattle", "Not authorized!");
-//                        // Gdx.app.exit();
-//                    }
-//                },
-//                new MatchBranch<SectorBuildResult.MalformedJson>() {
-//                    @Override
-//                    public void onMatch(SectorBuildResult.MalformedJson malformedJson) {
-//                        oSAPI.showMessage("Cannot build sector: JSON request is not well-formed. Probable bug. Tell the developers");
-//                    }
-//                },
-//                new MatchBranch<SectorBuildResult.IncorrectData>() {
-//                    @Override
-//                    public void onMatch(SectorBuildResult.IncorrectData incorrectData) {
-//                        oSAPI.showMessage("Cannot build sector: value of field in request is not valid. Probable bug. Tell the developers");
-//                    }
-//                }
-//        );
     }
 
     // Invokes when user requests building
