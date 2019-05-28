@@ -99,6 +99,9 @@ public final class GameScreenGUI {
     // Selected building
     private Building selectedBuilding;
 
+    // True if exit dialog is shown to player
+    private boolean exitDialogShown;
+
     // Initializes GUI
     public GameScreenGUI(AssetManager assetManager, final GameScreen screen, final Stage guiStage) {
         skin = assetManager.get(GeoBattleAssets.GUI_SKIN);
@@ -626,6 +629,9 @@ public final class GameScreenGUI {
     }
 
     public void showExitDialog(final GameScreen screen) {
+        if (exitDialogShown)
+            return;
+
         final VisDialog dialog = new VisDialog(screen.getI18NBundle().get("exit"));
 
         dialog.getContentTable().add(new VisLabel(screen.getI18NBundle().get("exitQuestion")));
@@ -635,6 +641,7 @@ public final class GameScreenGUI {
             public void changed(ChangeEvent event, Actor actor) {
                 screen.onExit();
                 dialog.hide();
+                exitDialogShown = true;
             }
         });
         dialog.getButtonsTable().add(yes)
@@ -645,6 +652,7 @@ public final class GameScreenGUI {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 dialog.hide();
+                exitDialogShown = false;
             }
         });
         dialog.getButtonsTable().add(no)
@@ -652,5 +660,6 @@ public final class GameScreenGUI {
                 .height(Gdx.graphics.getPpcY() * 0.9f);
 
         dialog.show(guiStage);
+        exitDialogShown = true;
     }
 }
