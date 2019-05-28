@@ -2,6 +2,7 @@ package geobattle.geobattle.server;
 
 import com.badlogic.gdx.graphics.Color;
 
+import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.actionresults.AttackResult;
 import geobattle.geobattle.actionresults.AuthorizationResult;
 import geobattle.geobattle.actionresults.BuildResult;
@@ -23,6 +24,9 @@ import geobattle.geobattle.game.units.UnitType;
 public interface Server {
     // Sets network fail listener
     void setOnFailListener(Runnable onFail);
+
+    // Sets game instance
+    void setGame(GeoBattle game);
 
     // Sets IP address and port of server
     void setAddress(String ipAddress, int port);

@@ -61,13 +61,16 @@ public final class GeoBattle extends Game {
 	public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
+        externalAPI.server.setGame(this);
         externalAPI.server.setOnFailListener(new Runnable() {
             @Override
             public void run() {
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
                     public void run() {
+                        showMessage(i18NBundle.get("seriousNetworkProblems"));
                         externalAPI.oSAPI.showMessage("You have problems with connection");
+                        setNetworkState(0);
                         switchToLoginScreen();
                     }
                 });
@@ -186,9 +189,13 @@ public final class GeoBattle extends Game {
     // Sets position of message
     public void setMessagePad(float pad, boolean fromTop) {
         if (fromTop)
-            gui.root.top().padTop(pad);
+            gui.messagesRoot.top().padTop(pad);
         else
-            gui.root.bottom().padBottom(pad);
+            gui.messagesRoot.bottom().padBottom(pad);
+    }
+
+    public void setNetworkState(float state) {
+        gui.setNetworkState(state);
     }
 
     public void onAuthInfoObtained(final AuthInfo authInfo) {

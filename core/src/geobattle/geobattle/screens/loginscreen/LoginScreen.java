@@ -59,6 +59,8 @@ public final class LoginScreen implements Screen {
                 0, 0,
                 Gdx.graphics.getWidth(), Gdx.graphics.getHeight()
         );
+
+        game.setNetworkState(0);
     }
 
     // Shows screen
@@ -100,27 +102,36 @@ public final class LoginScreen implements Screen {
         batch.end();
 
         guiStage.act();
-
         guiStage.draw();
     }
 
     // Invokes when player tries to login
     public void onLogin() {
         String userName = gui.loginUserName.getText().trim();
+
+        if (userName.isEmpty()) {
+            game.showMessage(game.getI18NBundle().get("typeUserName"));
+            return;
+        }
+
         String password = gui.loginPassword.getText();
 
-        if (!userName.isEmpty() && !password.isEmpty())
-            game.getExternalAPI().server.login(userName, password, new Callback<AuthorizationResult>() {
-                @Override
-                public void onResult(final AuthorizationResult result) {
-                    Gdx.app.postRunnable(new Runnable() {
-                        @Override
-                        public void run() {
-                            onAuthorizationResult(result);
-                        }
-                    });
-                }
-            }, null);
+        if (password.isEmpty()) {
+            game.showMessage(game.getI18NBundle().get("typePassword"));
+            return;
+        }
+
+        game.getExternalAPI().server.login(userName, password, new Callback<AuthorizationResult>() {
+            @Override
+            public void onResult(final AuthorizationResult result) {
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        onAuthorizationResult(result);
+                    }
+                });
+            }
+        }, null);
     }
 
     private void onAuthorizationResult(AuthorizationResult result) {
@@ -131,23 +142,51 @@ public final class LoginScreen implements Screen {
     // Invokes when player tries to register
     public void onRegister() {
         String userName = gui.registerUserName.getText().trim();
+
+        if (userName.isEmpty()) {
+            game.showMessage(game.getI18NBundle().get("typeUserName"));
+            return;
+        }
+
         String email = gui.registerEmail.getText().trim();
+
+        if (email.isEmpty()) {
+            game.showMessage(game.getI18NBundle().get("typeEmail"));
+            return;
+        }
+
         String password = gui.registerPassword.getText();
+
+        if (password.isEmpty()) {
+            game.showMessage(game.getI18NBundle().get("typePassword"));
+            return;
+        }
+
         String repeatPassword = gui.registerRepeatPassword.getText();
+
+        if (repeatPassword.isEmpty()) {
+            game.showMessage(game.getI18NBundle().get("typeRepeatPassword"));
+            return;
+        }
+
+        if (!password.equals(repeatPassword)) {
+            game.showMessage(game.getI18NBundle().get("passwordsDoNotMatch"));
+            return;
+        }
+
         Color color = gui.pickColorResult.getColor();
 
-        if (!userName.isEmpty() && !email.isEmpty() && !password.isEmpty() && password.equals(repeatPassword))
-            game.getExternalAPI().server.register(userName, email, password, color, new Callback<RegistrationResult>() {
-                @Override
-                public void onResult(final RegistrationResult result) {
-                    Gdx.app.postRunnable(new Runnable() {
-                        @Override
-                        public void run() {
-                            onRegistrationResult(result);
-                        }
-                    });
-                }
-            }, null);
+        game.getExternalAPI().server.register(userName, email, password, color, new Callback<RegistrationResult>() {
+            @Override
+            public void onResult(final RegistrationResult result) {
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        onRegistrationResult(result);
+                    }
+                });
+            }
+        }, null);
     }
 
     private void onRegistrationResult(RegistrationResult result) {

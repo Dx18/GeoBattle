@@ -23,6 +23,7 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
+import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.actionresults.AttackResult;
 import geobattle.geobattle.actionresults.AuthorizationResult;
 import geobattle.geobattle.actionresults.BuildResult;
@@ -54,7 +55,6 @@ import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.Callback;
 import geobattle.geobattle.server.CancelHandle;
-import geobattle.geobattle.server.OSAPI;
 import geobattle.geobattle.server.Server;
 import geobattle.geobattle.util.FrequencyQueue;
 
@@ -69,21 +69,25 @@ public final class SocketServer implements Server {
 
     private JsonParser parser;
 
-    private OSAPI oSAPI;
-
     private SSLSocketFactory sslSocketFactory;
 
     private FrequencyQueue fails;
 
     private Runnable onFail;
 
-    public SocketServer(int masterPort, String ip, int port, OSAPI oSAPI) {
+    private GeoBattle game;
+
+    public SocketServer(int masterPort, String ip, int port) {
         this.masterPort = masterPort;
         this.ip = ip;
         this.port = port;
         this.parser = new JsonParser();
-        this.oSAPI = oSAPI;
         this.fails = new FrequencyQueue(TRIES_COUNT, false);
+    }
+
+    @Override
+    public void setGame(GeoBattle game) {
+        this.game = game;
     }
 
     @Override
@@ -279,6 +283,8 @@ public final class SocketServer implements Server {
 
     private void onFail() {
         fails.add(true);
+        if (game != null)
+            game.setNetworkState((float) fails.getFalseCount() / TRIES_COUNT);
         if (fails.getTrueCount() >= TRIES_COUNT && onFail != null) {
             onFail.run();
             fails = new FrequencyQueue(TRIES_COUNT, false);
@@ -287,6 +293,10 @@ public final class SocketServer implements Server {
 
     private void onSuccess() {
         fails.add(false);
+        if (game != null) {
+            Gdx.app.log("GeoBattle", "Setting network state: " + ((float) fails.getFalseCount() / TRIES_COUNT));
+            game.setNetworkState((float) fails.getFalseCount() / TRIES_COUNT);
+        }
     }
 
     @Override
@@ -297,9 +307,10 @@ public final class SocketServer implements Server {
                 String resultStr = requestSSL(ip, port, new RegistrationEvent(playerName, email, password, color).toJson().toString());
 
                 if (resultStr == null) {
-                    if (failCallback == null)
-                        oSAPI.showMessage("RegisterEvent failed: probable problems with connection");
-                    else
+                    if (failCallback == null) {
+                        game.showMessage(game.getI18NBundle().get("networkProblems"));
+                        game.getExternalAPI().oSAPI.showMessage("RegisterEvent failed: probable problems with connection");
+                    } else
                         failCallback.run();
                     return;
                 }
@@ -310,7 +321,7 @@ public final class SocketServer implements Server {
                         throw new IllegalArgumentException("Given type of RegistrationResult is unknown");
                     callback.onResult(result);
                 } catch (Exception e) {
-                    oSAPI.showMessage("RegisterEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    game.getExternalAPI().oSAPI.showMessage("RegisterEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
@@ -327,9 +338,10 @@ public final class SocketServer implements Server {
                 String resultStr = requestSSL(ip, port, new AuthorizationEvent(playerName, password).toJson().toString());
 
                 if (resultStr == null) {
-                    if (failCallback == null)
-                        oSAPI.showMessage("AuthorizationEvent failed: probable problems with connection");
-                    else
+                    if (failCallback == null) {
+                        game.showMessage(game.getI18NBundle().get("networkProblems"));
+                        game.getExternalAPI().oSAPI.showMessage("AuthorizationEvent failed: probable problems with connection");
+                    } else
                         failCallback.run();
                     return;
                 }
@@ -340,7 +352,7 @@ public final class SocketServer implements Server {
                         throw new IllegalArgumentException("Given type of AuthorizationResult is unknown");
                     callback.onResult(result);
                 } catch (Exception e) {
-                    oSAPI.showMessage("AuthorizationEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    game.getExternalAPI().oSAPI.showMessage("AuthorizationEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
@@ -370,9 +382,10 @@ public final class SocketServer implements Server {
 
                 if (resultStr == null) {
                     onFail();
-                    if (failCallback == null)
-                        oSAPI.showMessage("StateRequestEvent failed: probable problems with connection");
-                    else
+                    if (failCallback == null) {
+                        game.showMessage(game.getI18NBundle().get("networkProblems"));
+                        game.getExternalAPI().oSAPI.showMessage("StateRequestEvent failed: probable problems with connection");
+                    } else
                         failCallback.run();
                     return;
                 }
@@ -384,7 +397,7 @@ public final class SocketServer implements Server {
                         throw new IllegalArgumentException("Given type of StateRequestResult is unknown");
                     callback.onResult(result);
                 } catch (Exception e) {
-                    oSAPI.showMessage("StateRequestEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    game.getExternalAPI().oSAPI.showMessage("StateRequestEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
@@ -403,7 +416,7 @@ public final class SocketServer implements Server {
                 if (resultStr == null) {
                     onFail();
                     if (failCallback == null)
-                        oSAPI.showMessage("UpdateRequestEvent failed: probable problems with connection");
+                        game.getExternalAPI().oSAPI.showMessage("UpdateRequestEvent failed: probable problems with connection");
                     else
                         failCallback.run();
                     return;
@@ -416,7 +429,7 @@ public final class SocketServer implements Server {
                         throw new IllegalArgumentException("Given type of UpdateRequestResult is unknown");
                     callback.onResult(result);
                 } catch (Exception e) {
-                    oSAPI.showMessage("UpdateRequestEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    game.getExternalAPI().oSAPI.showMessage("UpdateRequestEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
@@ -434,9 +447,10 @@ public final class SocketServer implements Server {
 
                 if (resultStr == null) {
                     onFail();
-                    if (failCallback == null)
-                        oSAPI.showMessage("BuildEvent failed: probable problems with connection");
-                    else
+                    if (failCallback == null) {
+                        game.showMessage(game.getI18NBundle().get("networkProblems"));
+                        game.getExternalAPI().oSAPI.showMessage("BuildEvent failed: probable problems with connection");
+                    } else
                         failCallback.run();
                     return;
                 }
@@ -448,7 +462,7 @@ public final class SocketServer implements Server {
                         throw new IllegalArgumentException("Given type of BuildResult is unknown");
                     callback.onResult(result);
                 } catch (Exception e) {
-                    oSAPI.showMessage("BuildEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    game.getExternalAPI().oSAPI.showMessage("BuildEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
@@ -466,9 +480,10 @@ public final class SocketServer implements Server {
 
                 if (resultStr == null) {
                     onFail();
-                    if (failCallback == null)
-                        oSAPI.showMessage("SectorBuildEvent failed: probable problems with connection");
-                    else
+                    if (failCallback == null) {
+                        game.showMessage(game.getI18NBundle().get("networkProblems"));
+                        game.getExternalAPI().oSAPI.showMessage("SectorBuildEvent failed: probable problems with connection");
+                    } else
                         failCallback.run();
                     return;
                 }
@@ -480,7 +495,7 @@ public final class SocketServer implements Server {
                         throw new IllegalArgumentException("Given type of SectorBuildResult is unknown");
                     callback.onResult(result);
                 } catch (Exception e) {
-                    oSAPI.showMessage("SectorBuildEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    game.getExternalAPI().oSAPI.showMessage("SectorBuildEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
@@ -498,9 +513,10 @@ public final class SocketServer implements Server {
 
                 if (resultStr == null) {
                     onFail();
-                    if (failCallback == null)
-                        oSAPI.showMessage("DestroyEvent failed: probable problems with connection");
-                    else
+                    if (failCallback == null) {
+                        game.showMessage(game.getI18NBundle().get("networkProblems"));
+                        game.getExternalAPI().oSAPI.showMessage("DestroyEvent failed: probable problems with connection");
+                    } else
                         failCallback.run();
                     return;
                 }
@@ -512,7 +528,7 @@ public final class SocketServer implements Server {
                         throw new IllegalArgumentException("Given type of DestroyResult is unknown");
                     callback.onResult(result);
                 } catch (Exception e) {
-                    oSAPI.showMessage("DestroyEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    game.getExternalAPI().oSAPI.showMessage("DestroyEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
@@ -530,9 +546,10 @@ public final class SocketServer implements Server {
 
                 if (resultStr == null) {
                     onFail();
-                    if (failCallback == null)
-                        oSAPI.showMessage("UnitBuildEvent failed: probable problems with connection");
-                    else
+                    if (failCallback == null) {
+                        game.showMessage(game.getI18NBundle().get("networkProblems"));
+                        game.getExternalAPI().oSAPI.showMessage("UnitBuildEvent failed: probable problems with connection");
+                    } else
                         failCallback.run();
                     return;
                 }
@@ -544,7 +561,7 @@ public final class SocketServer implements Server {
                         throw new IllegalArgumentException("Given type of UnitBuildResult is unknown");
                     callback.onResult(result);
                 } catch (Exception e) {
-                    oSAPI.showMessage("UnitBuildResult failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    game.getExternalAPI().oSAPI.showMessage("UnitBuildResult failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
@@ -562,9 +579,10 @@ public final class SocketServer implements Server {
 
                 if (resultStr == null) {
                     onFail();
-                    if (failCallback == null)
-                        oSAPI.showMessage("ResearchEvent failed: probable problems with connection");
-                    else
+                    if (failCallback == null) {
+                        game.showMessage(game.getI18NBundle().get("networkProblems"));
+                        game.getExternalAPI().oSAPI.showMessage("ResearchEvent failed: probable problems with connection");
+                    } else
                         failCallback.run();
                     return;
                 }
@@ -576,7 +594,7 @@ public final class SocketServer implements Server {
                         throw new IllegalArgumentException("Given type of ResearchResult is unknown");
                     callback.onResult(result);
                 } catch (Exception e) {
-                    oSAPI.showMessage("ResearchEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    game.getExternalAPI().oSAPI.showMessage("ResearchEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
@@ -594,9 +612,10 @@ public final class SocketServer implements Server {
 
                 if (resultStr == null) {
                     onFail();
-                    if (failCallback == null)
-                        oSAPI.showMessage("AttackEvent failed: probable problems with connection");
-                    else
+                    if (failCallback == null) {
+                        game.showMessage(game.getI18NBundle().get("networkProblems"));
+                        game.getExternalAPI().oSAPI.showMessage("AttackEvent failed: probable problems with connection");
+                    } else
                         failCallback.run();
                     return;
                 }
@@ -608,7 +627,7 @@ public final class SocketServer implements Server {
                         throw new IllegalArgumentException("Given type of AttackResult is unknown");
                     callback.onResult(result);
                 } catch (Exception e) {
-                    oSAPI.showMessage("AttackEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    game.getExternalAPI().oSAPI.showMessage("AttackEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
@@ -625,9 +644,10 @@ public final class SocketServer implements Server {
                 String resultStr = requestSSL(ip, port, new EmailConfirmationEvent(name, code).toJson().toString());
 
                 if (resultStr == null) {
-                    if (failCallback == null)
-                        oSAPI.showMessage("EmailConfirmationEvent failed: probable problems with connection");
-                    else
+                    if (failCallback == null) {
+                        game.showMessage(game.getI18NBundle().get("networkProblems"));
+                        game.getExternalAPI().oSAPI.showMessage("EmailConfirmationEvent failed: probable problems with connection");
+                    } else
                         failCallback.run();
                     return;
                 }
@@ -638,7 +658,7 @@ public final class SocketServer implements Server {
                         throw new IllegalArgumentException("Given type of EmailConfirmationResult is unknown");
                     callback.onResult(result);
                 } catch (Exception e) {
-                    oSAPI.showMessage("EmailConfirmationEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    game.getExternalAPI().oSAPI.showMessage("EmailConfirmationEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
@@ -655,9 +675,10 @@ public final class SocketServer implements Server {
                 String resultStr = requestSSL(ip, port, new ResendEmailEvent(name).toJson().toString());
 
                 if (resultStr == null) {
-                    if (failCallback == null)
-                        oSAPI.showMessage("ResendEmailEvent failed: probable problems with connection");
-                    else
+                    if (failCallback == null) {
+                        game.showMessage(game.getI18NBundle().get("networkProblems"));
+                        game.getExternalAPI().oSAPI.showMessage("ResendEmailEvent failed: probable problems with connection");
+                    } else
                         failCallback.run();
                     return;
                 }
@@ -668,7 +689,7 @@ public final class SocketServer implements Server {
                         throw new IllegalArgumentException("Given type of EmailResendResult is unknown");
                     callback.onResult(result);
                 } catch (Exception e) {
-                    oSAPI.showMessage("ResendEmailEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    game.getExternalAPI().oSAPI.showMessage("ResendEmailEvent failed: " + e.getClass().getName() + ", see GeoBattleError for details");
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }

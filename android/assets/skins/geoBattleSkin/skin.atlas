@@ -41,7 +41,7 @@ buildingType
   index: -1
 button
   rotate: false
-  xy: 897, 396
+  xy: 856, 333
   size: 11, 11
   split: 5, 5, 5, 5
   orig: 11, 11
@@ -106,14 +106,14 @@ hideKeyboard
   index: -1
 infoBackgroundBottom
   rotate: false
-  xy: 856, 353
+  xy: 958, 412
   size: 13, 13
   orig: 13, 13
   offset: 0, 0
   index: -1
 infoBackgroundLeft
   rotate: false
-  xy: 256, 18
+  xy: 878, 355
   size: 11, 11
   split: 5, 5, 5, 5
   orig: 11, 11
@@ -121,7 +121,7 @@ infoBackgroundLeft
   index: -1
 infoBackgroundRight
   rotate: false
-  xy: 958, 414
+  xy: 897, 374
   size: 11, 11
   split: 5, 5, 5, 5
   orig: 11, 11
@@ -149,6 +149,41 @@ message
   size: 3, 3
   split: 1, 1, 1, 1
   orig: 3, 3
+  offset: 0, 0
+  index: -1
+networkState0
+  rotate: false
+  xy: 306, 288
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+networkState1
+  rotate: false
+  xy: 856, 346
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+networkState2
+  rotate: false
+  xy: 897, 387
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+networkState3
+  rotate: false
+  xy: 256, 9
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+networkState4
+  rotate: false
+  xy: 991, 428
+  size: 20, 20
+  orig: 20, 20
   offset: 0, 0
   index: -1
 next
@@ -203,14 +238,14 @@ resources
   index: -1
 slider
   rotate: false
-  xy: 991, 444
+  xy: 328, 304
   size: 4, 4
   orig: 4, 4
   offset: 0, 0
   index: -1
 sliderKnobHorizontal
   rotate: false
-  xy: 306, 288
+  xy: 306, 266
   size: 20, 20
   orig: 20, 20
   offset: 0, 0

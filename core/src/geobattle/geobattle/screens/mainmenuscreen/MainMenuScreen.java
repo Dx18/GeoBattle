@@ -53,6 +53,8 @@ public final class MainMenuScreen implements Screen {
                 0, Gdx.graphics.getHeight() * 2 / 3f,
                 Gdx.graphics.getWidth(), Gdx.graphics.getHeight()
         );
+
+        game.setNetworkState(0);
     }
 
     public I18NBundle getI18NBundle() {
@@ -91,7 +93,7 @@ public final class MainMenuScreen implements Screen {
         Gdx.input.setInputProcessor(input);
         Gdx.input.setCatchBackKey(true);
 
-        game.setMessagePad(Gdx.graphics.getHeight() / 3f, false);
+        game.setMessagePad(20, true);
     }
 
     @Override
