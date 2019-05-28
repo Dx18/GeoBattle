@@ -55,7 +55,7 @@ public abstract class UnitBuildResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.showMessage(game.getI18NBundle().get("unitBuildResultNotEnoughResources"));
+            game.showMessage(game.getI18NBundle().format("unitBuildResultNotEnoughResources", required));
         }
     }
 
