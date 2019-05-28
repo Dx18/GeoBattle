@@ -1,27 +1,27 @@
 
 units.png
-size: 1024,512
+size: 512,256
 format: RGBA8888
 filter: MipMap,Nearest
 repeat: none
 bomber
   rotate: false
-  xy: 454, 260
+  xy: 2, 2
   size: 192, 192
   orig: 192, 192
-  offset: 0, 0
-  index: -1
-bomberBackup
-  rotate: false
-  xy: 2, 2
-  size: 450, 450
-  orig: 450, 450
   offset: 0, 0
   index: -1
 bomberTeamColor
   rotate: false
-  xy: 454, 66
+  xy: 196, 2
   size: 192, 192
   orig: 192, 192
+  offset: 0, 0
+  index: -1
+unitGroup
+  rotate: false
+  xy: 390, 130
+  size: 64, 64
+  orig: 64, 64
   offset: 0, 0
   index: -1

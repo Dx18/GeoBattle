@@ -28,6 +28,7 @@ import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.game.units.Unit;
+import geobattle.geobattle.game.units.UnitGroupState;
 import geobattle.geobattle.map.animations.AnimationInstance;
 import geobattle.geobattle.map.animations.Animations;
 import geobattle.geobattle.screens.gamescreen.GameScreenMode;
@@ -546,9 +547,6 @@ public class GeoBattleMap extends Actor {
                 CoordinateConverter.realWorldToSubTiles(camera.viewportHeight, GeoBattleConst.SUBDIVISION)
         );
 
-        if (visibleTiles >= 400)
-            return;
-
         boolean drawIcons = visibleTiles >= 100;
 
         Iterator<PlayerState> players = gameState.getPlayers();
@@ -558,24 +556,34 @@ public class GeoBattleMap extends Actor {
             while (hangars.hasNext()) {
                 Hangar nextHangar = hangars.next();
 
-                Iterator<Unit> units = nextHangar.units.getAllUnits();
-                while (units.hasNext()) {
-                    Unit next = units.next();
+                if (drawIcons) {
+                    if (!(nextHangar.units.getState() instanceof UnitGroupState.Idle)) {
+                        drawCenteredTexture(
+                                batch, nextHangar.units.x, nextHangar.units.y,
+                                6, 6, 0, unitTextures.unitGroupTexture,
+                                player.getColor()
+                        );
+                    }
+                } else {
+                    Iterator<Unit> units = nextHangar.units.getAllUnits();
+                    while (units.hasNext()) {
+                        Unit next = units.next();
 
-                    if (next == null)
-                        continue;
+                        if (next == null)
+                            continue;
 
-                    int unitSize = Math.max(next.getSizeX(), next.getSizeY()) * 3;
+                        int unitSize = Math.max(next.getSizeX(), next.getSizeY()) * 3;
 
-                    if (!GeoBattleMath.tileRectanglesIntersect(
-                            visible.x, visible.y,
-                            visible.width, visible.height,
-                            (int) next.x - unitSize / 2, (int) next.y - unitSize / 2,
-                            unitSize, unitSize
-                    ))
-                        continue;
+                        if (!GeoBattleMath.tileRectanglesIntersect(
+                                visible.x, visible.y,
+                                visible.width, visible.height,
+                                (int) next.x - unitSize / 2, (int) next.y - unitSize / 2,
+                                unitSize, unitSize
+                        ))
+                            continue;
 
-                    next.draw(batch, this, unitTextures, player.getColor(), drawIcons);
+                        next.draw(batch, this, unitTextures, player.getColor(), drawIcons);
+                    }
                 }
             }
         }

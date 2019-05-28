@@ -24,6 +24,9 @@ public final class UnitTextures {
     // Spotter texture (team color)
     public final TextureRegion spotterTeamColorTexture;
 
+    // Texture of unit group
+    public final TextureRegion unitGroupTexture;
+
     // Map "unit type" -> "texture of unit type"
     private HashMap<UnitType, TextureRegion> unitTypeToTexture;
 
@@ -51,6 +54,8 @@ public final class UnitTextures {
         unitTypeToTeamColorTexture = new HashMap<UnitType, TextureRegion>();
         unitTypeToTeamColorTexture.put(UnitType.BOMBER, bomberTeamColorTexture);
         unitTypeToTeamColorTexture.put(UnitType.SPOTTER, spotterTeamColorTexture);
+
+        unitGroupTexture = unitsAtlas.findRegion(GeoBattleAssets.UNIT_GROUP);
     }
 
     // Returns texture of unit

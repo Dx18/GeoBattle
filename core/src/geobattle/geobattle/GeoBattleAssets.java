@@ -65,6 +65,9 @@ public final class GeoBattleAssets {
     // Spotter texture
     public static final String SPOTTER = "spotter";
 
+    // Icon of unit group
+    public static final String UNIT_GROUP = "unitGroup";
+
     // Bomber texture (team color)
     public static final String BOMBER_TEAM_COLOR = "bomberTeamColor";
 

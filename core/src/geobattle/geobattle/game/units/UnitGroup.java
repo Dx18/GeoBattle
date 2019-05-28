@@ -24,10 +24,10 @@ public final class UnitGroup {
     private float health;
 
     // X coordinate of group
-    private double x;
+    public double x;
 
     // Y coordinate of group
-    private double y;
+    public double y;
 
     // Hangar ID
     public final int hangarId;
