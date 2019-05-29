@@ -62,8 +62,8 @@ public final class MainMenuScreen implements Screen {
     }
 
     public void onPlay() {
-        game.switchToLoginScreen();
-//        game.switchToSelectServerScreen();
+//        game.switchToLoginScreen();
+        game.switchToSelectServerScreen();
     }
 
     public void onSettings() {

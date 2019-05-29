@@ -4,44 +4,51 @@ size: 1024,512
 format: RGBA8888
 filter: MipMap,Nearest
 repeat: none
+addServer
+  rotate: false
+  xy: 2, 2
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
 attack
   rotate: false
-  xy: 2, 5
+  xy: 204, 264
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 back
   rotate: false
-  xy: 204, 267
+  xy: 346, 406
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 build
   rotate: false
-  xy: 346, 409
+  xy: 204, 162
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 buildSector
   rotate: false
-  xy: 204, 165
+  xy: 448, 406
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 buildingType
   rotate: false
-  xy: 448, 409
+  xy: 550, 406
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 button
   rotate: false
-  xy: 856, 333
+  xy: 306, 163
   size: 11, 11
   split: 5, 5, 5, 5
   orig: 11, 11
@@ -49,7 +56,7 @@ button
   index: -1
 buttonMenu
   rotate: false
-  xy: 958, 450
+  xy: 958, 447
   size: 59, 59
   split: 29, 29, 29, 29
   orig: 59, 59
@@ -57,63 +64,70 @@ buttonMenu
   index: -1
 destroy
   rotate: false
-  xy: 550, 409
+  xy: 652, 406
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 dialogTint
   rotate: false
-  xy: 2, 2
+  xy: 306, 304
   size: 1, 1
   orig: 1, 1
   offset: 0, 0
   index: -1
+editServer
+  rotate: false
+  xy: 754, 406
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
 empty
   rotate: false
-  xy: 652, 409
+  xy: 856, 406
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 energy
   rotate: false
-  xy: 2, 309
+  xy: 2, 306
   size: 200, 200
   orig: 200, 200
   offset: 0, 0
   index: -1
 hangar
   rotate: false
-  xy: 754, 409
+  xy: 104, 2
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 health
   rotate: false
-  xy: 2, 107
+  xy: 2, 104
   size: 200, 200
   orig: 200, 200
   offset: 0, 0
   index: -1
 hideKeyboard
   rotate: false
-  xy: 856, 409
+  xy: 206, 60
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 infoBackgroundBottom
   rotate: false
-  xy: 958, 412
+  xy: 980, 432
   size: 13, 13
   orig: 13, 13
   offset: 0, 0
   index: -1
 infoBackgroundLeft
   rotate: false
-  xy: 878, 355
+  xy: 510, 228
   size: 11, 11
   split: 5, 5, 5, 5
   orig: 11, 11
@@ -121,7 +135,7 @@ infoBackgroundLeft
   index: -1
 infoBackgroundRight
   rotate: false
-  xy: 897, 374
+  xy: 532, 250
   size: 11, 11
   split: 5, 5, 5, 5
   orig: 11, 11
@@ -129,7 +143,7 @@ infoBackgroundRight
   index: -1
 listItemDeselected
   rotate: false
-  xy: 339, 364
+  xy: 339, 361
   size: 5, 3
   split: 3, 1, 1, 1
   orig: 5, 3
@@ -137,7 +151,7 @@ listItemDeselected
   index: -1
 listItemSelected
   rotate: false
-  xy: 339, 359
+  xy: 339, 356
   size: 5, 3
   split: 3, 1, 1, 1
   orig: 5, 3
@@ -145,7 +159,7 @@ listItemSelected
   index: -1
 message
   rotate: false
-  xy: 1019, 506
+  xy: 1019, 503
   size: 3, 3
   split: 1, 1, 1, 1
   orig: 3, 3
@@ -153,56 +167,56 @@ message
   index: -1
 networkState0
   rotate: false
-  xy: 306, 288
+  xy: 958, 425
   size: 20, 20
   orig: 20, 20
   offset: 0, 0
   index: -1
 networkState1
   rotate: false
-  xy: 856, 346
+  xy: 510, 241
   size: 20, 20
   orig: 20, 20
   offset: 0, 0
   index: -1
 networkState2
   rotate: false
-  xy: 897, 387
+  xy: 551, 282
   size: 20, 20
   orig: 20, 20
   offset: 0, 0
   index: -1
 networkState3
   rotate: false
-  xy: 256, 9
+  xy: 356, 180
   size: 20, 20
   orig: 20, 20
   offset: 0, 0
   index: -1
 networkState4
   rotate: false
-  xy: 991, 428
+  xy: 239, 6
   size: 20, 20
   orig: 20, 20
   offset: 0, 0
   index: -1
 next
   rotate: false
-  xy: 104, 5
+  xy: 346, 304
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 ok
   rotate: false
-  xy: 206, 63
+  xy: 448, 304
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 panel
   rotate: false
-  xy: 856, 368
+  xy: 510, 263
   size: 39, 39
   split: 19, 19, 19, 19
   orig: 39, 39
@@ -210,49 +224,56 @@ panel
   index: -1
 person
   rotate: false
-  xy: 204, 369
+  xy: 204, 366
   size: 140, 140
   orig: 140, 140
   offset: 0, 0
   index: -1
+removeServer
+  rotate: false
+  xy: 550, 304
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
 research
   rotate: false
-  xy: 346, 307
+  xy: 652, 304
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 researchIndicator
   rotate: false
-  xy: 206, 5
+  xy: 306, 176
   size: 48, 24
   orig: 48, 24
   offset: 0, 0
   index: -1
 resources
   rotate: false
-  xy: 448, 307
+  xy: 754, 304
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 slider
   rotate: false
-  xy: 328, 304
+  xy: 551, 276
   size: 4, 4
   orig: 4, 4
   offset: 0, 0
   index: -1
 sliderKnobHorizontal
   rotate: false
-  xy: 306, 266
+  xy: 958, 403
   size: 20, 20
   orig: 20, 20
   offset: 0, 0
   index: -1
 textField
   rotate: false
-  xy: 206, 31
+  xy: 206, 28
   size: 100, 30
   split: 1, 1, 1, 1
   orig: 100, 30
@@ -260,14 +281,14 @@ textField
   index: -1
 toPlayer
   rotate: false
-  xy: 550, 307
+  xy: 856, 304
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 window
   rotate: false
-  xy: 306, 310
+  xy: 306, 307
   size: 31, 57
   split: 15, 15, 46, 10
   orig: 31, 57
@@ -275,7 +296,7 @@ window
   index: -1
 windowCentered
   rotate: false
-  xy: 958, 427
+  xy: 206, 5
   size: 31, 21
   split: 15, 15, 10, 10
   orig: 31, 21
@@ -283,14 +304,14 @@ windowCentered
   index: -1
 zoomIn
   rotate: false
-  xy: 652, 307
+  xy: 306, 202
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 zoomOut
   rotate: false
-  xy: 754, 307
+  xy: 408, 202
   size: 100, 100
   orig: 100, 100
   offset: 0, 0

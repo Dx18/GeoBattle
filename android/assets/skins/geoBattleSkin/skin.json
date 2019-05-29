@@ -52,6 +52,12 @@
     buttonHangarDown: { name: hangar, color: down },
     buttonHideKeyboardUp: { name: hideKeyboard, color: up },
     buttonHideKeyboardDown: { name: hideKeyboard, color: down },
+    buttonAddServerUp: { name: addServer, color: up },
+    buttonAddServerDown: { name: addServer, color: down },
+    buttonEditServerUp: { name: editServer, color: up },
+    buttonEditServerDown: { name: editServer, color: down },
+    buttonRemoveServerUp: { name: removeServer, color: up },
+    buttonRemoveServerDown: { name: removeServer, color: down },
     cursor: { name: slider, color: white },
     selection: { name: dialogTint, color: white },
     slider: { name: slider, color: up },
@@ -60,6 +66,9 @@
     window: { name: window, color: up },
     researchIndicatorOff: { name: researchIndicator, color: up },
     researchIndicatorOn: { name: researchIndicator, color: down }
+  },
+  ButtonStyle: {
+    buttonListItem: { up: listItemDeselected, down: listItemSelected },
   },
   com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle: {
     buttonEmpty: { up: buttonEmptyUp, down: buttonEmptyDown },
@@ -77,6 +86,10 @@
     buttonToPlayer: { up: buttonToPlayerUp, down: buttonToPlayerDown },
     buttonHangar: { up: buttonHangarUp, down: buttonHangarDown },
     buttonHideKeyboard: { up: buttonHideKeyboardUp, down: buttonHideKeyboardDown },
+    buttonListItem: { up: listItemDeselected, down: listItemSelected },
+    buttonAddServer: { up: buttonAddServerUp, down: buttonAddServerDown },
+    buttonEditServer: { up: buttonEditServerUp, down: buttonEditServerDown },
+    buttonRemoveServer: { up: buttonRemoveServerUp, down: buttonRemoveServerDown },
     default: buttonEmpty
   },
   TextButtonStyle: {

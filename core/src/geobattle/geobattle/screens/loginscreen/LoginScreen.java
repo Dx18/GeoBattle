@@ -70,7 +70,7 @@ public final class LoginScreen implements Screen {
         input.addProcessor(new BackButtonProcessor(new Runnable() {
             @Override
             public void run() {
-                game.switchToMainMenuScreen();
+                game.switchToSelectServerScreen();
             }
         }));
         input.addProcessor(guiStage);
