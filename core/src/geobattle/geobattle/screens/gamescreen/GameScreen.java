@@ -121,6 +121,25 @@ public final class GameScreen implements Screen {
     }
 
     public void switchTo(GameScreenMode mode) {
+        if (this.mode != null) {
+            switch (this.mode) {
+                case BUILD:
+                    game.getExternalAPI().server.cancelBuildEvent();
+                    break;
+                case BUILD_FIRST_SECTOR:
+                case BUILD_SECTOR:
+                    game.getExternalAPI().server.cancelSectorBuildEvent();
+                    break;
+                case DESTROY:
+                    game.getExternalAPI().server.cancelDestroyEvent();
+                    break;
+                case SELECT_HANGARS:
+                case SELECT_SECTOR:
+                    game.getExternalAPI().server.cancelAttackEvent();
+                    break;
+            }
+        }
+
         if (mode == null)
             return;
 

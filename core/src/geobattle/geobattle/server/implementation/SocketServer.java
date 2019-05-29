@@ -77,6 +77,30 @@ public final class SocketServer implements Server {
 
     private GeoBattle game;
 
+    private CancelHandle registrationEvent;
+
+    private CancelHandle authorizationEvent;
+
+    private CancelHandle stateRequestEvent;
+
+    private CancelHandle updateRequestEvent;
+
+    private CancelHandle buildEvent;
+
+    private CancelHandle sectorBuildEvent;
+
+    private CancelHandle destroyEvent;
+
+    private CancelHandle unitBuildEvent;
+
+    private CancelHandle researchEvent;
+
+    private CancelHandle attackEvent;
+
+    private CancelHandle emailConfirmationEvent;
+
+    private CancelHandle emailResendEvent;
+
     public SocketServer(int masterPort, String ip, int port) {
         this.masterPort = masterPort;
         this.ip = ip;
@@ -120,8 +144,6 @@ public final class SocketServer implements Server {
     public boolean requestCertificate() {
         String certificateStr = request(ip, masterPort, "{\"type\": \"SSLCertificateRequestEvent\"}");
 
-        System.out.println("Certificate: " + certificateStr);
-
         if (certificateStr == null)
             return false;
 
@@ -139,7 +161,12 @@ public final class SocketServer implements Server {
             SSLContext context = SSLContext.getInstance("TLS");
             context.init(null, trustManagerFactory.getTrustManagers(), null);
 
-            sslSocketFactory = context.getSocketFactory();
+            if (Thread.interrupted())
+                return false;
+
+            synchronized (this) {
+                sslSocketFactory = context.getSocketFactory();
+            }
 
             return true;
         } catch (CertificateException e) {
@@ -158,22 +185,25 @@ public final class SocketServer implements Server {
     }
 
     private String requestSSL(String ip, int port, String json) {
+        boolean sslSocketFactoryExists;
         synchronized (this) {
-            if (sslSocketFactory == null)
-                if (!requestCertificate())
-                    return null;
+            sslSocketFactoryExists = sslSocketFactory != null;
         }
+        if (!sslSocketFactoryExists && !requestCertificate())
+            return null;
 
         SSLSocket socket;
         DataOutputStream toSocket;
         DataInputStream fromSocket;
 
         try {
+            SSLSocketFactory sslSocketFactory;
             synchronized (this) {
-                Gdx.app.log("GeoBattle", "Creating socket: " + ip + ":" + port);
-                socket = (SSLSocket) sslSocketFactory.createSocket(ip, port);
-                socket.startHandshake();
+                sslSocketFactory = this.sslSocketFactory;
             }
+            Gdx.app.log("GeoBattle", "Creating socket: " + ip + ":" + port);
+            socket = (SSLSocket) sslSocketFactory.createSocket(ip, port);
+            socket.startHandshake();
             socket.setSoTimeout(2000);
             toSocket = new DataOutputStream(socket.getOutputStream());
             fromSocket = new DataInputStream(socket.getInputStream());
@@ -219,6 +249,9 @@ public final class SocketServer implements Server {
 
         Gdx.app.log("GeoBattle", "Data from server: " + result.toString());
 
+        if (Thread.interrupted())
+            return null;
+
         return result.toString();
     }
 
@@ -228,11 +261,8 @@ public final class SocketServer implements Server {
         DataInputStream fromSocket;
 
         try {
-            synchronized (this) {
-                if (Gdx.app != null)
-                    Gdx.app.log("GeoBattle", "Creating socket: " + ip + ":" + port);
-                socket = new Socket(ip, port);
-            }
+            socket = new Socket(ip, port);
+            Gdx.app.log("GeoBattle", "Creating socket: " + ip + ":" + port);
             socket.setSoTimeout(2000);
             toSocket = new DataOutputStream(socket.getOutputStream());
             fromSocket = new DataInputStream(socket.getInputStream());
@@ -275,8 +305,10 @@ public final class SocketServer implements Server {
             e.printStackTrace();
         }
 
-        if (Gdx.app != null)
-            Gdx.app.log("GeoBattle", "Data from server: " + result.toString());
+        Gdx.app.log("GeoBattle", "Data from server: " + result.toString());
+
+        if (Thread.interrupted())
+            return null;
 
         return result.toString();
     }
@@ -300,11 +332,33 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle register(final String playerName, final String email, final String password, final Color color, final Callback<RegistrationResult> callback, final Runnable failCallback) {
-        new Thread(new Runnable() {
+    public synchronized void cancelRegistrationEvent() {
+        if (registrationEvent != null) {
+            registrationEvent.cancel();
+            registrationEvent = null;
+        }
+    }
+
+    @Override
+    public synchronized CancelHandle register(final String playerName, final String email, final String password, final Color color, final Callback<RegistrationResult> callback, final Runnable failCallback) {
+        if (registrationEvent != null)
+            return null;
+
+        final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                String ip;
+                int port;
+                synchronized (SocketServer.this) {
+                    ip = SocketServer.this.ip;
+                    port = SocketServer.this.port;
+                }
+
                 String resultStr = requestSSL(ip, port, new RegistrationEvent(playerName, email, password, color).toJson().toString());
+
+                synchronized (SocketServer.this) {
+                    registrationEvent = null;
+                }
 
                 if (resultStr == null) {
                     if (failCallback == null) {
@@ -325,17 +379,48 @@ public final class SocketServer implements Server {
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
-        }).start();
+        });
+
+        thread.start();
+
+        registrationEvent = new CancelHandle() {
+            @Override
+            public void cancel() {
+                thread.interrupt();
+            }
+        };
 
         return null;
     }
 
     @Override
-    public CancelHandle login(final String playerName, final String password, final Callback<AuthorizationResult> callback, final Runnable failCallback) {
-        new Thread(new Runnable() {
+    public void cancelAuthorizationEvent() {
+        if (authorizationEvent != null) {
+            authorizationEvent.cancel();
+            authorizationEvent = null;
+        }
+    }
+
+    @Override
+    public synchronized CancelHandle login(final String playerName, final String password, final Callback<AuthorizationResult> callback, final Runnable failCallback) {
+        if (authorizationEvent != null)
+            return null;
+
+        final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                String ip;
+                int port;
+                synchronized (SocketServer.this) {
+                    ip = SocketServer.this.ip;
+                    port = SocketServer.this.port;
+                }
+
                 String resultStr = requestSSL(ip, port, new AuthorizationEvent(playerName, password).toJson().toString());
+
+                synchronized (SocketServer.this) {
+                    authorizationEvent = null;
+                }
 
                 if (resultStr == null) {
                     if (failCallback == null) {
@@ -356,7 +441,16 @@ public final class SocketServer implements Server {
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
-        }).start();
+        });
+
+        thread.start();
+
+        authorizationEvent = new CancelHandle() {
+            @Override
+            public void cancel() {
+                thread.interrupt();
+            }
+        };
 
         return null;
     }
@@ -374,11 +468,33 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public CancelHandle requestState(final AuthInfo authInfo, final Callback<StateRequestResult> callback, final Runnable failCallback) {
-        new Thread(new Runnable() {
+    public synchronized void cancelStateRequestEvent() {
+        if (stateRequestEvent != null) {
+            stateRequestEvent.cancel();
+            stateRequestEvent = null;
+        }
+    }
+
+    @Override
+    public synchronized CancelHandle requestState(final AuthInfo authInfo, final Callback<StateRequestResult> callback, final Runnable failCallback) {
+        if (stateRequestEvent != null)
+            return null;
+
+        final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                String ip;
+                int port;
+                synchronized (SocketServer.this) {
+                    ip = SocketServer.this.ip;
+                    port = SocketServer.this.port;
+                }
+
                 String resultStr = requestSSL(ip, port, new StateRequestEvent(authInfo).toJson().toString());
+
+                synchronized (SocketServer.this) {
+                    stateRequestEvent = null;
+                }
 
                 if (resultStr == null) {
                     onFail();
@@ -401,17 +517,48 @@ public final class SocketServer implements Server {
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
-        }).start();
+        });
+
+        thread.start();
+
+        stateRequestEvent = new CancelHandle() {
+            @Override
+            public void cancel() {
+                thread.interrupt();
+            }
+        };
 
         return null;
     }
 
     @Override
-    public CancelHandle requestUpdate(final AuthInfo authInfo, final double lastUpdateTime, final Callback<UpdateRequestResult> callback, final Runnable failCallback) {
-        new Thread(new Runnable() {
+    public synchronized void cancelUpdateRequestEvent() {
+        if (updateRequestEvent != null) {
+            updateRequestEvent.cancel();
+            updateRequestEvent = null;
+        }
+    }
+
+    @Override
+    public synchronized CancelHandle requestUpdate(final AuthInfo authInfo, final double lastUpdateTime, final Callback<UpdateRequestResult> callback, final Runnable failCallback) {
+        if (updateRequestEvent != null)
+            return null;
+
+        final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                String ip;
+                int port;
+                synchronized (SocketServer.this) {
+                    ip = SocketServer.this.ip;
+                    port = SocketServer.this.port;
+                }
+
                 String resultStr = requestSSL(ip, port, new UpdateRequestEvent(authInfo, lastUpdateTime).toJson().toString());
+
+                synchronized (SocketServer.class) {
+                    updateRequestEvent = null;
+                }
 
                 if (resultStr == null) {
                     onFail();
@@ -433,17 +580,48 @@ public final class SocketServer implements Server {
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
-        }).start();
+        });
+
+        thread.start();
+
+        updateRequestEvent = new CancelHandle() {
+                @Override
+                public void cancel() {
+                    thread.interrupt();
+                }
+            };
 
         return null;
     }
 
     @Override
-    public CancelHandle requestBuild(final AuthInfo authInfo, final BuildingType type, final int x, final int y, final Callback<BuildResult> callback, final Runnable failCallback) {
-        new Thread(new Runnable() {
+    public synchronized void cancelBuildEvent() {
+        if (buildEvent != null) {
+            buildEvent.cancel();
+            buildEvent = null;
+        }
+    }
+
+    @Override
+    public synchronized CancelHandle requestBuild(final AuthInfo authInfo, final BuildingType type, final int x, final int y, final Callback<BuildResult> callback, final Runnable failCallback) {
+        if (buildEvent != null)
+            return null;
+
+        final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                String ip;
+                int port;
+                synchronized (SocketServer.this) {
+                    ip = SocketServer.this.ip;
+                    port = SocketServer.this.port;
+                }
+
                 String resultStr = requestSSL(ip, port, new BuildEvent(authInfo, type.toString(), x, y).toJson().toString());
+
+                synchronized (SocketServer.this) {
+                    buildEvent = null;
+                }
 
                 if (resultStr == null) {
                     onFail();
@@ -466,17 +644,48 @@ public final class SocketServer implements Server {
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
-        }).start();
+        });
+
+        thread.start();
+
+        buildEvent = new CancelHandle() {
+                @Override
+                public void cancel() {
+                    thread.interrupt();
+                }
+            };
 
         return null;
     }
 
     @Override
-    public CancelHandle requestSectorBuild(final AuthInfo authInfo, final int x, final int y, final Callback<SectorBuildResult> callback, final Runnable failCallback) {
-        new Thread(new Runnable() {
+    public synchronized void cancelSectorBuildEvent() {
+        if (sectorBuildEvent != null) {
+            sectorBuildEvent.cancel();
+            sectorBuildEvent = null;
+        }
+    }
+
+    @Override
+    public synchronized CancelHandle requestSectorBuild(final AuthInfo authInfo, final int x, final int y, final Callback<SectorBuildResult> callback, final Runnable failCallback) {
+        if (sectorBuildEvent != null)
+            return null;
+
+        final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                String ip;
+                int port;
+                synchronized (SocketServer.this) {
+                    ip = SocketServer.this.ip;
+                    port = SocketServer.this.port;
+                }
+
                 String resultStr = requestSSL(ip, port, new SectorBuildEvent(authInfo, x, y).toJson().toString());
+
+                synchronized (SocketServer.this) {
+                    sectorBuildEvent = null;
+                }
 
                 if (resultStr == null) {
                     onFail();
@@ -499,17 +708,48 @@ public final class SocketServer implements Server {
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
-        }).start();
+        });
+
+        thread.interrupt();
+
+        sectorBuildEvent = new CancelHandle() {
+            @Override
+            public void cancel() {
+                thread.interrupt();
+            }
+        };
 
         return null;
     }
 
     @Override
-    public CancelHandle requestDestroy(final AuthInfo authInfo, final int id, final Callback<DestroyResult> callback, final Runnable failCallback) {
-        new Thread(new Runnable() {
+    public synchronized void cancelDestroyEvent() {
+        if (destroyEvent != null) {
+            destroyEvent.cancel();
+            destroyEvent = null;
+        }
+    }
+
+    @Override
+    public synchronized CancelHandle requestDestroy(final AuthInfo authInfo, final int id, final Callback<DestroyResult> callback, final Runnable failCallback) {
+        if (destroyEvent != null)
+            destroyEvent = null;
+
+        final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                String ip;
+                int port;
+                synchronized (SocketServer.this) {
+                    ip = SocketServer.this.ip;
+                    port = SocketServer.this.port;
+                }
+
                 String resultStr = requestSSL(ip, port, new DestroyEvent(authInfo, id).toJson().toString());
+
+                synchronized (SocketServer.this) {
+                    destroyEvent = null;
+                }
 
                 if (resultStr == null) {
                     onFail();
@@ -532,17 +772,48 @@ public final class SocketServer implements Server {
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
-        }).start();
+        });
+
+        thread.start();
+
+        destroyEvent = new CancelHandle() {
+            @Override
+            public void cancel() {
+                thread.interrupt();
+            }
+        };
 
         return null;
     }
 
     @Override
-    public CancelHandle requestUnitBuild(final AuthInfo authInfo, final UnitType type, final Building building, final Callback<UnitBuildResult> callback, final Runnable failCallback) {
-        new Thread(new Runnable() {
+    public synchronized void cancelUnitBuildEvent() {
+        if (unitBuildEvent != null) {
+            unitBuildEvent.cancel();
+            unitBuildEvent = null;
+        }
+    }
+
+    @Override
+    public synchronized CancelHandle requestUnitBuild(final AuthInfo authInfo, final UnitType type, final Building building, final Callback<UnitBuildResult> callback, final Runnable failCallback) {
+        if (unitBuildEvent != null)
+            return null;
+
+        final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                String ip;
+                int port;
+                synchronized (SocketServer.this) {
+                    ip = SocketServer.this.ip;
+                    port = SocketServer.this.port;
+                }
+
                 String resultStr = requestSSL(ip, port, new UnitBuildEvent(authInfo, type.toString(), building.id).toJson().toString());
+
+                synchronized (SocketServer.this) {
+                    unitBuildEvent = null;
+                }
 
                 if (resultStr == null) {
                     onFail();
@@ -565,17 +836,48 @@ public final class SocketServer implements Server {
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
-        }).start();
+        });
+
+        thread.start();
+
+        unitBuildEvent = new CancelHandle() {
+            @Override
+            public void cancel() {
+                thread.interrupt();
+            }
+        };
 
         return null;
     }
 
     @Override
-    public CancelHandle requestResearch(final AuthInfo authInfo, final ResearchType researchType, final Callback<ResearchResult> callback, final Runnable failCallback) {
-        new Thread(new Runnable() {
+    public synchronized void cancelResearchEvent() {
+        if (researchEvent != null) {
+            researchEvent.cancel();
+            researchEvent = null;
+        }
+    }
+
+    @Override
+    public synchronized CancelHandle requestResearch(final AuthInfo authInfo, final ResearchType researchType, final Callback<ResearchResult> callback, final Runnable failCallback) {
+        if (researchEvent != null)
+            return null;
+
+        final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                String ip;
+                int port;
+                synchronized (SocketServer.this) {
+                    ip = SocketServer.this.ip;
+                    port = SocketServer.this.port;
+                }
+
                 String resultStr = requestSSL(ip, port, new ResearchEvent(authInfo, researchType.toString()).toJson().toString());
+
+                synchronized (SocketServer.this) {
+                    researchEvent = null;
+                }
 
                 if (resultStr == null) {
                     onFail();
@@ -598,17 +900,48 @@ public final class SocketServer implements Server {
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
-        }).start();
+        });
+
+        thread.start();
+
+        researchEvent = new CancelHandle() {
+            @Override
+            public void cancel() {
+                thread.interrupt();
+            }
+        };
 
         return null;
     }
 
     @Override
-    public CancelHandle requestAttack(final AuthInfo authInfo, final int attackerId, final int victimId, final int[] hangarIds, final int sectorId, final Callback<AttackResult> callback, final Runnable failCallback) {
-        new Thread(new Runnable() {
+    public synchronized void cancelAttackEvent() {
+        if (attackEvent != null) {
+            attackEvent.cancel();
+            attackEvent = null;
+        }
+    }
+
+    @Override
+    public synchronized CancelHandle requestAttack(final AuthInfo authInfo, final int attackerId, final int victimId, final int[] hangarIds, final int sectorId, final Callback<AttackResult> callback, final Runnable failCallback) {
+        if (attackEvent != null)
+            return null;
+
+        final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                String ip;
+                int port;
+                synchronized (SocketServer.this) {
+                    ip = SocketServer.this.ip;
+                    port = SocketServer.this.port;
+                }
+
                 String resultStr = requestSSL(ip, port, new AttackEvent(authInfo, attackerId, victimId, hangarIds, sectorId).toJson().toString());
+
+                synchronized (SocketServer.this) {
+                    attackEvent = null;
+                }
 
                 if (resultStr == null) {
                     onFail();
@@ -631,17 +964,48 @@ public final class SocketServer implements Server {
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
-        }).start();
+        });
+
+        thread.start();
+
+        attackEvent = new CancelHandle() {
+            @Override
+            public void cancel() {
+                thread.interrupt();
+            }
+        };
 
         return null;
     }
 
     @Override
-    public CancelHandle requestEmailConfirmation(final String name, final int code, final Callback<EmailConfirmationResult> callback, final Runnable failCallback) {
-        new Thread(new Runnable() {
+    public synchronized void cancelEmailConfirmationEvent() {
+        if (emailConfirmationEvent != null) {
+            emailConfirmationEvent.cancel();
+            emailConfirmationEvent = null;
+        }
+    }
+
+    @Override
+    public synchronized CancelHandle requestEmailConfirmation(final String name, final int code, final Callback<EmailConfirmationResult> callback, final Runnable failCallback) {
+        if (emailConfirmationEvent != null)
+            return null;
+
+        final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                String ip;
+                int port;
+                synchronized (SocketServer.this) {
+                    ip = SocketServer.this.ip;
+                    port = SocketServer.this.port;
+                }
+
                 String resultStr = requestSSL(ip, port, new EmailConfirmationEvent(name, code).toJson().toString());
+
+                synchronized (SocketServer.this) {
+                    emailConfirmationEvent = null;
+                }
 
                 if (resultStr == null) {
                     if (failCallback == null) {
@@ -662,17 +1026,48 @@ public final class SocketServer implements Server {
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
-        }).start();
+        });
+
+        thread.start();
+
+        emailConfirmationEvent = new CancelHandle() {
+            @Override
+            public void cancel() {
+                thread.interrupt();
+            }
+        };
 
         return null;
     }
 
     @Override
-    public CancelHandle requestEmailResend(final String name, final Callback<ResendEmailResult> callback, final Runnable failCallback) {
-        new Thread(new Runnable() {
+    public synchronized void cancelEmailResendEvent() {
+        if (emailResendEvent != null) {
+            emailResendEvent.cancel();
+            emailResendEvent = null;
+        }
+    }
+
+    @Override
+    public synchronized CancelHandle requestEmailResend(final String name, final Callback<ResendEmailResult> callback, final Runnable failCallback) {
+        if (emailResendEvent != null)
+            return null;
+
+        final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                String ip;
+                int port;
+                synchronized (SocketServer.this) {
+                    ip = SocketServer.this.ip;
+                    port = SocketServer.this.port;
+                }
+
                 String resultStr = requestSSL(ip, port, new ResendEmailEvent(name).toJson().toString());
+
+                synchronized (SocketServer.this) {
+                    emailResendEvent = null;
+                }
 
                 if (resultStr == null) {
                     if (failCallback == null) {
@@ -693,7 +1088,16 @@ public final class SocketServer implements Server {
                     Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
                 }
             }
-        }).start();
+        });
+
+        thread.start();
+
+        emailResendEvent = new CancelHandle() {
+            @Override
+            public void cancel() {
+                thread.interrupt();
+            }
+        };
 
         return null;
     }

@@ -58,9 +58,6 @@ public class GameEvents {
     // Map
     public final GeoBattleMap map;
 
-    // Time of last update request
-    private double lastRequestUpdateTime;
-
     // Time of last update
     private double lastUpdateTime;
 
@@ -70,7 +67,6 @@ public class GameEvents {
         this.screen = screen;
         this.map = map;
         this.game = game;
-        this.lastRequestUpdateTime = gameState.getTime();
         this.lastUpdateTime = gameState.getTime();
     }
 
@@ -138,6 +134,10 @@ public class GameEvents {
     // Invokes when player requests building
     public void onBuildEvent() {
         BuildingType buildingType = map.getSelectedBuildingType();
+
+        if (buildingType == null)
+            return;
+
         IntPoint coordinates = map.getPointedTile();
 
         if (!GeoBattleMath.tileRectangleContains(map.getVisibleRect(), coordinates.x, coordinates.y))
@@ -195,8 +195,6 @@ public class GameEvents {
                     });
                 }
             }, null);
-
-        screen.switchToNormalMode();
     }
 
     // Invokes when player receives destroy result
@@ -260,6 +258,7 @@ public class GameEvents {
                     public void onMatch(UpdateRequestResult.UpdateRequestSuccess updateRequestSuccess) {
                         if (gameState.getLastUpdateTime() < updateRequestSuccess.time) {
                             gameState.setLastUpdateTime(updateRequestSuccess.time);
+                            lastUpdateTime = updateRequestSuccess.time;
 
                             ResearchInfo researchInfoOld = gameState.getCurrentPlayer().getResearchInfo();
 
@@ -274,7 +273,6 @@ public class GameEvents {
                             for (GameStateUpdate update : updateRequestSuccess.updates)
                                 update.apply(game, gameState);
                         }
-                        lastUpdateTime = updateRequestSuccess.time;
                     }
                 },
                 new MatchBranch<UpdateRequestResult.StateRequestSuccess>() {
@@ -282,8 +280,8 @@ public class GameEvents {
                     public void onMatch(UpdateRequestResult.StateRequestSuccess stateRequestSuccess) {
                         if (gameState.getLastUpdateTime() < stateRequestSuccess.gameState.getLastUpdateTime()) {
                             gameState.setData(stateRequestSuccess.gameState);
+                            lastUpdateTime = gameState.getTime();
                         }
-                        lastUpdateTime = gameState.getTime();
                     }
                 },
                 new MatchBranch<UpdateRequestResult.WrongAuthInfo>() {
@@ -380,10 +378,8 @@ public class GameEvents {
     public void onTick(float delta) {
         gameState.addTime(delta);
 
-        if (gameState.getTime() - lastUpdateTime >= 1 && lastUpdateTime >= lastRequestUpdateTime) {
+        if (gameState.getTime() - lastUpdateTime >= 1)
             onUpdateRequestEvent();
-            lastRequestUpdateTime = gameState.getTime();
-        }
 
         {
             Iterator<PlayerState> players = gameState.getPlayers();
