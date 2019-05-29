@@ -92,7 +92,7 @@ public final class EmailConfirmationScreen implements Screen {
         if (playerName.isEmpty() || code < 0 || code >= 10000)
             return;
 
-        game.getExternalAPI().server.requestEmailConfirmation(playerName, code, new Callback<EmailConfirmationResult>() {
+        game.getExternalAPI().server.onEmailConfirmationEvent(playerName, code, new Callback<EmailConfirmationResult>() {
             @Override
             public void onResult(final EmailConfirmationResult result) {
                 Gdx.app.postRunnable(new Runnable() {
@@ -115,7 +115,7 @@ public final class EmailConfirmationScreen implements Screen {
         if (playerName.isEmpty())
             return;
 
-        game.getExternalAPI().server.requestEmailResend(playerName, new Callback<ResendEmailResult>() {
+        game.getExternalAPI().server.onEmailResendEvent(playerName, new Callback<ResendEmailResult>() {
             @Override
             public void onResult(final ResendEmailResult result) {
                 Gdx.app.postRunnable(new Runnable() {

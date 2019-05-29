@@ -199,7 +199,7 @@ public final class GeoBattle extends Game {
     }
 
     public void onAuthInfoObtained(final AuthInfo authInfo) {
-        externalAPI.server.requestState(authInfo, new Callback<StateRequestResult>() {
+        externalAPI.server.onStateRequestEvent(authInfo, new Callback<StateRequestResult>() {
             @Override
             public void onResult(final StateRequestResult result) {
                 Gdx.app.postRunnable(new Runnable() {

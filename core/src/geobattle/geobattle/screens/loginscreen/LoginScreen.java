@@ -121,7 +121,7 @@ public final class LoginScreen implements Screen {
             return;
         }
 
-        game.getExternalAPI().server.login(userName, password, new Callback<AuthorizationResult>() {
+        game.getExternalAPI().server.onAuthorizationEvent(userName, password, new Callback<AuthorizationResult>() {
             @Override
             public void onResult(final AuthorizationResult result) {
                 Gdx.app.postRunnable(new Runnable() {
@@ -176,7 +176,7 @@ public final class LoginScreen implements Screen {
 
         Color color = gui.pickColorResult.getColor();
 
-        game.getExternalAPI().server.register(userName, email, password, color, new Callback<RegistrationResult>() {
+        game.getExternalAPI().server.onRegistrationEvent(userName, email, password, color, new Callback<RegistrationResult>() {
             @Override
             public void onResult(final RegistrationResult result) {
                 Gdx.app.postRunnable(new Runnable() {

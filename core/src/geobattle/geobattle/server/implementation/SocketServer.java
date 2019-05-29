@@ -340,9 +340,9 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public synchronized CancelHandle register(final String playerName, final String email, final String password, final Color color, final Callback<RegistrationResult> callback, final Runnable failCallback) {
+    public synchronized void onRegistrationEvent(final String playerName, final String email, final String password, final Color color, final Callback<RegistrationResult> callback, final Runnable failCallback) {
         if (registrationEvent != null)
-            return null;
+            return;
 
         final Thread thread = new Thread(new Runnable() {
             @Override
@@ -390,7 +390,6 @@ public final class SocketServer implements Server {
             }
         };
 
-        return null;
     }
 
     @Override
@@ -402,9 +401,9 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public synchronized CancelHandle login(final String playerName, final String password, final Callback<AuthorizationResult> callback, final Runnable failCallback) {
+    public synchronized void onAuthorizationEvent(final String playerName, final String password, final Callback<AuthorizationResult> callback, final Runnable failCallback) {
         if (authorizationEvent != null)
-            return null;
+            return;
 
         final Thread thread = new Thread(new Runnable() {
             @Override
@@ -452,11 +451,10 @@ public final class SocketServer implements Server {
             }
         };
 
-        return null;
     }
 
     @Override
-    public CancelHandle invalidatePlayerToken(int playerId, String playerToken, final Runnable failCallback) {
+    public void invalidatePlayerToken(int playerId, String playerToken, final Runnable failCallback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -464,7 +462,6 @@ public final class SocketServer implements Server {
             }
         }).start();
 
-        return null;
     }
 
     @Override
@@ -476,9 +473,9 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public synchronized CancelHandle requestState(final AuthInfo authInfo, final Callback<StateRequestResult> callback, final Runnable failCallback) {
+    public synchronized void onStateRequestEvent(final AuthInfo authInfo, final Callback<StateRequestResult> callback, final Runnable failCallback) {
         if (stateRequestEvent != null)
-            return null;
+            return;
 
         final Thread thread = new Thread(new Runnable() {
             @Override
@@ -528,7 +525,6 @@ public final class SocketServer implements Server {
             }
         };
 
-        return null;
     }
 
     @Override
@@ -540,9 +536,9 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public synchronized CancelHandle requestUpdate(final AuthInfo authInfo, final double lastUpdateTime, final Callback<UpdateRequestResult> callback, final Runnable failCallback) {
+    public synchronized void onUpdateRequestEvent(final AuthInfo authInfo, final double lastUpdateTime, final Callback<UpdateRequestResult> callback, final Runnable failCallback) {
         if (updateRequestEvent != null)
-            return null;
+            return;
 
         final Thread thread = new Thread(new Runnable() {
             @Override
@@ -591,7 +587,6 @@ public final class SocketServer implements Server {
                 }
             };
 
-        return null;
     }
 
     @Override
@@ -603,9 +598,9 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public synchronized CancelHandle requestBuild(final AuthInfo authInfo, final BuildingType type, final int x, final int y, final Callback<BuildResult> callback, final Runnable failCallback) {
+    public synchronized void onBuildEvent(final AuthInfo authInfo, final BuildingType type, final int x, final int y, final Callback<BuildResult> callback, final Runnable failCallback) {
         if (buildEvent != null)
-            return null;
+            return;
 
         final Thread thread = new Thread(new Runnable() {
             @Override
@@ -655,7 +650,6 @@ public final class SocketServer implements Server {
                 }
             };
 
-        return null;
     }
 
     @Override
@@ -667,9 +661,9 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public synchronized CancelHandle requestSectorBuild(final AuthInfo authInfo, final int x, final int y, final Callback<SectorBuildResult> callback, final Runnable failCallback) {
+    public synchronized void onSectorBuildEvent(final AuthInfo authInfo, final int x, final int y, final Callback<SectorBuildResult> callback, final Runnable failCallback) {
         if (sectorBuildEvent != null)
-            return null;
+            return;
 
         final Thread thread = new Thread(new Runnable() {
             @Override
@@ -719,7 +713,6 @@ public final class SocketServer implements Server {
             }
         };
 
-        return null;
     }
 
     @Override
@@ -731,7 +724,7 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public synchronized CancelHandle requestDestroy(final AuthInfo authInfo, final int id, final Callback<DestroyResult> callback, final Runnable failCallback) {
+    public synchronized void onDestroyEvent(final AuthInfo authInfo, final int id, final Callback<DestroyResult> callback, final Runnable failCallback) {
         if (destroyEvent != null)
             destroyEvent = null;
 
@@ -783,7 +776,6 @@ public final class SocketServer implements Server {
             }
         };
 
-        return null;
     }
 
     @Override
@@ -795,9 +787,9 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public synchronized CancelHandle requestUnitBuild(final AuthInfo authInfo, final UnitType type, final Building building, final Callback<UnitBuildResult> callback, final Runnable failCallback) {
+    public synchronized void onUnitBuildEvent(final AuthInfo authInfo, final UnitType type, final Building building, final Callback<UnitBuildResult> callback, final Runnable failCallback) {
         if (unitBuildEvent != null)
-            return null;
+            return;
 
         final Thread thread = new Thread(new Runnable() {
             @Override
@@ -847,7 +839,6 @@ public final class SocketServer implements Server {
             }
         };
 
-        return null;
     }
 
     @Override
@@ -859,9 +850,9 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public synchronized CancelHandle requestResearch(final AuthInfo authInfo, final ResearchType researchType, final Callback<ResearchResult> callback, final Runnable failCallback) {
+    public synchronized void onResearchEvent(final AuthInfo authInfo, final ResearchType researchType, final Callback<ResearchResult> callback, final Runnable failCallback) {
         if (researchEvent != null)
-            return null;
+            return;
 
         final Thread thread = new Thread(new Runnable() {
             @Override
@@ -911,7 +902,6 @@ public final class SocketServer implements Server {
             }
         };
 
-        return null;
     }
 
     @Override
@@ -923,9 +913,9 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public synchronized CancelHandle requestAttack(final AuthInfo authInfo, final int attackerId, final int victimId, final int[] hangarIds, final int sectorId, final Callback<AttackResult> callback, final Runnable failCallback) {
+    public synchronized void onAttackEvent(final AuthInfo authInfo, final int attackerId, final int victimId, final int[] hangarIds, final int sectorId, final Callback<AttackResult> callback, final Runnable failCallback) {
         if (attackEvent != null)
-            return null;
+            return;
 
         final Thread thread = new Thread(new Runnable() {
             @Override
@@ -975,7 +965,6 @@ public final class SocketServer implements Server {
             }
         };
 
-        return null;
     }
 
     @Override
@@ -987,9 +976,9 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public synchronized CancelHandle requestEmailConfirmation(final String name, final int code, final Callback<EmailConfirmationResult> callback, final Runnable failCallback) {
+    public synchronized void onEmailConfirmationEvent(final String name, final int code, final Callback<EmailConfirmationResult> callback, final Runnable failCallback) {
         if (emailConfirmationEvent != null)
-            return null;
+            return;
 
         final Thread thread = new Thread(new Runnable() {
             @Override
@@ -1037,7 +1026,6 @@ public final class SocketServer implements Server {
             }
         };
 
-        return null;
     }
 
     @Override
@@ -1049,9 +1037,9 @@ public final class SocketServer implements Server {
     }
 
     @Override
-    public synchronized CancelHandle requestEmailResend(final String name, final Callback<ResendEmailResult> callback, final Runnable failCallback) {
+    public synchronized void onEmailResendEvent(final String name, final Callback<ResendEmailResult> callback, final Runnable failCallback) {
         if (emailResendEvent != null)
-            return null;
+            return;
 
         final Thread thread = new Thread(new Runnable() {
             @Override
@@ -1099,6 +1087,5 @@ public final class SocketServer implements Server {
             }
         };
 
-        return null;
     }
 }
