@@ -174,7 +174,7 @@ public final class SocketServer implements Server {
                 socket = (SSLSocket) sslSocketFactory.createSocket(ip, port);
                 socket.startHandshake();
             }
-            socket.setSoTimeout(5000);
+            socket.setSoTimeout(2000);
             toSocket = new DataOutputStream(socket.getOutputStream());
             fromSocket = new DataInputStream(socket.getInputStream());
         } catch (IOException e) {
@@ -233,7 +233,7 @@ public final class SocketServer implements Server {
                     Gdx.app.log("GeoBattle", "Creating socket: " + ip + ":" + port);
                 socket = new Socket(ip, port);
             }
-            socket.setSoTimeout(5000);
+            socket.setSoTimeout(2000);
             toSocket = new DataOutputStream(socket.getOutputStream());
             fromSocket = new DataInputStream(socket.getInputStream());
         } catch (IOException e) {

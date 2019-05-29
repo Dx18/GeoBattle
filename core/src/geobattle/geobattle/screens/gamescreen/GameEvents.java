@@ -58,6 +58,9 @@ public class GameEvents {
     // Map
     public final GeoBattleMap map;
 
+    // Time of last update request
+    private double lastRequestUpdateTime;
+
     // Time of last update
     private double lastUpdateTime;
 
@@ -67,6 +70,7 @@ public class GameEvents {
         this.screen = screen;
         this.map = map;
         this.game = game;
+        this.lastRequestUpdateTime = gameState.getTime();
         this.lastUpdateTime = gameState.getTime();
     }
 
@@ -240,7 +244,12 @@ public class GameEvents {
                     }
                 });
             }
-        }, null);
+        }, new Runnable() {
+            @Override
+            public void run() {
+                onUpdateRequestEvent();
+            }
+        });
     }
 
     // Invokes when client receives update result
@@ -265,13 +274,16 @@ public class GameEvents {
                             for (GameStateUpdate update : updateRequestSuccess.updates)
                                 update.apply(game, gameState);
                         }
+                        lastUpdateTime = updateRequestSuccess.time;
                     }
                 },
                 new MatchBranch<UpdateRequestResult.StateRequestSuccess>() {
                     @Override
                     public void onMatch(UpdateRequestResult.StateRequestSuccess stateRequestSuccess) {
-                        if (gameState.getLastUpdateTime() < stateRequestSuccess.gameState.getLastUpdateTime())
+                        if (gameState.getLastUpdateTime() < stateRequestSuccess.gameState.getLastUpdateTime()) {
                             gameState.setData(stateRequestSuccess.gameState);
+                        }
+                        lastUpdateTime = gameState.getTime();
                     }
                 },
                 new MatchBranch<UpdateRequestResult.WrongAuthInfo>() {
@@ -286,13 +298,13 @@ public class GameEvents {
                 new MatchBranch<UpdateRequestResult.MalformedJson>() {
                     @Override
                     public void onMatch(UpdateRequestResult.MalformedJson malformedJson) {
-                        game.getExternalAPI().oSAPI.showMessage("Cannot build: JSON request is not well-formed. Probable bug. Tell the developers");
+                        game.getExternalAPI().oSAPI.showMessage("Cannot update: JSON request is not well-formed. Probable bug. Tell the developers");
                     }
                 },
                 new MatchBranch<UpdateRequestResult.IncorrectData>() {
                     @Override
                     public void onMatch(UpdateRequestResult.IncorrectData incorrectData) {
-                        game.getExternalAPI().oSAPI.showMessage("Cannot build: incorrect data");
+                        game.getExternalAPI().oSAPI.showMessage("Cannot update: incorrect data");
                     }
                 }
         );
@@ -368,9 +380,9 @@ public class GameEvents {
     public void onTick(float delta) {
         gameState.addTime(delta);
 
-        if (gameState.getTime() - lastUpdateTime >= 1) {
+        if (gameState.getTime() - lastUpdateTime >= 1 && lastUpdateTime >= lastRequestUpdateTime) {
             onUpdateRequestEvent();
-            lastUpdateTime = gameState.getTime();
+            lastRequestUpdateTime = gameState.getTime();
         }
 
         {
