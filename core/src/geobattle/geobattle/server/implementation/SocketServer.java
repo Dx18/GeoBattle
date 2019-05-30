@@ -644,11 +644,11 @@ public final class SocketServer implements Server {
         thread.start();
 
         buildEvent = new CancelHandle() {
-                @Override
-                public void cancel() {
-                    thread.interrupt();
-                }
-            };
+            @Override
+            public void cancel() {
+                thread.interrupt();
+            }
+        };
 
     }
 
@@ -704,7 +704,7 @@ public final class SocketServer implements Server {
             }
         });
 
-        thread.interrupt();
+        thread.start();
 
         sectorBuildEvent = new CancelHandle() {
             @Override
