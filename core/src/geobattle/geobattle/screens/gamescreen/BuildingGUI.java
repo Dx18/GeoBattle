@@ -150,6 +150,7 @@ public final class BuildingGUI {
     }
 
     public void setBuildingType(GameScreen screen, BuildingType buildingType) {
+        this.buildingType = buildingType;
         buildingName.setText(screen.getI18NBundle().get(String.format("building%s", buildingType.toString())));
         description.setText(screen.getI18NBundle().get(String.format("building%sDescription", buildingType.toString())));
         size.setText(screen.getI18NBundle().format("buildingSize", buildingType.sizeX, buildingType.sizeY));
@@ -160,5 +161,10 @@ public final class BuildingGUI {
         else
             maxCount.setText("");
         buildButton.setText(screen.getI18NBundle().format("buildingBuild", buildingType.cost));
+    }
+
+    // Returns type of building
+    public BuildingType getBuildingType() {
+        return buildingType;
     }
 }

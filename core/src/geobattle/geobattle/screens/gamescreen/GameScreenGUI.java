@@ -312,6 +312,7 @@ public final class GameScreenGUI {
         toolBar.reset();
         toolBar.setFillParent(true);
         VisImageButton buildMode = new VisImageButton("buttonBuild");
+        buildMode.setName("buildMode");
         buildMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -322,6 +323,7 @@ public final class GameScreenGUI {
                 .width(buttonSize)
                 .height(buttonSize);
         VisImageButton destroyMode = new VisImageButton("buttonDestroy");
+        destroyMode.setName("destroyMode");
         destroyMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -331,34 +333,37 @@ public final class GameScreenGUI {
         toolBar.add(destroyMode)
                 .width(buttonSize)
                 .height(buttonSize);
-        VisImageButton buildSectorMode = new VisImageButton("buttonBuildSector");
-        buildSectorMode.addListener(new ChangeListener() {
+        VisImageButton sectorBuildMode = new VisImageButton("buttonBuildSector");
+        sectorBuildMode.setName("sectorBuildMode");
+        sectorBuildMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.onBuildSectorMode();
             }
         });
-        toolBar.add(buildSectorMode)
+        toolBar.add(sectorBuildMode)
                 .width(buttonSize)
                 .height(buttonSize);
-        VisImageButton research = new VisImageButton("buttonResearch");
-        research.addListener(new ChangeListener() {
+        VisImageButton researchMode = new VisImageButton("buttonResearch");
+        researchMode.setName("researchMode");
+        researchMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 showResearchDialog();
             }
         });
-        toolBar.add(research)
+        toolBar.add(researchMode)
                 .width(buttonSize)
                 .height(buttonSize);
-        VisImageButton attack = new VisImageButton("buttonAttack");
-        attack.addListener(new ChangeListener() {
+        VisImageButton attackMode = new VisImageButton("buttonAttack");
+        attackMode.setName("attackMode");
+        attackMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.onSelectHangarsMode();
             }
         });
-        toolBar.add(attack)
+        toolBar.add(attackMode)
                 .width(buttonSize)
                 .height(buttonSize);
         toolBar.right().padRight(20).bottom().padBottom(20);
@@ -369,6 +374,7 @@ public final class GameScreenGUI {
         buildToolBar.reset();
         buildToolBar.setFillParent(true);
         VisImageButton exitBuildMode = new VisImageButton("buttonBack");
+        exitBuildMode.setName("exitBuildMode");
         exitBuildMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -379,6 +385,7 @@ public final class GameScreenGUI {
                 .width(buttonSize)
                 .height(buttonSize);
         VisImageButton build = new VisImageButton("buttonOk");
+        build.setName("build");
         build.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -389,6 +396,7 @@ public final class GameScreenGUI {
                 .width(buttonSize)
                 .height(buttonSize);
         final VisImageButton buildingType = new VisImageButton("buttonBuildingType");
+        buildingType.setName("buildingType");
         buildingType.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -416,6 +424,7 @@ public final class GameScreenGUI {
         destroyToolBar.reset();
         destroyToolBar.setFillParent(true);
         VisImageButton exitDestroyMode = new VisImageButton("buttonBack");
+        exitDestroyMode.setName("exitDestroyMode");
         exitDestroyMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -426,6 +435,7 @@ public final class GameScreenGUI {
                 .width(buttonSize)
                 .height(buttonSize);
         VisImageButton destroy = new VisImageButton("buttonDestroy");
+        destroy.setName("destroy");
         destroy.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -443,14 +453,15 @@ public final class GameScreenGUI {
         buildFirstSectorToolBar.reset();
         buildFirstSectorToolBar.setFillParent(true);
 
-        VisImageButton buildCommandCenter = new VisImageButton("buttonOk");
-        buildCommandCenter.addListener(new ChangeListener() {
+        VisImageButton buildFirstSector = new VisImageButton("buttonOk");
+        buildFirstSector.setName("buildFirstSector");
+        buildFirstSector.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.getGameEvents().onFirstSectorBuildEvent();
             }
         });
-        buildFirstSectorToolBar.add(buildCommandCenter)
+        buildFirstSectorToolBar.add(buildFirstSector)
                 .width(buttonSize)
                 .height(buttonSize);
 
@@ -461,25 +472,27 @@ public final class GameScreenGUI {
         buildSectorToolBar.reset();
         buildSectorToolBar.setFillParent(true);
 
-        VisImageButton exitMode = new VisImageButton("buttonBack");
-        exitMode.addListener(new ChangeListener() {
+        VisImageButton exitSectorBuildMode = new VisImageButton("buttonBack");
+        exitSectorBuildMode.setName("exitSectorBuild");
+        exitSectorBuildMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.onBuildSectorMode();
             }
         });
-        buildSectorToolBar.add(exitMode)
+        buildSectorToolBar.add(exitSectorBuildMode)
                 .width(buttonSize)
                 .height(buttonSize);
 
-        VisImageButton buildCommandCenter = new VisImageButton("buttonOk");
-        buildCommandCenter.addListener(new ChangeListener() {
+        VisImageButton buildSector = new VisImageButton("buttonOk");
+        buildSector.setName("buildSector");
+        buildSector.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.getGameEvents().onSectorBuildEvent();
             }
         });
-        buildSectorToolBar.add(buildCommandCenter)
+        buildSectorToolBar.add(buildSector)
                 .width(buttonSize)
                 .height(buttonSize);
 
@@ -490,18 +503,20 @@ public final class GameScreenGUI {
         selectHangarsToolBar.clear();
         selectHangarsToolBar.setFillParent(true);
 
-        VisImageButton exitMode = new VisImageButton("buttonBack");
-        exitMode.addListener(new ChangeListener() {
+        VisImageButton exitSelectHangarsMode = new VisImageButton("buttonBack");
+        exitSelectHangarsMode.setName("exitSelectHangarsMode");
+        exitSelectHangarsMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.onSelectHangarsMode();
             }
         });
-        selectHangarsToolBar.add(exitMode)
+        selectHangarsToolBar.add(exitSelectHangarsMode)
                 .width(buttonSize)
                 .height(buttonSize);
 
         VisImageButton selectHangars = new VisImageButton("buttonNext");
+        selectHangars.setName("selectHangars");
         selectHangars.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -519,18 +534,20 @@ public final class GameScreenGUI {
         selectSectorToolBar.clear();
         selectSectorToolBar.setFillParent(true);
 
-        VisImageButton exitMode = new VisImageButton("buttonBack");
-        exitMode.addListener(new ChangeListener() {
+        VisImageButton exitSelectSectorMode = new VisImageButton("buttonBack");
+        exitSelectSectorMode.setName("exitSelectSectorMode");
+        exitSelectSectorMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 screen.onSelectSectorMode();
             }
         });
-        selectSectorToolBar.add(exitMode)
+        selectSectorToolBar.add(exitSelectSectorMode)
                 .width(buttonSize)
                 .height(buttonSize);
 
         VisImageButton selectSector = new VisImageButton("buttonOk");
+        selectSector.setName("selectSector");
         selectSector.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -549,6 +566,7 @@ public final class GameScreenGUI {
         hangarToolBar.setFillParent(true);
 
         VisImageButton hangar = new VisImageButton("buttonHangar");
+        hangar.setName("hangar");
         hangar.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -690,8 +708,11 @@ public final class GameScreenGUI {
         VisTable root = new VisTable();
 
         VisLabel messageText = new VisLabel(message);
+        messageText.setWrap(true);
+        messageText.setAlignment(Align.topLeft, Align.left);
         root.add(messageText)
-                .expand()
+                .grow()
+                // .expand()
                 .pad(30)
                 .align(Align.topLeft);
 
