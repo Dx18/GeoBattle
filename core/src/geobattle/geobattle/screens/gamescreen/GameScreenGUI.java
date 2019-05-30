@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -101,6 +102,12 @@ public final class GameScreenGUI {
 
     // True if exit dialog is shown to player
     private boolean exitDialogShown;
+
+    // Mode of game screen
+    private GameScreenMode mode;
+
+    // True if tutorial message is shown to player
+    private boolean tutorialMessageShown;
 
     // Initializes GUI
     public GameScreenGUI(AssetManager assetManager, final GameScreen screen, final Stage guiStage) {
@@ -591,6 +598,8 @@ public final class GameScreenGUI {
 
     // Sets mode of game screen
     public void setMode(GameScreenMode mode) {
+        this.mode = mode;
+
         toolBar.setVisible(false);
         buildToolBar.setVisible(false);
         destroyToolBar.setVisible(false);
@@ -608,6 +617,11 @@ public final class GameScreenGUI {
             case SELECT_HANGARS: selectHangarsToolBar.setVisible(true); break;
             case SELECT_SECTOR: selectSectorToolBar.setVisible(true); break;
         }
+    }
+
+    // Returns mode of game screen
+    public GameScreenMode getMode() {
+        return mode;
     }
 
     public void onBuildingSelected(Building building) {
@@ -661,5 +675,47 @@ public final class GameScreenGUI {
 
         dialog.show(guiStage);
         exitDialogShown = true;
+    }
+
+    public boolean isTutorialMessageShown() {
+        return tutorialMessageShown;
+    }
+
+    public void showTutorialMessage(final GameScreen screen, String message) {
+        if (tutorialMessageShown)
+            return;
+
+        final VisDialog dialog = new VisDialog("", "transparent");
+
+        VisTable root = new VisTable();
+
+        VisLabel messageText = new VisLabel(message);
+        root.add(messageText)
+                .expand()
+                .pad(30)
+                .align(Align.topLeft);
+
+        dialog.getContentTable().add(root)
+                .width(Gdx.graphics.getWidth() - 150)
+                .height(Gdx.graphics.getHeight() / 2);
+
+        VisTextButton close = new VisTextButton(screen.getI18NBundle().get("close"));
+        close.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                dialog.hide(Actions.alpha(0));
+                tutorialMessageShown = false;
+            }
+        });
+        dialog.getButtonsTable().add(close)
+                .width(Gdx.graphics.getPpcX())
+                .height(Gdx.graphics.getPpcY() * 0.9f);
+
+        dialog.show(guiStage, Actions.alpha(1));
+        dialog.setPosition(
+                (Gdx.graphics.getWidth() - dialog.getWidth()) / 2,
+                (Gdx.graphics.getHeight() - dialog.getHeight()) / 2
+        );
+        tutorialMessageShown = true;
     }
 }

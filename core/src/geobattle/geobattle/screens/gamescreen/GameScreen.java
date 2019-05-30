@@ -27,6 +27,7 @@ import geobattle.geobattle.map.GeoBattleCamera;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.screens.BackButtonProcessor;
 import geobattle.geobattle.server.AuthInfo;
+import geobattle.geobattle.tutorial.Tutorial;
 
 // Game screen
 public final class GameScreen implements Screen {
@@ -63,8 +64,11 @@ public final class GameScreen implements Screen {
     // Debug mode
     private boolean debugMode;
 
+    // Current tutorial
+    private Tutorial tutorial;
+
     // Constructor
-    public GameScreen(GameState gameState, AssetManager assetManager, AuthInfo authInfo, GeoBattle game) {
+    public GameScreen(GameState gameState, AssetManager assetManager, AuthInfo authInfo, GeoBattle game, Tutorial tutorial) {
         this.assetManager = assetManager;
         this.gameState = gameState;
         this.game = game;
@@ -81,6 +85,8 @@ public final class GameScreen implements Screen {
 
         this.gameEvents = new GameEvents(gameState, authInfo, this, map, game);
         map.setSelectedBuildingType(BuildingType.GENERATOR);
+
+        this.tutorial = tutorial;
 
         this.debugMode = true;
 
@@ -118,6 +124,11 @@ public final class GameScreen implements Screen {
         // guiStage.setDebugAll(true);
 
         game.setMessagePad(250, true);
+
+        if (tutorial != null && tutorial.getCurrent() != null) {
+            tutorial.getCurrent().onBegin(this, gui, gameState);
+            gui.showTutorialMessage(this, tutorial.getCurrent().message);
+        }
     }
 
     public void switchTo(GameScreenMode mode) {
@@ -248,6 +259,15 @@ public final class GameScreen implements Screen {
 
         tilesStage.act(delta);
         guiStage.act(delta);
+
+        if (!gui.isTutorialMessageShown() && tutorial != null && tutorial.getCurrent() != null && tutorial.getCurrent().isEnd(this, gui, gameState)) {
+            tutorial.getCurrent().onEnd(this, gui, gameState);
+            tutorial.nextStep();
+            if (tutorial.getCurrent() != null) {
+                tutorial.getCurrent().onBegin(this, gui, gameState);
+                gui.showTutorialMessage(this, tutorial.getCurrent().message);
+            }
+        }
 
         gui.resourcesLabel.setText(String.valueOf((int) gameState.getResources()));
         if (map.getPointedSector() != null) {
