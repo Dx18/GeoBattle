@@ -269,7 +269,7 @@ public final class GameScreen implements Screen {
         tilesStage.act(delta);
         guiStage.act(delta);
 
-        if (!gui.isTutorialMessageShown() && tutorial != null && tutorial.getCurrent() != null && tutorial.getCurrent().isEnd(this, gui, gameState)) {
+        if (!gui.isTutorialMessageShown() && tutorial != null && tutorial.getCurrent() != null && tutorial.getCurrent().update(this, gui, gameState)) {
             tutorial.getCurrent().onEnd(this, gui, gameState);
             tutorial.nextStep();
             if (tutorial.getCurrent() != null) {

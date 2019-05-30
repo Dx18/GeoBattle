@@ -19,7 +19,7 @@ public final class TutorialFactory {
                     }
 
                     @Override
-                    public boolean isEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
                         return true;
                     }
 
@@ -35,7 +35,7 @@ public final class TutorialFactory {
                     }
 
                     @Override
-                    public boolean isEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
                         return gui.getMode() == GameScreenMode.BUILD;
                     }
 
@@ -51,7 +51,7 @@ public final class TutorialFactory {
                     }
 
                     @Override
-                    public boolean isEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
                         return false;
                     }
 
