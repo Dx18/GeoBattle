@@ -4,8 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -40,7 +38,7 @@ import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.GameScreenModeD
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.NormalMode;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.SelectHangarsMode;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.SelectSectorMode;
-import geobattle.geobattle.server.implementation.TileRequestPool;
+import geobattle.geobattle.server.MapRenderer;
 import geobattle.geobattle.util.CoordinateConverter;
 import geobattle.geobattle.util.GeoBattleMath;
 import geobattle.geobattle.util.IntPoint;
@@ -57,11 +55,8 @@ public class GeoBattleMap extends Actor {
     // Game
     private final GeoBattle game;
 
-    // Tree of tiles
-    private TileTree tiles;
-
-    // Counter for tiles. Used for removing unnecessary tiles
-    private TileCounter tileCounter;
+    // Renderer of map
+    private MapRenderer mapRenderer;
 
     // X tile offset
     private int xOffset;
@@ -112,6 +107,7 @@ public class GeoBattleMap extends Actor {
     public GeoBattleMap(
             GeoBattleCamera camera, GameState gameState,
             AssetManager assetManager,
+            MapRenderer mapRenderer,
             GeoBattle game
     ) {
         this.game = game;
@@ -120,20 +116,7 @@ public class GeoBattleMap extends Actor {
                 this.game.getExternalAPI().geolocationAPI.getCurrentCoordinates()
         );
 
-        // Initializing all fields
-        this.game.getExternalAPI().tileRequestPool.setOnLoadListener(new TileRequestPool.TileRequestCallback() {
-            @Override
-            public void onLoad(final Pixmap pixmap, final int x, final int y, final int zoomLevel) {
-                Gdx.app.postRunnable(new Runnable() {
-                    @Override
-                    public void run() {
-                        tiles.setTile(pixmap, tileCounter, xOffset, yOffset, x, y, zoomLevel);
-                    }
-                });
-            }
-        });
-        this.tiles = new TileTree((int) geolocation.x, (int) geolocation.y);
-        this.tileCounter = new TileCounter();
+        this.mapRenderer = mapRenderer;
 
         this.xOffset = (int) geolocation.x;
         this.yOffset = (int) geolocation.y;
@@ -240,23 +223,6 @@ public class GeoBattleMap extends Actor {
             else
                 animationInstance++;
         }
-    }
-
-    // Draws region of tiles
-    private void drawTiles(Batch batch, int startX, int startY, int endX, int endY, int zoomLevel) {
-        for (int x = startX; x <= endX; x += (1 << (19 - zoomLevel)))
-            for (int y = startY; y <= endY; y += (1 << (19 - zoomLevel))) {
-                Texture tile = tiles.getTile(x, y, zoomLevel, xOffset, yOffset, game.getExternalAPI().tileRequestPool, tileCounter);
-
-                if (tile != null)
-                    batch.draw(
-                            tile,
-                            x,
-                            y,
-                            1 << (19 - zoomLevel),
-                            1 << (19 - zoomLevel)
-                    );
-            }
     }
 
     // Draws texture on map
@@ -603,30 +569,7 @@ public class GeoBattleMap extends Actor {
     public void draw(Batch batch, float parentAlpha) {
         shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
 
-        // FIXME: 22.02.19 Zoom level should use screen info instead of camera viewport
-        final int zoomLevel = 20 - Math.max(1, (int)MathUtils.log2(camera.viewportWidth));
-
-        final int startX = camera.getTileStartX(zoomLevel, xOffset);
-        final int startY = camera.getTileStartY(zoomLevel, yOffset);
-        final int endX = camera.getTileEndX(zoomLevel, xOffset);
-        final int endY = camera.getTileEndY(zoomLevel, yOffset);
-
-        drawTiles(batch, startX, startY, endX, endY, zoomLevel);
-
-        // If there are too many tiles
-        if (tileCounter.getLoadedCount() > 90) {
-            Gdx.app.postRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    tiles.reduceTiles(
-                            startX, startY,
-                            endX, endY,
-                            zoomLevel, 2,
-                            tileCounter
-                    );
-                }
-            });
-        }
+        mapRenderer.drawAndReduceTiles(batch, xOffset, yOffset, camera);
 
         IntRect visible = getVisibleRect();
 
@@ -704,7 +647,7 @@ public class GeoBattleMap extends Actor {
 
     // Disposes map
     public void dispose() {
-        tiles.dispose();
+        mapRenderer.dispose();
     }
 
     // Sets selected type of building

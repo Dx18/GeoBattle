@@ -27,7 +27,9 @@ import geobattle.geobattle.map.GeoBattleCamera;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.screens.BackButtonProcessor;
 import geobattle.geobattle.server.AuthInfo;
+import geobattle.geobattle.server.implementation.RealMapRenderer;
 import geobattle.geobattle.tutorial.Tutorial;
+import geobattle.geobattle.util.GeoBattleMath;
 
 // Game screen
 public final class GameScreen implements Screen {
@@ -78,8 +80,15 @@ public final class GameScreen implements Screen {
         int height = Gdx.graphics.getHeight();
         camera = new GeoBattleCamera(width, height);
         tilesStage = new Stage(new ScalingViewport(Scaling.stretch, width, height, camera), new SpriteBatch(8191));
+
+        Vector2 geolocation = GeoBattleMath.latLongToMercator(
+                this.game.getExternalAPI().geolocationAPI.getCurrentCoordinates()
+        );
+
         map = new GeoBattleMap(
-                camera, gameState, assetManager, game
+                camera, gameState, assetManager,
+                new RealMapRenderer((int) geolocation.x, (int) geolocation.y, game.getExternalAPI().tileRequestPool),
+                game
         );
         tilesStage.addActor(map);
 
