@@ -14,11 +14,17 @@ public abstract class TutorialStep {
     }
 
     // Invokes when step of tutorial begins
-    public abstract void onBegin(GameScreen screen, GameScreenGUI gui, GameState gameState);
+    public void onBegin(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+
+    }
 
     // Performs update and returns true if tutorial step should end
-    public abstract boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState);
+    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+        return true;
+    }
 
     // Invokes when step of tutorial ends
-    public abstract void onEnd(GameScreen screen, GameScreenGUI gui, GameState gameState);
+    public void onEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+
+    }
 }
