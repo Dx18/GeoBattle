@@ -269,7 +269,7 @@ public class GameState {
                     x - 1, y - 1,
                     buildingType.sizeX + 2, buildingType.sizeY + 2
             )) {
-                return true;
+                return !next.isBlocked();
             }
         }
 
