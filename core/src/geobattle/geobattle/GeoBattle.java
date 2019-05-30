@@ -222,7 +222,7 @@ public final class GeoBattle extends Game {
     }
 
     public void onGameStateObtained(GameState gameState, AuthInfo authInfo) {
-        setScreen(new GameScreen(gameState, assetManager, authInfo, this, new TutorialFactory().createDebugTutorial()));
+        setScreen(new GameScreen(gameState, assetManager, authInfo, this, new TutorialFactory().createMainTutorial(i18NBundle)));
     }
 
     private void onStateRequestResult(StateRequestResult result, final AuthInfo authInfo) {
