@@ -8,6 +8,7 @@ import geobattle.geobattle.actionresults.AuthorizationResult;
 import geobattle.geobattle.actionresults.BuildResult;
 import geobattle.geobattle.actionresults.DestroyResult;
 import geobattle.geobattle.actionresults.EmailConfirmationResult;
+import geobattle.geobattle.actionresults.RatingRequestResult;
 import geobattle.geobattle.actionresults.RegistrationResult;
 import geobattle.geobattle.actionresults.ResearchResult;
 import geobattle.geobattle.actionresults.ResendEmailResult;
@@ -111,4 +112,10 @@ public interface Server {
 
     // Requests email resend
     void onEmailResendEvent(String name, Callback<ResendEmailResult> callback, Runnable failCallback);
+
+    // Cancels RatingRequestEvent
+    void cancelRatingRequestEvent();
+
+    // Requests rating
+    void onRatingRequestEvent(Callback<RatingRequestResult> callback, Runnable failCallback);
 }

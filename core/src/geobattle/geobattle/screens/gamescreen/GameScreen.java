@@ -230,6 +230,10 @@ public final class GameScreen implements Screen {
         return gameEvents;
     }
 
+    public GameScreenGUI getGUI() {
+        return gui;
+    }
+
     // Handles keyboard input
     private void handleInput(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1))

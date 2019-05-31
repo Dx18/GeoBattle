@@ -29,6 +29,7 @@ import geobattle.geobattle.actionresults.AuthorizationResult;
 import geobattle.geobattle.actionresults.BuildResult;
 import geobattle.geobattle.actionresults.DestroyResult;
 import geobattle.geobattle.actionresults.EmailConfirmationResult;
+import geobattle.geobattle.actionresults.RatingRequestResult;
 import geobattle.geobattle.actionresults.RegistrationResult;
 import geobattle.geobattle.actionresults.ResearchResult;
 import geobattle.geobattle.actionresults.ResendEmailResult;
@@ -41,6 +42,7 @@ import geobattle.geobattle.events.AuthorizationEvent;
 import geobattle.geobattle.events.BuildEvent;
 import geobattle.geobattle.events.DestroyEvent;
 import geobattle.geobattle.events.EmailConfirmationEvent;
+import geobattle.geobattle.events.RatingRequestEvent;
 import geobattle.geobattle.events.RegistrationEvent;
 import geobattle.geobattle.events.ResearchEvent;
 import geobattle.geobattle.events.ResendEmailEvent;
@@ -100,6 +102,8 @@ public final class SocketServer implements Server {
     private CancelHandle emailConfirmationEvent;
 
     private CancelHandle emailResendEvent;
+
+    private CancelHandle ratingRequestEvent;
 
     public SocketServer(int masterPort, String ip, int port) {
         this.masterPort = masterPort;
@@ -389,7 +393,6 @@ public final class SocketServer implements Server {
                 thread.interrupt();
             }
         };
-
     }
 
     @Override
@@ -450,7 +453,6 @@ public final class SocketServer implements Server {
                 thread.interrupt();
             }
         };
-
     }
 
     @Override
@@ -461,7 +463,6 @@ public final class SocketServer implements Server {
 
             }
         }).start();
-
     }
 
     @Override
@@ -524,7 +525,6 @@ public final class SocketServer implements Server {
                 thread.interrupt();
             }
         };
-
     }
 
     @Override
@@ -586,7 +586,6 @@ public final class SocketServer implements Server {
                     thread.interrupt();
                 }
             };
-
     }
 
     @Override
@@ -649,7 +648,6 @@ public final class SocketServer implements Server {
                 thread.interrupt();
             }
         };
-
     }
 
     @Override
@@ -712,7 +710,6 @@ public final class SocketServer implements Server {
                 thread.interrupt();
             }
         };
-
     }
 
     @Override
@@ -775,7 +772,6 @@ public final class SocketServer implements Server {
                 thread.interrupt();
             }
         };
-
     }
 
     @Override
@@ -838,7 +834,6 @@ public final class SocketServer implements Server {
                 thread.interrupt();
             }
         };
-
     }
 
     @Override
@@ -901,7 +896,6 @@ public final class SocketServer implements Server {
                 thread.interrupt();
             }
         };
-
     }
 
     @Override
@@ -964,7 +958,6 @@ public final class SocketServer implements Server {
                 thread.interrupt();
             }
         };
-
     }
 
     @Override
@@ -1025,7 +1018,6 @@ public final class SocketServer implements Server {
                 thread.interrupt();
             }
         };
-
     }
 
     @Override
@@ -1086,6 +1078,65 @@ public final class SocketServer implements Server {
                 thread.interrupt();
             }
         };
+    }
 
+    @Override
+    public void cancelRatingRequestEvent() {
+        if (ratingRequestEvent != null) {
+            ratingRequestEvent.cancel();
+            ratingRequestEvent = null;
+        }
+    }
+
+    @Override
+    public synchronized void onRatingRequestEvent(final Callback<RatingRequestResult> callback, final Runnable failCallback) {
+        if (ratingRequestEvent != null)
+            return;
+
+        final Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String ip;
+                int port;
+                synchronized (SocketServer.this) {
+                    ip = SocketServer.this.ip;
+                    port = SocketServer.this.port;
+                }
+
+                String resultStr = requestSSL(ip, port, new RatingRequestEvent().toJson().toString());
+
+                synchronized (SocketServer.this) {
+                    ratingRequestEvent = null;
+                }
+
+                if (resultStr == null) {
+                    if (failCallback == null) {
+                        game.showMessage(game.getI18NBundle().get("networkProblems"));
+                        game.getExternalAPI().oSAPI.showMessage("RatingRequestEvent failed: probable problems with connection");
+                    } else
+                        failCallback.run();
+                    return;
+                }
+
+                try {
+                    RatingRequestResult result = RatingRequestResult.fromJson(parser.parse(resultStr).getAsJsonObject());
+                    if (result == null)
+                        throw new IllegalArgumentException("Given type of RatingRequestResult is unknown");
+                    callback.onResult(result);
+                } catch (Exception e) {
+                    game.getExternalAPI().oSAPI.showMessage("RatingRequestResult failed: " + e.getClass().getName() + ", see GeoBattleError for details");
+                    Gdx.app.error("GeoBattleError", e.getClass().getName() + ": " + e.getMessage() + ". Server returned: " + resultStr);
+                }
+            }
+        });
+
+        thread.start();
+
+        ratingRequestEvent = new CancelHandle() {
+            @Override
+            public void cancel() {
+                thread.interrupt();
+            }
+        };
     }
 }

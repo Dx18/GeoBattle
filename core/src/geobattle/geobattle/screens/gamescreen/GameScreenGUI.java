@@ -95,6 +95,9 @@ public final class GameScreenGUI {
     // Current mode label
     public final VisLabel currentModeLabel;
 
+    // Rating dialog
+    public final RatingGUI ratingDialog;
+
     // Size of usual tool bar button
     private int buttonSize;
 
@@ -167,6 +170,8 @@ public final class GameScreenGUI {
         maxBuildingCountLabel.setAlignment(Align.center);
         guiStage.addActor(labels);
 
+        ratingDialog = new RatingGUI(assetManager, screen);
+
         reset(screen);
     }
 
@@ -182,8 +187,8 @@ public final class GameScreenGUI {
     // Resets GUI
     public void reset(GameScreen screen) {
         buttonSize = Math.min(
-                Gdx.graphics.getWidth() / 7,
-                Gdx.graphics.getHeight() / 7
+                Gdx.graphics.getWidth() / 8,
+                Gdx.graphics.getHeight() / 8
         );
 
         initNavigationToolBar(screen);
@@ -200,6 +205,7 @@ public final class GameScreenGUI {
         initHangarDialog(screen);
         initResearchDialog(screen);
         initLabels();
+        initRatingDialog(screen);
     }
 
     // Initializes navigation tool bar
@@ -368,6 +374,18 @@ public final class GameScreenGUI {
             }
         });
         toolBar.add(attackMode)
+                .width(buttonSize)
+                .height(buttonSize);
+        VisImageButton rating = new VisImageButton("buttonRating");
+        rating.setName("rating");
+        rating.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                screen.getGameEvents().onRatingRequestEvent();
+                showRatingDialog(screen);
+            }
+        });
+        toolBar.add(rating)
                 .width(buttonSize)
                 .height(buttonSize);
         toolBar.right().padRight(20).bottom().padBottom(20);
@@ -616,6 +634,16 @@ public final class GameScreenGUI {
                 .height(40);
 
         labels.top().padTop(150);
+    }
+
+    // Initializes rating dialog
+    private void initRatingDialog(GameScreen screen) {
+        ratingDialog.init(screen);
+    }
+
+    // Shows rating
+    private void showRatingDialog(GameScreen screen) {
+        ratingDialog.root.show(guiStage);
     }
 
     // Sets mode of game screen

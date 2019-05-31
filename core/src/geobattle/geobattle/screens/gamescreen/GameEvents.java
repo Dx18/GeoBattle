@@ -11,6 +11,7 @@ import geobattle.geobattle.actionresults.AttackResult;
 import geobattle.geobattle.actionresults.BuildResult;
 import geobattle.geobattle.actionresults.DestroyResult;
 import geobattle.geobattle.actionresults.MatchBranch;
+import geobattle.geobattle.actionresults.RatingRequestResult;
 import geobattle.geobattle.actionresults.ResearchResult;
 import geobattle.geobattle.actionresults.SectorBuildResult;
 import geobattle.geobattle.actionresults.UnitBuildResult;
@@ -34,6 +35,7 @@ import geobattle.geobattle.game.units.UnitGroup;
 import geobattle.geobattle.game.units.UnitGroupState;
 import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.map.GeoBattleMap;
+import geobattle.geobattle.rating.RatingEntry;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.SelectHangarsMode;
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.SelectSectorMode;
 import geobattle.geobattle.server.AuthInfo;
@@ -366,6 +368,41 @@ public class GameEvents {
         if (result != null) {
             result.apply(game, gameState);
             screen.switchTo(result.screenModeAfterApply());
+        }
+    }
+
+    public void onRatingRequestEvent() {
+        game.getExternalAPI().server.onRatingRequestEvent(new Callback<RatingRequestResult>() {
+            @Override
+            public void onResult(final RatingRequestResult result) {
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        onRatingRequestResult(result);
+                    }
+                });
+            }
+        }, null);
+    }
+
+    private void onRatingRequestResult(RatingRequestResult result) {
+        if (result != null) {
+            result.match(
+                    new MatchBranch<RatingRequestResult.RatingRequestSuccess>() {
+                        @Override
+                        public void onMatch(RatingRequestResult.RatingRequestSuccess ratingRequestSuccess) {
+                            for (RatingEntry entry : ratingRequestSuccess.rating)
+                                entry.setPlayerData(gameState.getPlayer(entry.playerId));
+                            screen.getGUI().ratingDialog.setRating(ratingRequestSuccess.rating, screen);
+                        }
+                    },
+                    new MatchBranch<RatingRequestResult.MalformedJson>() {
+                        @Override
+                        public void onMatch(RatingRequestResult.MalformedJson malformedJson) {
+                            game.getExternalAPI().oSAPI.showMessage("Cannot get rating: JSON request is not well-formed. Probable bug. Tell the developers");
+                        }
+                    }
+            );
         }
     }
 
