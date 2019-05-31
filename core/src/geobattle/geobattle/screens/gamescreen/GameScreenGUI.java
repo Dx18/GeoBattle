@@ -19,6 +19,7 @@ import com.kotcrab.vis.ui.widget.VisTextButton;
 import geobattle.geobattle.GeoBattleAssets;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
+import geobattle.geobattle.tutorial.TutorialFactory;
 
 // GUI for game screen
 public final class GameScreenGUI {
@@ -105,6 +106,9 @@ public final class GameScreenGUI {
 
     // Mode of game screen
     private GameScreenMode mode;
+
+    // True if dialog with question about tutorial is shown to player
+    private boolean tutorialQuestionDialogShown;
 
     // True if tutorial message is shown to player
     private boolean tutorialMessageShown;
@@ -693,6 +697,45 @@ public final class GameScreenGUI {
 
         dialog.show(guiStage);
         exitDialogShown = true;
+    }
+
+    // Shows dialog with question if player wants to go through the tutorial
+    public void showTutorialQuestionDialog(final GameScreen screen) {
+        if (tutorialQuestionDialogShown)
+            return;
+
+        final VisDialog dialog = new VisDialog(screen.getI18NBundle().get("tutorial"));
+
+        VisLabel question = new VisLabel(screen.getI18NBundle().get("tutorialQuestion"));
+        question.setWrap(true);
+        dialog.getContentTable().add(question)
+                .width(Gdx.graphics.getWidth() - 120);
+
+        VisTextButton yes = new VisTextButton(screen.getI18NBundle().get("yes"), new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                screen.onSelectTutorial(new TutorialFactory().createMainTutorial(screen.getI18NBundle()));
+                dialog.hide();
+                tutorialQuestionDialogShown = true;
+            }
+        });
+        dialog.getButtonsTable().add(yes)
+                .width(Gdx.graphics.getPpcX())
+                .height(Gdx.graphics.getPpcY() * 0.9f);
+
+        VisTextButton no = new VisTextButton(screen.getI18NBundle().get("no"), new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                dialog.hide();
+                tutorialQuestionDialogShown = false;
+            }
+        });
+        dialog.getButtonsTable().add(no)
+                .width(Gdx.graphics.getPpcX())
+                .height(Gdx.graphics.getPpcY() * 0.9f);
+
+        dialog.show(guiStage);
+        tutorialQuestionDialogShown = true;
     }
 
     public boolean isTutorialMessageShown() {

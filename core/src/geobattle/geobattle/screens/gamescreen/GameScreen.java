@@ -70,7 +70,7 @@ public final class GameScreen implements Screen {
     private Tutorial tutorial;
 
     // Constructor
-    public GameScreen(GameState gameState, AssetManager assetManager, AuthInfo authInfo, GeoBattle game, Tutorial tutorial) {
+    public GameScreen(GameState gameState, AssetManager assetManager, AuthInfo authInfo, GeoBattle game) {
         this.assetManager = assetManager;
         this.gameState = gameState;
         this.game = game;
@@ -95,8 +95,6 @@ public final class GameScreen implements Screen {
         this.gameEvents = new GameEvents(gameState, authInfo, this, map, game);
         map.setSelectedBuildingType(BuildingType.GENERATOR);
 
-        this.tutorial = tutorial;
-
         this.debugMode = true;
 
         tilesStage.setDebugAll(false);
@@ -117,6 +115,8 @@ public final class GameScreen implements Screen {
                 ? GameScreenMode.BUILD_FIRST_SECTOR
                 : GameScreenMode.NORMAL
         );
+        if (mode == GameScreenMode.BUILD_FIRST_SECTOR)
+            gui.showTutorialQuestionDialog(this);
 
         // Input handling
         InputMultiplexer input = new InputMultiplexer();
@@ -133,11 +133,6 @@ public final class GameScreen implements Screen {
         // guiStage.setDebugAll(true);
 
         game.setMessagePad(250, true);
-
-        if (tutorial != null && tutorial.getCurrent() != null) {
-            tutorial.getCurrent().onBegin(this, gui, gameState);
-            gui.showTutorialMessage(this, tutorial.getCurrent().message);
-        }
     }
 
     public void switchTo(GameScreenMode mode) {
@@ -212,6 +207,18 @@ public final class GameScreen implements Screen {
     // Invokes when player wants to move to its geolocation
     public void onMoveToPlayer() {
         map.moveToPlayer();
+    }
+
+    // Sets tutorial
+    public void onSelectTutorial(Tutorial tutorial) {
+        if (this.tutorial != null && this.tutorial.getCurrent() != null)
+            this.tutorial.getCurrent().onEnd(this, gui, gameState);
+
+        this.tutorial = tutorial;
+        if (this.tutorial != null && this.tutorial.getCurrent() != null) {
+            this.tutorial.getCurrent().onBegin(this, gui, gameState);
+            gui.showTutorialMessage(this, this.tutorial.getCurrent().message);
+        }
     }
 
     // Returns camera

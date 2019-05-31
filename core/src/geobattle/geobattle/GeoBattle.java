@@ -28,7 +28,6 @@ import geobattle.geobattle.screens.settingsscreen.SettingsScreen;
 import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.Callback;
 import geobattle.geobattle.server.ExternalAPI;
-import geobattle.geobattle.tutorial.TutorialFactory;
 
 // Main game class
 public final class GeoBattle extends Game {
@@ -222,7 +221,7 @@ public final class GeoBattle extends Game {
     }
 
     public void onGameStateObtained(GameState gameState, AuthInfo authInfo) {
-        setScreen(new GameScreen(gameState, assetManager, authInfo, this, new TutorialFactory().createMainTutorial(i18NBundle)));
+        setScreen(new GameScreen(gameState, assetManager, authInfo, this));
     }
 
     private void onStateRequestResult(StateRequestResult result, final AuthInfo authInfo) {
