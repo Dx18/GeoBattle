@@ -116,6 +116,9 @@ public final class GameScreenGUI {
     // True if tutorial message is shown to player
     private boolean tutorialMessageShown;
 
+    // Table with tutorial message button
+    public final VisTable tutorialMessageButton;
+
     // Initializes GUI
     public GameScreenGUI(AssetManager assetManager, final GameScreen screen, final Stage guiStage) {
         skin = assetManager.get(GeoBattleAssets.GUI_SKIN);
@@ -172,6 +175,9 @@ public final class GameScreenGUI {
 
         ratingDialog = new RatingGUI(assetManager, screen);
 
+        tutorialMessageButton = new VisTable();
+        guiStage.addActor(tutorialMessageButton);
+
         reset(screen);
     }
 
@@ -206,6 +212,7 @@ public final class GameScreenGUI {
         initResearchDialog(screen);
         initLabels();
         initRatingDialog(screen);
+        initTutorialMessageButton(screen);
     }
 
     // Initializes navigation tool bar
@@ -644,6 +651,25 @@ public final class GameScreenGUI {
     // Shows rating
     private void showRatingDialog(GameScreen screen) {
         ratingDialog.root.show(guiStage);
+    }
+
+    // Initializes tutorial message button
+    private void initTutorialMessageButton(final GameScreen screen) {
+        tutorialMessageButton.clear();
+        tutorialMessageButton.setFillParent(true);
+
+        VisImageButton tutorialMessage = new VisImageButton("buttonTutorialMessage");
+        tutorialMessage.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                screen.onTutorialMessage();
+            }
+        });
+        tutorialMessageButton.add(tutorialMessage)
+                .width(buttonSize)
+                .height(buttonSize);
+
+         tutorialMessageButton.left().padLeft(20).bottom().padBottom(20 + buttonSize * 3);
     }
 
     // Sets mode of game screen

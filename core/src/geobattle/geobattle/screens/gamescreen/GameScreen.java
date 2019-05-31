@@ -115,6 +115,9 @@ public final class GameScreen implements Screen {
                 ? GameScreenMode.BUILD_FIRST_SECTOR
                 : GameScreenMode.NORMAL
         );
+
+        onSelectTutorial(null);
+
         if (mode == GameScreenMode.BUILD_FIRST_SECTOR)
             gui.showTutorialQuestionDialog(this);
 
@@ -209,12 +212,18 @@ public final class GameScreen implements Screen {
         map.moveToPlayer();
     }
 
+    public void onTutorialMessage() {
+        if (tutorial != null && tutorial.getCurrent() != null)
+            gui.showTutorialMessage(this, tutorial.getCurrent().message);
+    }
+
     // Sets tutorial
     public void onSelectTutorial(Tutorial tutorial) {
         if (this.tutorial != null && this.tutorial.getCurrent() != null)
             this.tutorial.getCurrent().onEnd(this, gui, gameState);
 
         this.tutorial = tutorial;
+        gui.tutorialMessageButton.setVisible(this.tutorial != null);
         if (this.tutorial != null && this.tutorial.getCurrent() != null) {
             this.tutorial.getCurrent().onBegin(this, gui, gameState);
             gui.showTutorialMessage(this, this.tutorial.getCurrent().message);
@@ -286,6 +295,8 @@ public final class GameScreen implements Screen {
             if (tutorial.getCurrent() != null) {
                 tutorial.getCurrent().onBegin(this, gui, gameState);
                 gui.showTutorialMessage(this, tutorial.getCurrent().message);
+            } else {
+                gui.tutorialMessageButton.setVisible(false);
             }
         }
 
