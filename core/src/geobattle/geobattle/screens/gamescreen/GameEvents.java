@@ -242,12 +242,7 @@ public class GameEvents {
                     }
                 });
             }
-        }, new Runnable() {
-            @Override
-            public void run() {
-                onUpdateRequestEvent();
-            }
-        });
+        }, null);
     }
 
     // Invokes when client receives update result
