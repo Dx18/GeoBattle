@@ -9,6 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -205,10 +206,11 @@ public final class SocketServer implements Server {
             synchronized (this) {
                 sslSocketFactory = this.sslSocketFactory;
             }
-            Gdx.app.log("GeoBattle", "Creating socket: " + ip + ":" + port);
-            socket = (SSLSocket) sslSocketFactory.createSocket(ip, port);
-            socket.startHandshake();
+            socket = (SSLSocket) sslSocketFactory.createSocket();
             socket.setSoTimeout(2000);
+            Gdx.app.log("GeoBattle", "Creating socket: " + ip + ":" + port);
+            socket.connect(new InetSocketAddress(ip, port), 2000);
+            socket.startHandshake();
             toSocket = new DataOutputStream(socket.getOutputStream());
             fromSocket = new DataInputStream(socket.getInputStream());
         } catch (IOException e) {
@@ -265,9 +267,10 @@ public final class SocketServer implements Server {
         DataInputStream fromSocket;
 
         try {
-            socket = new Socket(ip, port);
-            Gdx.app.log("GeoBattle", "Creating socket: " + ip + ":" + port);
+            socket = new Socket();
             socket.setSoTimeout(2000);
+            Gdx.app.log("GeoBattle", "Creating socket: " + ip + ":" + port);
+            socket.connect(new InetSocketAddress(ip, port), 2000);
             toSocket = new DataOutputStream(socket.getOutputStream());
             fromSocket = new DataInputStream(socket.getInputStream());
         } catch (IOException e) {
