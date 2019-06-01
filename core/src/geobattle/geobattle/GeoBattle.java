@@ -212,8 +212,14 @@ public final class GeoBattle extends Game {
         }, new Runnable() {
             @Override
             public void run() {
-                externalAPI.oSAPI.showMessage("Failed to get game state");
-                switchToLoginScreen();
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        externalAPI.oSAPI.showMessage("Failed to get game state");
+                        showMessage(i18NBundle.get("networkProblems"));
+                        switchToLoginScreen();
+                    }
+                });
             }
         });
 
