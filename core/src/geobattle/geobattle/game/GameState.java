@@ -60,31 +60,6 @@ public class GameState {
         unitHealth2.put(-1, UnitType.BOMBER.maxHealth * 2f);
 
         this.lastUpdateTime = time;
-
-//        this.attackScripts.add(new AttackScript(
-//                1, 0, 0,
-//                new UnitGroupMovingInfo[] {
-//                        new UnitGroupMovingInfo(-1, time + 20, 5234549, 5501466, time + 40)
-//                },
-//                new TimePoint[] {
-//                        new TimePoint(time + 10, 200, unitHealth1),
-//                        new TimePoint(time + 20, 200, unitHealth1),
-//                        new TimePoint(time + 30, 0, unitHealth2),
-//                        new TimePoint(time + 40, 0, unitHealth2)
-//                }
-//        ));
-//        this.attackScripts.add(new AttackScript(
-//                1, 0, 6,
-//                new UnitGroupMovingInfo[] {
-//                        new UnitGroupMovingInfo(-1, time + 5, 5234546, 5501505, time + 25)
-//                },
-//                new TimePoint[] {
-//                        new TimePoint(time - 5, 200, unitHealth1),
-//                        new TimePoint(time + 5, 200, unitHealth1),
-//                        new TimePoint(time + 15, 0, unitHealth2),
-//                        new TimePoint(time + 25, 0, unitHealth2)
-//                }
-//        ));
     }
 
     // Clones GameState
