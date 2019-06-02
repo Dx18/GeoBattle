@@ -217,10 +217,12 @@ public class GameState {
 
     // Applies GameStateDiff to game state
     public void applyDiff(GameStateDiff diff) {
+        for (PlayerState removed : diff.removedPlayers)
+            removePlayer(removed);
         for (PlayerStateDiff playerStateDiff : diff.changedPlayers)
-            players.get(playerStateDiff.playerId).applyDiff(playerStateDiff);
-
-        players.addAll(diff.addedPlayers);
+            getPlayer(playerStateDiff.playerId).applyDiff(playerStateDiff);
+        for (PlayerState added : diff.addedPlayers)
+            addPlayer(added);
     }
 
     // Sets data of other game state
