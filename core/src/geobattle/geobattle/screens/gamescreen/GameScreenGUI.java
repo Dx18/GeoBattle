@@ -251,6 +251,17 @@ public final class GameScreenGUI {
         navigationToolBar.add(toPlayer)
                 .width(buttonSize)
                 .height(buttonSize);
+        navigationToolBar.row();
+        VisImageButton toBase = new VisImageButton("buttonToBase");
+        toBase.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                screen.onMoveToBase();
+            }
+        });
+        navigationToolBar.add(toBase)
+                .width(buttonSize)
+                .height(buttonSize);
         navigationToolBar.left().padLeft(20).bottom().padBottom(20);
     }
 

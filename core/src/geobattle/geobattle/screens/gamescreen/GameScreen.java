@@ -212,6 +212,11 @@ public final class GameScreen implements Screen {
         map.moveToPlayer();
     }
 
+    // Invokes when player wants to move to its base
+    public void onMoveToBase() {
+        map.moveToBase();
+    }
+
     public void onTutorialMessage() {
         if (tutorial != null && tutorial.getCurrent() != null)
             gui.showTutorialMessage(this, tutorial.getCurrent().message);

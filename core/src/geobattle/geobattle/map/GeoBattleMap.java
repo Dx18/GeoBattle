@@ -199,8 +199,7 @@ public class GeoBattleMap extends Actor {
         return pointedTile.clone();
     }
 
-    // Sets real world position of camera
-    // `x` and `y` - position of camera in real world
+    // Moves camera to player geolocation
     public void moveToPlayer() {
         Vector2 coords = GeoBattleMath.latLongToMercator(
                 game.getExternalAPI().geolocationAPI.getCurrentCoordinates()
@@ -208,6 +207,32 @@ public class GeoBattleMap extends Actor {
         camera.position.set(
                 CoordinateConverter.realWorldToWorld(coords.x, xOffset),
                 CoordinateConverter.realWorldToWorld(coords.y, yOffset),
+                0
+        );
+    }
+
+    // Moves camera to player's base (or does nothing if it does not exist)
+    public void moveToBase() {
+        ArrayList<IntPoint> sectorPositions = new ArrayList<IntPoint>();
+        Iterator<Sector> sectors = gameState.getCurrentPlayer().getAllSectors();
+        while (sectors.hasNext()) {
+            Sector next = sectors.next();
+            sectorPositions.add(new IntPoint(next.x, next.y));
+        }
+
+        if (sectorPositions.size() == 0)
+            return;
+
+        double averageX = 0;
+        double averageY = 0;
+        for (IntPoint sectorPos : sectorPositions) {
+            averageX += (double) sectorPos.x / sectorPositions.size();
+            averageY += (double) sectorPos.y / sectorPositions.size();
+        }
+
+        camera.position.set(
+                CoordinateConverter.subTilesToWorld(averageX + Sector.SECTOR_SIZE / 2, xOffset, GeoBattleConst.SUBDIVISION),
+                CoordinateConverter.subTilesToWorld(averageY + Sector.SECTOR_SIZE / 2, yOffset, GeoBattleConst.SUBDIVISION),
                 0
         );
     }
