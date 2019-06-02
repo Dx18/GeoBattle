@@ -58,23 +58,23 @@ public abstract class BuildResult implements ActionResult {
         }
     }
 
-    // Cannot build because limit of buildings is exceeded
+    // Cannot build because it's not enough resources
     public static final class NotEnoughResources extends BuildResult {
-        // Max number of buildings
-        public final int max;
+        // Required amount of resources
+        public final int required;
 
-        public NotEnoughResources(int max) {
-            this.max = max;
+        public NotEnoughResources(int required) {
+            this.required = required;
         }
 
         public static NotEnoughResources fromJson(JsonObject object) {
-            int max = object.getAsJsonPrimitive("max").getAsInt();
-            return new NotEnoughResources(max);
+            int required = object.getAsJsonPrimitive("required").getAsInt();
+            return new NotEnoughResources(required);
         }
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            game.showMessage(game.getI18NBundle().get("buildResultNotEnoughResources"));
+            game.showMessage(game.getI18NBundle().format("buildResultNotEnoughResources", required));
         }
     }
 

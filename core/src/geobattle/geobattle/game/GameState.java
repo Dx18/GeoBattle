@@ -206,7 +206,7 @@ public class GameState {
 
         JsonArray jsonPlayers = object.getAsJsonArray("players");
         for (JsonElement jsonPlayer : jsonPlayers)
-            gameState.players.add(PlayerState.fromJson(jsonPlayer.getAsJsonObject()));
+            gameState.addPlayer(PlayerState.fromJson(jsonPlayer.getAsJsonObject()));
 
         JsonArray jsonAttackEvents = object.getAsJsonArray("attackEvents");
         for (JsonElement jsonAttackEvent : jsonAttackEvents)
