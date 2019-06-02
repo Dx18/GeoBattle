@@ -19,8 +19,11 @@ public final class Turret extends Building {
     // Direction of turret
     public double direction;
 
-    // True if turret has target
-    private boolean hasTarget;
+    // Target of turret
+    private Unit target;
+
+    // Attack time left
+    private double targetTime;
 
     // ID of sound
     private long soundId;
@@ -30,10 +33,31 @@ public final class Turret extends Building {
         soundId = -1;
     }
 
+    // Returns current target
+    public Unit getTarget() {
+        return target;
+    }
+
+    // Sets current target
+    public void setTarget(Unit target) {
+        this.target = target;
+    }
+
+    // Returns turret target time
+    public double getTargetTime() {
+        return targetTime;
+    }
+
+    // Sets turret target time
+    public void setTargetTime(double targetTime) {
+        this.targetTime = targetTime;
+    }
+
     // Updates turret
-    public void update(float delta, Unit unit, GeoBattleMap map) {
-        hasTarget = unit != null;
-        if (unit == null) {
+    public void update(float delta, GeoBattleMap map) {
+        targetTime -= delta;
+
+        if (target == null) {
             direction += IDLE_ROTATION_SPEED * delta;
 
             if (soundId != -1) {
@@ -42,8 +66,8 @@ public final class Turret extends Building {
             }
         } else {
             direction = GeoBattleMath.getDirection(
-                    unit.x - x - getSizeX() / 2.0,
-                    unit.y - y - getSizeY() / 2.0
+                    target.x - x - getSizeX() / 2.0,
+                    target.y - y - getSizeY() / 2.0
             );
 
             if (soundId == -1) {
@@ -62,7 +86,7 @@ public final class Turret extends Building {
                     direction, buildingTextures.turretTowerTexture, Color.WHITE
             );
 
-            if (hasTarget) {
+            if (target != null) {
                 int frame = (int) (Math.random() * animations.turretFlash.getFrameCount());
                 map.drawCenteredTexture(
                         batch,

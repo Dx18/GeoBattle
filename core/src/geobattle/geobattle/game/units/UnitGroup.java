@@ -6,11 +6,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import geobattle.geobattle.actionresults.MatchBranch;
+import geobattle.geobattle.game.attacking.HealthInterpolation;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
+import geobattle.geobattle.game.tasks.TimedObjectQueue;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.map.GeoBattleMapEvent;
 import geobattle.geobattle.util.GeoBattleMath;
@@ -32,11 +35,20 @@ public final class UnitGroup {
     // Hangar ID
     public final int hangarId;
 
+    // Health interpolation of group
+    private HealthInterpolation healthInterpolation;
+
     // State of group
     private UnitGroupState state;
 
     // Last update time of group
     private double lastUpdateTime;
+
+    // Health interpolations of units
+    public final TimedObjectQueue<HealthInterpolation> healthInterpolations;
+
+    // States of units
+    public final TimedObjectQueue<UnitGroupState> states;
 
     public UnitGroup(Unit[] units, Hangar hangar) {
         if (units.length != 4)
@@ -48,6 +60,9 @@ public final class UnitGroup {
         this.y = hangar.y + hangar.getSizeY() / 2.0;
         setState(new UnitGroupState.Idle(hangar));
         this.hangarId = hangar.id;
+
+        healthInterpolations = new TimedObjectQueue<HealthInterpolation>();
+        states = new TimedObjectQueue<UnitGroupState>();
     }
 
     public UnitGroup(Hangar hangar) {
@@ -56,6 +71,17 @@ public final class UnitGroup {
 
     // Updates group of units
     public void update(final float delta, final double currentTime, final GeoBattleMap map) {
+        ArrayList<UnitGroupState> newStates = states.getObjects(currentTime);
+        if (newStates.size() > 0)
+            setState(newStates.get(newStates.size() - 1));
+
+        ArrayList<HealthInterpolation> newHealth = healthInterpolations.getObjects(currentTime);
+        if (newHealth.size() > 0)
+            healthInterpolation = newHealth.get(newHealth.size() - 1);
+
+        if (healthInterpolation != null)
+            setHealth((float) healthInterpolation.getHealth(currentTime));
+
         if (state == null)
             return;
 

@@ -1,9 +1,8 @@
 package geobattle.geobattle.screens.gamescreen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.IntIntMap;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import geobattle.geobattle.GeoBattle;
@@ -20,17 +19,16 @@ import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.GameStateUpdate;
 import geobattle.geobattle.game.PlayerState;
 import geobattle.geobattle.game.attacking.AttackScript;
+import geobattle.geobattle.game.attacking.HealthInterpolation;
 import geobattle.geobattle.game.attacking.TimePoint;
 import geobattle.geobattle.game.attacking.UnitGroupMovingInfo;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
-import geobattle.geobattle.game.buildings.SectorState;
-import geobattle.geobattle.game.buildings.Turret;
 import geobattle.geobattle.game.research.ResearchInfo;
 import geobattle.geobattle.game.research.ResearchType;
-import geobattle.geobattle.game.units.Unit;
+import geobattle.geobattle.game.tasks.TimedObject;
 import geobattle.geobattle.game.units.UnitGroup;
 import geobattle.geobattle.game.units.UnitGroupState;
 import geobattle.geobattle.game.units.UnitType;
@@ -63,6 +61,12 @@ public class GameEvents {
     // Time of last update
     private double lastUpdateTime;
 
+    // Attack scripts
+    // private TimedObjectQueue<AttackScript> attackScripts;
+
+    // Started attack scripts
+    private HashSet<AttackScript> startedAttackScripts;
+
     public GameEvents(GameState gameState, AuthInfo authInfo, GameScreen screen, GeoBattleMap map, GeoBattle game) {
         this.gameState = gameState;
         this.authInfo = authInfo;
@@ -70,6 +74,7 @@ public class GameEvents {
         this.map = map;
         this.game = game;
         this.lastUpdateTime = gameState.getTime();
+        this.startedAttackScripts = new HashSet<AttackScript>();
     }
 
     // Invokes when player requests first sector building
@@ -413,132 +418,122 @@ public class GameEvents {
         if (gameState.getTime() - lastUpdateTime >= 1)
             onUpdateRequestEvent();
 
-        {
-            Iterator<PlayerState> players = gameState.getPlayers();
-            while (players.hasNext()) {
-                Iterator<Sector> sectors = players.next().getAllSectors();
-                while (sectors.hasNext())
-                    sectors.next().setBlocked(false);
-            }
-        }
-
+        // Removing expired events
         for (int eventIndex = 0; eventIndex < gameState.getAttackScripts().size();) {
             if (gameState.getAttackScripts().get(eventIndex).isExpired(gameState.getTime())) {
-                AttackScript attackScript = gameState.getAttackScripts().get(eventIndex);
-                PlayerState attacker = gameState.getPlayer(attackScript.attackerId);
-                IntIntMap hangarIds = new IntIntMap(attackScript.unitGroupMoving.length);
-                for (int index = 0; index < attackScript.unitGroupMoving.length; index++)
-                    hangarIds.put(attackScript.unitGroupMoving[index].hangarId, index);
-                Iterator<Hangar> hangars = attacker.getHangars();
-                while (hangars.hasNext()) {
-                    Hangar next = hangars.next();
-
-                    if (!hangarIds.containsKey(next.id))
-                        continue;
-
-                    next.units.setState(new UnitGroupState.Idle(next));
-                }
-
+                startedAttackScripts.remove(gameState.getAttackScripts().get(eventIndex));
                 gameState.getAttackScripts().remove(eventIndex);
             } else
                 eventIndex++;
         }
 
-        // Gdx.app.log("GeoBattle", "Count of events: " + gameState.getAttackScripts().size());
-        for (AttackScript attackScript : gameState.getAttackScripts()) {
-            if (attackScript.startArriveTime > gameState.getTime())
-                continue;
-
-            PlayerState attacker = gameState.getPlayer(attackScript.attackerId);
-            PlayerState victim = gameState.getPlayer(attackScript.victimId);
-            Sector victimSector = victim.getSector(attackScript.sectorId);
-
-            IntIntMap hangarIds = new IntIntMap(attackScript.unitGroupMoving.length);
-            for (int index = 0; index < attackScript.unitGroupMoving.length; index++)
-                hangarIds.put(attackScript.unitGroupMoving[index].hangarId, index);
-
-            TimePoint prevTimePoint = attackScript.getTimePointBefore(gameState.getTime());
-            TimePoint nextTimePoint = attackScript.getTimePointAfter(gameState.getTime());
-
-            if (victimSector != null)
-                victimSector.setBlocked(true);
-
-            if (victimSector != null && !(victimSector.getState() instanceof SectorState.Attacked)) {
-                Iterator<Turret> turrets = victimSector.getTurrets();
-                int turretCount = 0;
-                while (turrets.hasNext()) {
-                    turretCount++;
-                    turrets.next();
-                }
-
-                victimSector.setState(new SectorState.Attacked(new ArrayList<UnitGroup>(), new Unit[turretCount]));
+        // Resetting sector blocks
+        Iterator<PlayerState> players = gameState.getPlayers();
+        while (players.hasNext()) {
+            Iterator<Sector> sectors = players.next().getAllSectors();
+            while (sectors.hasNext())
+                sectors.next().setBlocked(false);
+        }
+        for (AttackScript script : gameState.getAttackScripts()) {
+            PlayerState attacker = gameState.getPlayer(script.attackerId);
+            for (UnitGroupMovingInfo movingInfo : script.unitGroupMoving) {
+                Sector attackerSector = attacker.getSector(attacker.getBuilding(movingInfo.hangarId).sectorId);
+                if (attackerSector != null)
+                    attackerSector.setBlocked(true);
             }
 
-            Iterator<Hangar> hangars = attacker.getHangars();
-            while (hangars.hasNext()) {
-                Hangar next = hangars.next();
+            PlayerState victim = gameState.getPlayer(script.victimId);
+            if (victim != null) {
+                Sector victimSector = victim.getSector(script.sectorId);
+                if (victimSector != null)
+                    victimSector.setBlocked(true);
+            }
+        }
 
-                if (!hangarIds.containsKey(next.id))
-                    continue;
+        // Processing new attack scripts
+        for (AttackScript script : gameState.getAttackScripts()) {
+            if (script.startArriveTime > gameState.getTime())
+                continue;
+            if (startedAttackScripts.contains(script))
+                continue;
+            startedAttackScripts.add(script);
 
-                attacker.getSector(next.sectorId).setBlocked(true);
+            PlayerState attacker = gameState.getPlayer(script.attackerId);
+            PlayerState victim = gameState.getPlayer(script.victimId);
+            Sector victimSector = victim.getSector(script.sectorId);
 
-                float factor = (float) ((gameState.getTime() - prevTimePoint.time) / (nextTimePoint.time - prevTimePoint.time));
+            for (int index = 0; index < script.unitGroupMoving.length; index++) {
+                UnitGroupMovingInfo movingInfo = script.unitGroupMoving[index];
+                Building building = attacker.getBuilding(movingInfo.hangarId);
+                if (building instanceof Hangar) {
+                    Hangar hangar = (Hangar) building;
 
-                float prevHealth = prevTimePoint.unitGroupHealth.get(next.id, Float.NaN);
-                float nextHealth = nextTimePoint.unitGroupHealth.get(next.id, Float.NaN);
+                    double hangarCenterX = hangar.x + hangar.getSizeX() / 2.0;
+                    double hangarCenterY = hangar.y + hangar.getSizeY() / 2.0;
 
-                float currentHealth = prevHealth + factor * (nextHealth - prevHealth);
+                    hangar.units.states.addTimedObject(new TimedObject<UnitGroupState>(
+                            script.startArriveTime, new UnitGroupState.Moving(
+                                    hangarCenterX, hangarCenterY, script.startArriveTime,
+                                    movingInfo.arriveX, movingInfo.arriveY, movingInfo.arriveTime
+                            )
+                    ));
+                    hangar.units.states.addTimedObject(new TimedObject<UnitGroupState>(
+                            movingInfo.arriveTime, new UnitGroupState.Attacking(victimSector)
+                    ));
+                    hangar.units.states.addTimedObject(new TimedObject<UnitGroupState>(
+                            script.startReturnTime, new UnitGroupState.Moving(
+                                    movingInfo.arriveX, movingInfo.arriveY, script.startReturnTime,
+                                    hangarCenterX, hangarCenterY, movingInfo.returnTime
+                            )
+                    ));
+                    hangar.units.states.addTimedObject(new TimedObject<UnitGroupState>(
+                            movingInfo.returnTime, new UnitGroupState.Idle(hangar)
+                    ));
 
-                next.units.setHealth(currentHealth);
+                    for (int timePoint = 0; timePoint < script.timePoints.length - 1; timePoint++) {
+                        TimePoint curr = script.timePoints[timePoint];
+                        TimePoint next = script.timePoints[timePoint + 1];
+                        hangar.units.healthInterpolations.addTimedObject(new TimedObject<HealthInterpolation>(
+                                curr.time, new HealthInterpolation(
+                                        curr.unitGroupHealth.get(hangar.id, Float.NaN), curr.time,
+                                        next.unitGroupHealth.get(hangar.id, Float.NaN), next.time
+                                )
+                        ));
+                    }
+                    hangar.units.healthInterpolations.addTimedObject(new TimedObject<HealthInterpolation>(
+                            script.timePoints[script.timePoints.length - 1].time, null
+                    ));
+
+                    if (victimSector != null) {
+                        victimSector.incomingUnits.addTimedObject(new TimedObject<UnitGroup>(
+                                movingInfo.arriveTime, hangar.units
+                        ));
+                    }
+                }
 
                 if (victimSector != null) {
-                    double prevSectorHealth = prevTimePoint.sectorHealth;
-                    double nextSectorHealth = nextTimePoint.sectorHealth;
-
-                    double currentSectorHealth = prevSectorHealth + factor * (nextSectorHealth - prevSectorHealth);
-
-                    victimSector.setHealth((float) currentSectorHealth);
-                    if (victimSector.getHealth() == 0) {
-                        victim.removeSector(victimSector);
-                        victimSector = null;
+                    for (int timePoint = 0; timePoint < script.timePoints.length - 1; timePoint++) {
+                        TimePoint curr = script.timePoints[timePoint];
+                        TimePoint next = script.timePoints[timePoint + 1];
+                        victimSector.healthInterpolations.addTimedObject(new TimedObject<HealthInterpolation>(
+                                curr.time, new HealthInterpolation(
+                                        curr.sectorHealth, curr.time,
+                                        next.sectorHealth, next.time
+                                )
+                        ));
                     }
-                }
-
-                UnitGroupMovingInfo unitGroupMovingInfo = attackScript.unitGroupMoving[hangarIds.get(next.id, -1)];
-
-                if (gameState.getTime() > unitGroupMovingInfo.returnTime && !(next.units.getState() instanceof UnitGroupState.Idle)) {
-                    next.units.setState(new UnitGroupState.Idle(next));
-                    continue;
-                }
-
-                double hangarCenterX = next.x + next.getSizeX() / 2.0;
-                double hangarCenterY = next.y + next.getSizeY() / 2.0;
-
-                if (gameState.getTime() < unitGroupMovingInfo.arriveTime) {
-                    if (next.units.getLastUpdateTime() < attackScript.startArriveTime)
-                        next.units.setState(new UnitGroupState.Moving(hangarCenterX, hangarCenterY, attackScript.startArriveTime, unitGroupMovingInfo.arriveX, unitGroupMovingInfo.arriveY, unitGroupMovingInfo.arriveTime));
-                } else if (gameState.getTime() > attackScript.startReturnTime) {
-                    if (next.units.getLastUpdateTime() < attackScript.startReturnTime) {
-                        next.units.setState(new UnitGroupState.Moving(unitGroupMovingInfo.arriveX, unitGroupMovingInfo.arriveY, attackScript.startReturnTime, hangarCenterX, hangarCenterY, unitGroupMovingInfo.returnTime));
-                    }
-                    if (victimSector != null && victimSector.getLastUpdateTime() < attackScript.startReturnTime) {
-                        victimSector.setState(new SectorState.Normal());
-                    }
-                } else {
-                    if (victimSector != null && next.units.getLastUpdateTime() < unitGroupMovingInfo.arriveTime) {
-                        next.units.setState(new UnitGroupState.Attacking(victimSector));
-                        if (victimSector.getState() instanceof SectorState.Attacked) {
-                            ((SectorState.Attacked) victimSector.getState()).units.add(next.units);
-                        }
-                    }
+                    victimSector.healthInterpolations.addTimedObject(new TimedObject<HealthInterpolation>(
+                            script.timePoints[script.timePoints.length - 1].time, null
+                    ));
                 }
             }
         }
 
-        Iterator<PlayerState> players = gameState.getPlayers();
+        // Updating game state
+        players = gameState.getPlayers();
         while (players.hasNext()) {
-            Iterator<Sector> sectors = players.next().getAllSectors();
+            PlayerState player = players.next();
+            Iterator<Sector> sectors = player.getAllSectors();
             while (sectors.hasNext()) {
                 Sector next = sectors.next();
                 Iterator<Hangar> hangars = next.getHangars();
@@ -546,6 +541,9 @@ public class GameEvents {
                     hangars.next().units.update(delta, gameState.getTime(), map);
                 }
                 next.update(delta, gameState.getTime(), map);
+
+                if (next.getHealth() == 0)
+                    player.removeSector(next);
             }
         }
     }

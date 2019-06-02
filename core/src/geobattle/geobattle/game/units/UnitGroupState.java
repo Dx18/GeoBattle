@@ -66,10 +66,12 @@ public abstract class UnitGroupState {
 
             ArrayList<Building> allBuildings = new ArrayList<Building>();
 
-            Iterator<Building> buildings = sector.getAllBuildings();
-            while (buildings.hasNext()) {
-                Building next = buildings.next();
-                allBuildings.add(next);
+            if (sector != null) {
+                Iterator<Building> buildings = sector.getAllBuildings();
+                while (buildings.hasNext()) {
+                    Building next = buildings.next();
+                    allBuildings.add(next);
+                }
             }
 
             this.allBuildings = allBuildings.toArray(new Building[0]);
