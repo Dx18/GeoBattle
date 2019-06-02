@@ -418,14 +418,19 @@ public class GameEvents {
         if (gameState.getTime() - lastUpdateTime >= 1)
             onUpdateRequestEvent();
 
-        // Removing expired events
-        for (int eventIndex = 0; eventIndex < gameState.getAttackScripts().size();) {
-            if (gameState.getAttackScripts().get(eventIndex).isExpired(gameState.getTime())) {
-                startedAttackScripts.remove(gameState.getAttackScripts().get(eventIndex));
-                gameState.getAttackScripts().remove(eventIndex);
-            } else
-                eventIndex++;
+        HashSet<AttackScript> toRemove = new HashSet<AttackScript>();
+
+        // Removing expired attack scripts
+        Iterator<AttackScript> scripts = gameState.getAttackScripts();
+        while (scripts.hasNext()) {
+            AttackScript script = scripts.next();
+            if (script.isExpired(gameState.getTime())) {
+                startedAttackScripts.remove(script);
+                toRemove.add(script);
+            }
         }
+        for (AttackScript script : toRemove)
+            gameState.removeAttackScript(script);
 
         // Resetting sector blocks
         Iterator<PlayerState> players = gameState.getPlayers();
@@ -434,7 +439,9 @@ public class GameEvents {
             while (sectors.hasNext())
                 sectors.next().setBlocked(false);
         }
-        for (AttackScript script : gameState.getAttackScripts()) {
+        scripts = gameState.getAttackScripts();
+        while (scripts.hasNext()) {
+            AttackScript script = scripts.next();
             PlayerState attacker = gameState.getPlayer(script.attackerId);
             for (UnitGroupMovingInfo movingInfo : script.unitGroupMoving) {
                 Sector attackerSector = attacker.getSector(attacker.getBuilding(movingInfo.hangarId).sectorId);
@@ -451,7 +458,9 @@ public class GameEvents {
         }
 
         // Processing new attack scripts
-        for (AttackScript script : gameState.getAttackScripts()) {
+        scripts = gameState.getAttackScripts();
+        while (scripts.hasNext()) {
+            AttackScript script = scripts.next();
             if (script.startArriveTime > gameState.getTime())
                 continue;
             if (startedAttackScripts.contains(script))

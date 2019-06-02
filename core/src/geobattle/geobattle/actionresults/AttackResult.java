@@ -25,7 +25,7 @@ public abstract class AttackResult implements ActionResult {
 
         @Override
         public void apply(GeoBattle game, GameState gameState) {
-            gameState.getAttackScripts().add(attackScript);
+            gameState.addAttackScript(attackScript);
         }
 
         @Override

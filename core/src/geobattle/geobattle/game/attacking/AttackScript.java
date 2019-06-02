@@ -5,6 +5,9 @@ import com.google.gson.JsonObject;
 
 // Attack event
 public final class AttackScript {
+    // ID of attack script
+    public final int id;
+
     // ID of attacker
     public final int attackerId;
 
@@ -29,7 +32,8 @@ public final class AttackScript {
     // Time when all unit groups start to return
     public final double startReturnTime;
 
-    public AttackScript(int attackerId, int victimId, int sectorId, UnitGroupMovingInfo[] unitGroupMoving, TimePoint[] timePoints) {
+    public AttackScript(int id, int attackerId, int victimId, int sectorId, UnitGroupMovingInfo[] unitGroupMoving, TimePoint[] timePoints) {
+        this.id = id;
         this.attackerId = attackerId;
         this.victimId = victimId;
         this.sectorId = sectorId;
@@ -90,6 +94,7 @@ public final class AttackScript {
 
     // Creates AttackScript from JSON
     public static AttackScript fromJson(JsonObject object) {
+        int id = object.getAsJsonPrimitive("id").getAsInt();
         int attackerId = object.getAsJsonPrimitive("attackerId").getAsInt();
         int victimId = object.getAsJsonPrimitive("victimId").getAsInt();
         int sectorId = object.getAsJsonPrimitive("sectorId").getAsInt();
@@ -104,7 +109,7 @@ public final class AttackScript {
         for (int i = 0; i < timePoints.length; i++)
             timePoints[i] = TimePoint.fromJson(timePointsJson.get(i).getAsJsonObject());
 
-        return new AttackScript(attackerId, victimId, sectorId, unitGroupMoving, timePoints);
+        return new AttackScript(id, attackerId, victimId, sectorId, unitGroupMoving, timePoints);
     }
 
     // Clones AttackScript
@@ -117,6 +122,23 @@ public final class AttackScript {
         for (int index = 0; index < this.timePoints.length; index++)
             timePoints[index] = this.timePoints[index].clone();
 
-        return new AttackScript(attackerId, victimId, sectorId, unitGroupMoving, timePoints);
+        return new AttackScript(id, attackerId, victimId, sectorId, unitGroupMoving, timePoints);
+    }
+
+    // Return ID of AttackScript used as hash code
+    @Override
+    public int hashCode() {
+        return id;
+    }
+
+    // Checks ID equality
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AttackScript script = (AttackScript) o;
+
+        return id == script.id;
     }
 }

@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import geobattle.geobattle.game.attacking.AttackScript;
@@ -37,7 +38,7 @@ public class GameState {
     private ArrayList<PlayerState> players;
 
     // Attack events
-    private ArrayList<AttackScript> attackScripts;
+    private HashSet<AttackScript> attackScripts;
 
     // Comparator for buildings
     private final static Comparator<PlayerState> playerComparator = new Comparator<PlayerState>() {
@@ -52,7 +53,7 @@ public class GameState {
         this.playerId = playerId;
         this.time = time;
         this.players = new ArrayList<PlayerState>();
-        this.attackScripts = new ArrayList<AttackScript>();
+        this.attackScripts = new HashSet<AttackScript>();
 
         IntFloatMap unitHealth1 = new IntFloatMap();
         unitHealth1.put(-1, UnitType.BOMBER.maxHealth * 4);
@@ -70,7 +71,7 @@ public class GameState {
             cloned.players.add(player.clone());
 
         for (AttackScript event : attackScripts)
-            cloned.attackScripts.add(event.clone());
+            cloned.addAttackScript(event.clone());
 
         return cloned;
     }
@@ -167,8 +168,19 @@ public class GameState {
         players.remove(index);
     }
 
-    public ArrayList<AttackScript> getAttackScripts() {
-        return attackScripts;
+    // Returns iterator over attack scripts
+    public Iterator<AttackScript> getAttackScripts() {
+        return attackScripts.iterator();
+    }
+
+    // Adds attack script
+    public void addAttackScript(AttackScript attackScript) {
+        attackScripts.add(attackScript);
+    }
+
+    // Removes attack script
+    public void removeAttackScript(AttackScript attackScript) {
+        attackScripts.remove(attackScript);
     }
 
     public static GameState fromJson(JsonObject object) {
@@ -185,7 +197,7 @@ public class GameState {
 
         JsonArray jsonAttackEvents = object.getAsJsonArray("attackEvents");
         for (JsonElement jsonAttackEvent : jsonAttackEvents)
-            gameState.attackScripts.add(AttackScript.fromJson(jsonAttackEvent.getAsJsonObject()));
+            gameState.addAttackScript(AttackScript.fromJson(jsonAttackEvent.getAsJsonObject()));
 
         return gameState;
     }
