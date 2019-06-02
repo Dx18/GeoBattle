@@ -680,7 +680,7 @@ public final class GameScreenGUI {
                 .width(buttonSize)
                 .height(buttonSize);
 
-         tutorialMessageButton.left().padLeft(20).bottom().padBottom(20 + buttonSize * 3);
+        tutorialMessageButton.left().padLeft(20).bottom().padBottom(20 + buttonSize * 4);
     }
 
     // Sets mode of game screen
