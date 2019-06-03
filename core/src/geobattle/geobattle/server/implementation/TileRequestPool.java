@@ -163,9 +163,12 @@ public final class TileRequestPool {
     private Pixmap requestHTTP(final TileRequest tileRequest) {
         final int size = (1 << (19 - tileRequest.zoomLevel));
 
+        int serverPrefix = 1 + (tileRequest.x + tileRequest.y) % 4;
+
         String urlString = String.format(
                 Locale.US,
-                "https://1.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.day/%d/%d/%d/512/jpg?app_id=%s&app_code=%s&lg=rus&ppi=250",
+                "https://%d.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.day/%d/%d/%d/512/jpg?app_id=%s&app_code=%s&lg=rus&ppi=250&",
+                serverPrefix,
                 tileRequest.zoomLevel,
                 tileRequest.x / size,
                 (1 << tileRequest.zoomLevel) - 1 - tileRequest.y / size,
