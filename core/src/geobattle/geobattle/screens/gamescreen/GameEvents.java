@@ -2,6 +2,7 @@ package geobattle.geobattle.screens.gamescreen;
 
 import com.badlogic.gdx.Gdx;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -538,6 +539,8 @@ public class GameEvents {
             }
         }
 
+        ArrayList<Sector> sectorsToRemove = new ArrayList<Sector>();
+
         // Updating game state
         players = gameState.getPlayers();
         while (players.hasNext()) {
@@ -552,8 +555,11 @@ public class GameEvents {
                 next.update(delta, gameState.getTime(), map);
 
                 if (next.getHealth() == 0)
-                    player.removeSector(next);
+                    sectorsToRemove.add(next);
             }
         }
+
+        for (Sector sectorToRemove : sectorsToRemove)
+            gameState.getPlayer(sectorToRemove.playerId).removeSector(sectorToRemove);
     }
 }
