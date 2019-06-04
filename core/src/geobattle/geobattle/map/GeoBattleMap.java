@@ -583,10 +583,10 @@ public class GeoBattleMap extends Actor {
     // Returns rectangle visible by camera
     public IntRect getVisibleRect() {
         return new IntRect(
-                CoordinateConverter.worldToSubTiles(camera.position.x - camera.viewportWidth / 2, xOffset, GeoBattleConst.SUBDIVISION),
-                CoordinateConverter.worldToSubTiles(camera.position.y - camera.viewportHeight / 2, yOffset, GeoBattleConst.SUBDIVISION),
-                CoordinateConverter.realWorldToSubTiles(camera.viewportWidth, GeoBattleConst.SUBDIVISION),
-                CoordinateConverter.realWorldToSubTiles(camera.viewportHeight, GeoBattleConst.SUBDIVISION)
+                CoordinateConverter.worldToSubTiles(camera.position.x - camera.viewportWidth / 2, xOffset, GeoBattleConst.SUBDIVISION) - 2,
+                CoordinateConverter.worldToSubTiles(camera.position.y - camera.viewportHeight / 2, yOffset, GeoBattleConst.SUBDIVISION) - 2,
+                CoordinateConverter.realWorldToSubTiles(camera.viewportWidth, GeoBattleConst.SUBDIVISION) + 4,
+                CoordinateConverter.realWorldToSubTiles(camera.viewportHeight, GeoBattleConst.SUBDIVISION) + 4
         );
     }
 
