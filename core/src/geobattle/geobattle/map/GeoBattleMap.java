@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.GeoBattleConst;
@@ -593,6 +594,37 @@ public class GeoBattleMap extends Actor {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+
+        int zoomLevel = 20 - Math.max(1, (int)MathUtils.log2(camera.viewportWidth));
+        if (zoomLevel >= 15) {
+            int cameraSubTileX = CoordinateConverter.worldToSubTiles(camera.position.x, xOffset, GeoBattleConst.SUBDIVISION);
+            int cameraSubTileY = CoordinateConverter.worldToSubTiles(camera.position.y, yOffset, GeoBattleConst.SUBDIVISION);
+
+            double cameraHeight = 100.0 / (1 << (zoomLevel - 15));
+
+            for (Map.Entry<Long, SoundInstance> soundInstance : soundInstances.entrySet()) {
+                long soundId = soundInstance.getKey();
+                SoundInstance sound = soundInstance.getValue();
+
+                double distance = Math.sqrt(
+                        cameraHeight * cameraHeight +
+                        (sound.x - cameraSubTileX) * (sound.x - cameraSubTileX) +
+                        (sound.y - cameraSubTileY) * (sound.y - cameraSubTileY)
+                );
+
+                if (distance <= 100) {
+                    float volume = (float) ((distance / -100 + 1) * game.getSoundVolume());
+                    sound.sound.setVolume(soundId, volume);
+                } else
+                    sound.sound.setVolume(soundId, 0);
+            }
+        } else {
+            for (Map.Entry<Long, SoundInstance> soundInstance : soundInstances.entrySet()) {
+                long soundId = soundInstance.getKey();
+                SoundInstance sound = soundInstance.getValue();
+                sound.sound.setVolume(soundId, 0);
+            }
+        }
 
         mapRenderer.drawAndReduceTiles(batch, xOffset, yOffset, camera);
 
