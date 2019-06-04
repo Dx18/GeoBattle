@@ -127,7 +127,7 @@ public final class SocketServer implements Server {
     @Override
     public void setAddress(String ip, int port) {
         synchronized (this) {
-            if (this.ip.equals(ip) && this.port == port)
+            if (this.ip != null && this.ip.equals(ip) && this.port == port)
                 return;
 
             this.ip = ip;

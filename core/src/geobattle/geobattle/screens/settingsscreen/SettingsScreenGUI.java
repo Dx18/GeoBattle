@@ -12,7 +12,6 @@ import com.kotcrab.vis.ui.widget.VisImageButton;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisSlider;
 import com.kotcrab.vis.ui.widget.VisTable;
-import com.kotcrab.vis.ui.widget.VisTextField;
 
 import geobattle.geobattle.GeoBattleAssets;
 import geobattle.geobattle.server.OSAPI;
@@ -25,10 +24,6 @@ public final class SettingsScreenGUI {
     public final VisSlider soundVolume;
 
     public final VisSlider musicVolume;
-
-    public final VisTextField ip;
-
-    public final VisTextField port;
 
     // Table with button which hides keyboard
     public final VisTable hideKeyboard;
@@ -45,10 +40,6 @@ public final class SettingsScreenGUI {
         soundVolume.setValue(Float.parseFloat(oSAPI.loadValue("soundVolume", "0.5f")));
         musicVolume = new VisSlider(0, 1, 0.01f, false);
         musicVolume.setValue(Float.parseFloat(oSAPI.loadValue("musicVolume", "0.5")));
-        ip = new VisTextField(oSAPI.loadValue("ip", "78.47.182.60"));
-        ip.setMessageText(screen.getI18NBundle().get("ipAddress"));
-        port = new VisTextField(oSAPI.loadValue("port", "12000"));
-        port.setMessageText(screen.getI18NBundle().get("port"));
         guiStage.addActor(settings);
 
         hideKeyboard = new VisTable();
@@ -99,50 +90,12 @@ public final class SettingsScreenGUI {
                 .fillX();
         root.row();
 
-        VisTable serverRoot = new VisTable();
-
-        serverRoot.add(ip)
-                .growX()
-                .height(Gdx.graphics.getPpcY() * 0.9f)
-                .pad(5);
-        VisImageButton resetIp = new VisImageButton("buttonBack");
-        resetIp.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                ip.setText("78.47.182.60");
-            }
-        });
-        serverRoot.add(resetIp)
-                .width(Gdx.graphics.getPpcY() * 0.9f)
-                .height(Gdx.graphics.getPpcY() * 0.9f)
-                .pad(5);
-        serverRoot.row();
-        serverRoot.add(port)
-                .growX()
-                .height(Gdx.graphics.getPpcY() * 0.9f)
-                .pad(5);
-        VisImageButton resetPort = new VisImageButton("buttonBack");
-        resetPort.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                port.setText("12000");
-            }
-        });
-        serverRoot.add(resetPort)
-                .width(Gdx.graphics.getPpcY() * 0.9f)
-                .height(Gdx.graphics.getPpcY() * 0.9f)
-                .pad(5);
-
-        root.add(serverRoot)
-                .fillX();
-        root.row();
-
         TextButton saveSettings = new TextButton(screen.getI18NBundle().get("save"), skin);
         saveSettings.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (saveSettings())
-                    screen.onSaveSettings();
+                saveSettings();
+                screen.onSaveSettings();
             }
         });
         root.add(saveSettings)
@@ -173,17 +126,8 @@ public final class SettingsScreenGUI {
         hideKeyboard.top().padTop(20).right().padRight(20);
     }
 
-    private boolean saveSettings() {
-        try {
-            int parsedPort = Integer.parseInt(port.getText());
-
-            oSAPI.saveValue("soundVolume", String.valueOf(soundVolume.getValue()));
-            oSAPI.saveValue("musicVolume", String.valueOf(musicVolume.getValue()));
-            oSAPI.saveValue("ip", ip.getText());
-            oSAPI.saveValue("port", String.valueOf(parsedPort));
-        } catch (NumberFormatException e) {
-            return false;
-        }
-        return true;
+    private void saveSettings() {
+        oSAPI.saveValue("soundVolume", String.valueOf(soundVolume.getValue()));
+        oSAPI.saveValue("musicVolume", String.valueOf(musicVolume.getValue()));
     }
 }

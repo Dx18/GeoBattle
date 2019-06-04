@@ -91,10 +91,6 @@ public final class SettingsScreen implements Screen {
     }
 
     public void onSaveSettings() {
-        game.getExternalAPI().server.setAddress(
-                game.getExternalAPI().oSAPI.loadValue("ip", "78.47.182.60"),
-                Integer.parseInt(game.getExternalAPI().oSAPI.loadValue("port", "12000"))
-        );
         game.setMusicVolume(
                 Float.parseFloat(game.getExternalAPI().oSAPI.loadValue("musicVolume", "0.5"))
         );
