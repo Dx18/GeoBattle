@@ -197,7 +197,7 @@ public final class SocketServer implements Server {
         if (!sslSocketFactoryExists && !requestCertificate())
             return null;
 
-        SSLSocket socket;
+        SSLSocket socket = null;
         DataOutputStream toSocket;
         DataInputStream fromSocket;
 
@@ -213,22 +213,17 @@ public final class SocketServer implements Server {
             socket.startHandshake();
             toSocket = new DataOutputStream(socket.getOutputStream());
             fromSocket = new DataInputStream(socket.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
 
-        byte[] sendBytes;
-        try {
-            sendBytes = (json + "#").getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return null;
-        }
+            byte[] sendBytes;
+            try {
+                sendBytes = (json + "#").getBytes("UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                return null;
+            }
 
-        StringBuilder result = new StringBuilder();
+            StringBuilder result = new StringBuilder();
 
-        try {
             toSocket.write(sendBytes);
             toSocket.flush();
 
@@ -240,29 +235,28 @@ public final class SocketServer implements Server {
 
                 result.append(new String(buffer, 0, read));
             }
+
+            // Gdx.app.log("GeoBattle", "Data from server: " + result.toString());
+
+            if (Thread.interrupted())
+                return null;
+
+            return result.toString();
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        } finally {
+            try {
+                if (socket != null)
+                    socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
-        try {
-            toSocket.close();
-            fromSocket.close();
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Gdx.app.log("GeoBattle", "Data from server: " + result.toString());
-
-        if (Thread.interrupted())
-            return null;
-
-        return result.toString();
     }
 
     private String request(String ip, int port, String json) {
-        Socket socket;
+        Socket socket = null;
         DataOutputStream toSocket;
         DataInputStream fromSocket;
 
@@ -273,22 +267,17 @@ public final class SocketServer implements Server {
             socket.connect(new InetSocketAddress(ip, port), 2000);
             toSocket = new DataOutputStream(socket.getOutputStream());
             fromSocket = new DataInputStream(socket.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
 
-        byte[] sendBytes;
-        try {
-            sendBytes = (json + "#").getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return null;
-        }
+            byte[] sendBytes;
+            try {
+                sendBytes = (json + "#").getBytes("UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                return null;
+            }
 
-        StringBuilder result = new StringBuilder();
+            StringBuilder result = new StringBuilder();
 
-        try {
             toSocket.write(sendBytes);
 
             byte[] buffer = new byte[1024];
@@ -299,25 +288,24 @@ public final class SocketServer implements Server {
 
                 result.append(new String(buffer, 0, read));
             }
+
+            // Gdx.app.log("GeoBattle", "Data from server: " + result.toString());
+
+            if (Thread.interrupted())
+                return null;
+
+            return result.toString();
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        } finally {
+            try {
+                if (socket != null)
+                    socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
-        try {
-            toSocket.close();
-            fromSocket.close();
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Gdx.app.log("GeoBattle", "Data from server: " + result.toString());
-
-        if (Thread.interrupted())
-            return null;
-
-        return result.toString();
     }
 
     private void onFail() {

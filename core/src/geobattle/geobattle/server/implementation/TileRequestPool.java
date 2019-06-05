@@ -173,8 +173,8 @@ public final class TileRequestPool {
         final int size = (1 << (19 - tileRequest.zoomLevel));
 
         Socket socket = null;
-        DataOutputStream toSocket = null;
-        DataInputStream fromSocket = null;
+        DataOutputStream toSocket;
+        DataInputStream fromSocket;
 
         try {
             socket = new Socket();
@@ -183,26 +183,21 @@ public final class TileRequestPool {
             socket.connect(new InetSocketAddress(tileServerIp, tileServerPort), 2000);
             toSocket = new DataOutputStream(socket.getOutputStream());
             fromSocket = new DataInputStream(socket.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
 
-        byte[] sendBytes;
-        try {
-            sendBytes = String.format(
-                    Locale.US,
-                    "{ \"x\": %d, \"y\": %d, \"zoomLevel\": %d }#",
-                    tileRequest.x / size,
-                    (1 << tileRequest.zoomLevel) - 1 - tileRequest.y / size,
-                    tileRequest.zoomLevel
-            ).getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return null;
-        }
+            byte[] sendBytes;
+            try {
+                sendBytes = String.format(
+                        Locale.US,
+                        "{ \"x\": %d, \"y\": %d, \"zoomLevel\": %d }#",
+                        tileRequest.x / size,
+                        (1 << tileRequest.zoomLevel) - 1 - tileRequest.y / size,
+                        tileRequest.zoomLevel
+                ).getBytes("UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                return null;
+            }
 
-        try {
             toSocket.write(sendBytes);
             return readPixmap(fromSocket);
         } catch (IOException e) {
@@ -210,9 +205,8 @@ public final class TileRequestPool {
             return null;
         } finally {
             try {
-                toSocket.close();
-                fromSocket.close();
-                socket.close();
+                if (socket != null)
+                    socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
