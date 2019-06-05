@@ -116,9 +116,7 @@ public final class SelectServerScreen implements Screen {
 
     public ArrayList<ServerAddress> getOfficialServers() {
         ArrayList<ServerAddress> result = new ArrayList<ServerAddress>();
-        result.add(new ServerAddress("Alpha", "78.47.182.60", 12000));
-        result.add(new ServerAddress("Beta", "78.47.182.60", 12001));
-        result.add(new ServerAddress("Gamma", "78.47.182.60", 12002));
+        result.add(new ServerAddress("Main server", "82.146.61.124", 12000));
         return result;
     }
 
