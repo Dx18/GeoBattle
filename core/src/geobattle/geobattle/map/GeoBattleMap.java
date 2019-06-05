@@ -752,4 +752,14 @@ public class GeoBattleMap extends Actor {
             soundInstances.remove(soundId);
         }
     }
+
+    // Returns X offset of map
+    public int getXOffset() {
+        return xOffset;
+    }
+
+    // Returns Y offset of map
+    public int getYOffset() {
+        return yOffset;
+    }
 }

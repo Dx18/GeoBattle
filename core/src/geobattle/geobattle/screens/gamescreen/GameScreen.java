@@ -6,11 +6,13 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
@@ -19,7 +21,9 @@ import java.util.Iterator;
 import java.util.Locale;
 
 import geobattle.geobattle.GeoBattle;
+import geobattle.geobattle.GeoBattleConst;
 import geobattle.geobattle.game.GameState;
+import geobattle.geobattle.game.PlayerState;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Sector;
@@ -29,6 +33,7 @@ import geobattle.geobattle.screens.BackButtonProcessor;
 import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.implementation.RealMapRenderer;
 import geobattle.geobattle.tutorial.Tutorial;
+import geobattle.geobattle.util.CoordinateConverter;
 import geobattle.geobattle.util.GeoBattleMath;
 
 // Game screen
@@ -69,6 +74,12 @@ public final class GameScreen implements Screen {
     // Current tutorial
     private Tutorial tutorial;
 
+    // Sprite batch for player data
+    private SpriteBatch playerDataSpriteBatch;
+
+    // Font for player data
+    private final BitmapFont font;
+
     // Constructor
     public GameScreen(GameState gameState, AssetManager assetManager, AuthInfo authInfo, GeoBattle game) {
         this.assetManager = assetManager;
@@ -98,6 +109,11 @@ public final class GameScreen implements Screen {
         this.debugMode = true;
 
         tilesStage.setDebugAll(false);
+
+        playerDataSpriteBatch = new SpriteBatch();
+
+        font = new BitmapFont(Gdx.files.internal("mapFont/font-36.fnt"));
+        font.setUseIntegerPositions(false);
     }
 
     public I18NBundle getI18NBundle() {
@@ -365,6 +381,41 @@ public final class GameScreen implements Screen {
             gui.researchDialog.lockButtons();
 
         tilesStage.draw();
+
+        playerDataSpriteBatch.begin();
+
+        Iterator<PlayerState> players = gameState.getPlayers();
+        while (players.hasNext()) {
+            PlayerState player = players.next();
+            if (player.getSectorCount() > 0) {
+                Sector next = player.getAllSectors().next();
+
+                float worldX = CoordinateConverter.subTilesToWorld(next.x + Sector.SECTOR_SIZE / 2, map.getXOffset(), GeoBattleConst.SUBDIVISION);
+                float worldY = CoordinateConverter.subTilesToWorld(next.y + Sector.SECTOR_SIZE / 2, map.getYOffset(), GeoBattleConst.SUBDIVISION);
+
+                int screenX = (int) ((worldX - (camera.position.x - camera.viewportWidth / 2)) / camera.viewportWidth * Gdx.graphics.getWidth());
+                int screenY = (int) ((worldY - (camera.position.y - camera.viewportHeight / 2)) / camera.viewportHeight * Gdx.graphics.getHeight());
+
+                if (
+                        screenX >= Gdx.graphics.getWidth() / 6 &&
+                        screenX <= Gdx.graphics.getWidth() * 5 / 6 &&
+                        screenY >= Gdx.graphics.getHeight() / 6 &&
+                        screenY <= Gdx.graphics.getHeight() * 5 / 6
+                ) {
+                    screenX = (int) (Gdx.graphics.getWidth() / 2 + (screenX - Gdx.graphics.getWidth() / 2) * 1.5f);
+                    screenY = (int) (Gdx.graphics.getHeight() / 2 + (screenY - Gdx.graphics.getHeight() / 2) * 1.5f);
+
+                    font.setColor(player.getColor());
+                    font.draw(
+                            playerDataSpriteBatch, player.getName(), screenX,
+                            screenY + font.getCapHeight() / 2, 0,
+                            Align.center, false
+                    );
+                }
+            }
+        }
+
+        playerDataSpriteBatch.end();
 
         guiStage.draw();
     }
