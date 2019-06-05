@@ -74,7 +74,7 @@ public class DesktopLauncher {
             return new ExternalAPI(
                     new SocketServer(11999, "78.47.182.60", 12000),
                     new FixedGeolocationAPI(longitude, latitude),
-                    new TileRequestPool(appId, appCode, cachePath, 10),
+                    new TileRequestPool("82.146.61.124", 11998, cachePath, 10),
                     oSAPI
             );
         } catch (FileNotFoundException e) {
@@ -98,12 +98,14 @@ public class DesktopLauncher {
 
         System.out.println(String.format("Cache path: %s", cachePath));
 
-        ExternalAPI externalAPI = createExternalAPI("tileAPI", cachePath);
+        ExternalAPI externalAPI = createExternalAPI("tileAPI", null);
 
         if (externalAPI == null)
             return;
 
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+		config.width = 1920 / 2;
+		config.height = 1080;
 		new LwjglApplication(new GeoBattle(externalAPI), config);
 	}
 }

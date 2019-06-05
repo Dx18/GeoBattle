@@ -4,15 +4,19 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.PixmapIO;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.Locale;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -59,11 +63,11 @@ public final class TileRequestPool {
     // Level of zoom. May be null
     private Integer zoomLevel;
 
-    // App ID
-    private final String appId;
+    // IP address of tile server
+    private final String tileServerIp;
 
-    // App code
-    private final String appCode;
+    // Port of tile server
+    private final int tileServerPort;
 
     // Path to cache
     private final String cachePath;
@@ -72,13 +76,13 @@ public final class TileRequestPool {
     private final int maxLoadingCount;
 
     // Reads pixmap from input stream
-    public TileRequestPool(String appId, String appCode, String cachePath, int maxLoadingCount) {
+    public TileRequestPool(String tileServerIp, int tileServerPort, String cachePath, int maxLoadingCount) {
         loadingCount = new AtomicInteger();
         requests = new Stack<TileRequest>();
         visible = null;
         zoomLevel = null;
-        this.appId = appId;
-        this.appCode = appCode;
+        this.tileServerIp = tileServerIp;
+        this.tileServerPort = tileServerPort;
         this.cachePath = cachePath;
         this.maxLoadingCount = maxLoadingCount;
     }
@@ -96,7 +100,12 @@ public final class TileRequestPool {
             result.write(buffer, 0, read);
 
         byte[] finalResult = result.toByteArray();
-        return new Pixmap(finalResult, 0, finalResult.length);
+
+        try {
+            return new Pixmap(finalResult, 0, finalResult.length);
+        } catch (GdxRuntimeException e) {
+            return null;
+        }
     }
 
     // Reads pixmap from cache. Does not create a new thread
@@ -160,38 +169,53 @@ public final class TileRequestPool {
     }
 
     // Requests tile via HTTP
-    private Pixmap requestHTTP(final TileRequest tileRequest) {
+    private Pixmap requestSocket(final TileRequest tileRequest) {
         final int size = (1 << (19 - tileRequest.zoomLevel));
 
-        int serverPrefix = 1 + (tileRequest.x + tileRequest.y) % 4;
+        Socket socket = null;
+        DataOutputStream toSocket = null;
+        DataInputStream fromSocket = null;
 
-        String urlString = String.format(
-                Locale.US,
-                "https://%d.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.day/%d/%d/%d/512/jpg?app_id=%s&app_code=%s&lg=rus&ppi=250&",
-                serverPrefix,
-                tileRequest.zoomLevel,
-                tileRequest.x / size,
-                (1 << tileRequest.zoomLevel) - 1 - tileRequest.y / size,
-                appId,
-                appCode
-        );
-
-        HttpURLConnection connection = null;
-        InputStream fromConnection = null;
         try {
-            URL url = new URL(urlString);
-
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-
-            fromConnection = connection.getInputStream();
-            return readPixmap(fromConnection);
+            socket = new Socket();
+            socket.setSoTimeout(10000);
+            Gdx.app.log("GeoBattle", "Creating socket for tiles: " + tileServerIp + ":" + tileServerPort);
+            socket.connect(new InetSocketAddress(tileServerIp, tileServerPort), 2000);
+            toSocket = new DataOutputStream(socket.getOutputStream());
+            fromSocket = new DataInputStream(socket.getInputStream());
         } catch (IOException e) {
-            // e.printStackTrace();
+            e.printStackTrace();
+            return null;
+        }
+
+        byte[] sendBytes;
+        try {
+            sendBytes = String.format(
+                    Locale.US,
+                    "{ \"x\": %d, \"y\": %d, \"zoomLevel\": %d }#",
+                    tileRequest.x / size,
+                    (1 << tileRequest.zoomLevel) - 1 - tileRequest.y / size,
+                    tileRequest.zoomLevel
+            ).getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        try {
+            toSocket.write(sendBytes);
+            return readPixmap(fromSocket);
+        } catch (IOException e) {
+            e.printStackTrace();
             return null;
         } finally {
-            if (connection != null)
-                connection.disconnect();
+            try {
+                toSocket.close();
+                fromSocket.close();
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -232,7 +256,7 @@ public final class TileRequestPool {
                 public void run() {
                     Pixmap result = requestCache(next);
                     if (result == null) {
-                        result = requestHTTP(next);
+                        result = requestSocket(next);
                         if (result != null)
                             writeToCache(result, next);
                     }
