@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -75,6 +76,18 @@ public final class TileRequestPool {
     // Max loading count
     private final int maxLoadingCount;
 
+    // Quality of map
+    private String mapQuality;
+
+    // Map "Map quality name" -> "Map quality resolution"
+    private static final HashMap<String, String> MAP_QUALITY_TABLE;
+
+    static {
+        MAP_QUALITY_TABLE = new HashMap<String, String>();
+        MAP_QUALITY_TABLE.put("mapQualityLow", "256");
+        MAP_QUALITY_TABLE.put("mapQualityHigh", "512");
+    }
+
     public TileRequestPool(String tileServerIp, int tileServerPort, String cachePath, int maxLoadingCount) {
         loadingCount = new AtomicInteger();
         requests = new Stack<TileRequest>();
@@ -84,6 +97,7 @@ public final class TileRequestPool {
         this.tileServerPort = tileServerPort;
         this.cachePath = cachePath;
         this.maxLoadingCount = maxLoadingCount;
+        this.mapQuality = "mapQualityHigh";
     }
 
     // Sets rect of visible tiles
@@ -94,6 +108,11 @@ public final class TileRequestPool {
 
     public synchronized void setOnLoadListener(TileRequestCallback onLoad) {
         this.onLoad = onLoad;
+    }
+
+    // Sets quality of map
+    public synchronized void setMapQuality(String mapQuality) {
+        this.mapQuality = mapQuality;
     }
 
     // Reads pixmap from input stream
@@ -121,10 +140,11 @@ public final class TileRequestPool {
 
         String fileName = String.format(
                 Locale.US,
-                "%d_%d_%d.png",
+                "%d_%d_%d_%s.png",
                 tileRequest.x,
                 tileRequest.y,
-                tileRequest.zoomLevel
+                tileRequest.zoomLevel,
+                MAP_QUALITY_TABLE.get(mapQuality)
         );
 
         File file = new File(cachePath, fileName);
@@ -152,10 +172,11 @@ public final class TileRequestPool {
 
         String fileName = String.format(
                 Locale.US,
-                "%d_%d_%d.png",
+                "%d_%d_%d_%s.png",
                 tileRequest.x,
                 tileRequest.y,
-                tileRequest.zoomLevel
+                tileRequest.zoomLevel,
+                MAP_QUALITY_TABLE.get(mapQuality)
         );
 
         File file = new File(cachePath, fileName);
@@ -184,7 +205,7 @@ public final class TileRequestPool {
 
         try {
             socket = new Socket();
-            socket.setSoTimeout(10000);
+            socket.setSoTimeout(4000);
             Gdx.app.log("GeoBattle", "Creating socket for tiles: " + tileServerIp + ":" + tileServerPort);
             socket.connect(new InetSocketAddress(tileServerIp, tileServerPort), 2000);
             toSocket = new DataOutputStream(socket.getOutputStream());
@@ -194,10 +215,11 @@ public final class TileRequestPool {
             try {
                 sendBytes = String.format(
                         Locale.US,
-                        "{ \"x\": %d, \"y\": %d, \"zoomLevel\": %d }#",
+                        "{ \"x\": %d, \"y\": %d, \"zoomLevel\": %d, \"size\": \"%s\" }#",
                         tileRequest.x / size,
                         (1 << tileRequest.zoomLevel) - 1 - tileRequest.y / size,
-                        tileRequest.zoomLevel
+                        tileRequest.zoomLevel,
+                        MAP_QUALITY_TABLE.get(mapQuality)
                 ).getBytes("UTF-8");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();

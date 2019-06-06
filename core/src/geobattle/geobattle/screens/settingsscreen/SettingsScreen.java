@@ -97,6 +97,9 @@ public final class SettingsScreen implements Screen {
         game.setSoundVolume(
                 Float.parseFloat(game.getExternalAPI().oSAPI.loadValue("soundVolume", "0.5"))
         );
+        game.getExternalAPI().tileRequestPool.setMapQuality(
+                game.getExternalAPI().oSAPI.loadValue("mapQuality", "mapQualityHigh")
+        );
         game.switchToMainMenuScreen();
     }
 

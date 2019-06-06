@@ -123,6 +123,8 @@ public final class GeoBattle extends Game {
         }, Float.parseFloat(externalAPI.oSAPI.loadValue("musicVolume", "0.5")));
         musicController.nextTrack();
 
+        externalAPI.tileRequestPool.setMapQuality(externalAPI.oSAPI.loadValue("mapQuality", "mapQualityHigh"));
+
         guiStage = new Stage();
         gui = new GeoBattleGUI(assetManager, this, guiStage, 3);
 

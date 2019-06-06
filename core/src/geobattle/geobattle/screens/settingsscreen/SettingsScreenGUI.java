@@ -12,6 +12,7 @@ import com.kotcrab.vis.ui.widget.VisImageButton;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisSlider;
 import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisTextButton;
 
 import geobattle.geobattle.GeoBattleAssets;
 import geobattle.geobattle.server.OSAPI;
@@ -25,13 +26,27 @@ public final class SettingsScreenGUI {
 
     public final VisSlider musicVolume;
 
+    // Quality of map
+    public final VisTextButton mapQuality;
+
     // Table with button which hides keyboard
     public final VisTable hideKeyboard;
 
     // OS API
     private OSAPI oSAPI;
 
-    public SettingsScreenGUI(AssetManager assetManager, SettingsScreen screen, OSAPI oSAPI, Stage guiStage) {
+    // Current value of map quality
+    private int mapQualityValue;
+
+    // Possible values of map quality
+    private static final String[] MAP_QUALITY_VALUES = {
+            "mapQualityLow", "mapQualityHigh"
+    };
+
+    // Default map quality
+    private static final int DEFAULT_MAP_QUALITY = 1;
+
+    public SettingsScreenGUI(AssetManager assetManager, final SettingsScreen screen, OSAPI oSAPI, Stage guiStage) {
         skin = assetManager.get(GeoBattleAssets.GUI_SKIN, Skin.class);
         this.oSAPI = oSAPI;
 
@@ -40,6 +55,22 @@ public final class SettingsScreenGUI {
         soundVolume.setValue(Float.parseFloat(oSAPI.loadValue("soundVolume", "0.5f")));
         musicVolume = new VisSlider(0, 1, 0.01f, false);
         musicVolume.setValue(Float.parseFloat(oSAPI.loadValue("musicVolume", "0.5")));
+
+        String currentMapQuality = oSAPI.loadValue("mapQuality", MAP_QUALITY_VALUES[DEFAULT_MAP_QUALITY]);
+        mapQualityValue = DEFAULT_MAP_QUALITY;
+        for (int index = 0; index < MAP_QUALITY_VALUES.length; index++)
+            if (MAP_QUALITY_VALUES[index].equals(currentMapQuality)) {
+                mapQualityValue = index;
+                break;
+            }
+
+        mapQuality = new VisTextButton(screen.getI18NBundle().get(MAP_QUALITY_VALUES[mapQualityValue]), new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                mapQualityValue = (mapQualityValue + 1) % MAP_QUALITY_VALUES.length;
+                mapQuality.setText(screen.getI18NBundle().get(MAP_QUALITY_VALUES[mapQualityValue]));
+            }
+        });
         guiStage.addActor(settings);
 
         hideKeyboard = new VisTable();
@@ -90,6 +121,21 @@ public final class SettingsScreenGUI {
                 .fillX();
         root.row();
 
+        VisTable mapQualityRoot = new VisTable();
+
+        mapQualityRoot.add(new VisLabel(screen.getI18NBundle().get("mapQuality")))
+                .width(contentWidth * 0.45f)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        mapQualityRoot.add(mapQuality)
+                .growX()
+                .height(Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+
+        root.add(mapQualityRoot)
+                .fillX();
+        root.row();
+
         TextButton saveSettings = new TextButton(screen.getI18NBundle().get("save"), skin);
         saveSettings.addListener(new ChangeListener() {
             @Override
@@ -129,5 +175,6 @@ public final class SettingsScreenGUI {
     private void saveSettings() {
         oSAPI.saveValue("soundVolume", String.valueOf(soundVolume.getValue()));
         oSAPI.saveValue("musicVolume", String.valueOf(musicVolume.getValue()));
+        oSAPI.saveValue("mapQuality", MAP_QUALITY_VALUES[mapQualityValue]);
     }
 }
