@@ -124,6 +124,13 @@ public class PlayerState {
             throw new IllegalArgumentException("Cannot remove sector with specified ID");
 
         sectors.remove(removeIndex);
+
+        if (sectors.isEmpty()) {
+            centerPoint = null;
+        } else {
+            centerPoint.x = (int) (centerPoint.x + (centerPoint.x - sector.x - Sector.SECTOR_SIZE / 2) / (double) sectors.size());
+            centerPoint.y = (int) (centerPoint.y + (centerPoint.y - sector.y - Sector.SECTOR_SIZE / 2) / (double) sectors.size());
+        }
     }
 
     // Returns sector which contains point (`x`; `y`)
