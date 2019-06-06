@@ -12,9 +12,12 @@ import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.util.IntRect;
 
+// Select hangars for attack mode
 public final class SelectHangarsMode extends GameScreenModeData {
+    // Hangars selected by player
     private ArrayList<Hangar> selectedHangars;
 
+    // Game state
     private final GameState gameState;
 
     public SelectHangarsMode(int pointedTileX, int pointedTileY, GameState gameState) {
@@ -23,14 +26,17 @@ public final class SelectHangarsMode extends GameScreenModeData {
         this.selectedHangars = new ArrayList<Hangar>();
     }
 
+    // Returns count of selected hangars
     public int getSelectedHangarsCount() {
         return selectedHangars.size();
     }
 
+    // Returns iterator over selected hangars
     public Iterator<Hangar> getSelectedHangars() {
         return selectedHangars.iterator();
     }
 
+    // Sets pointed tile and adds or removes selected hangar
     @Override
     public void setPointedTile(int x, int y, boolean fromTransition) {
         super.setPointedTile(x, y, fromTransition);
@@ -49,8 +55,11 @@ public final class SelectHangarsMode extends GameScreenModeData {
                     break;
                 }
 
-            if (!removed)
-                selectedHangars.add((Hangar) clickedBuilding);
+            if (!removed) {
+                Hangar hangar = (Hangar) clickedBuilding;
+                if (hangar.units.getCount() > 0)
+                    selectedHangars.add(hangar);
+            }
         }
     }
 

@@ -8,9 +8,12 @@ import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.util.IntRect;
 
+// Building destroy mode
 public final class DestroyMode extends GameScreenModeData {
+    // Pointed building
     private Building pointedBuilding;
 
+    // Game state
     private final GameState gameState;
 
     public DestroyMode(int pointedTileX, int pointedTileY, GameState gameState) {
@@ -18,10 +21,12 @@ public final class DestroyMode extends GameScreenModeData {
         this.gameState = gameState;
     }
 
+    // Returns pointed building
     public Building getPointedBuilding() {
         return pointedBuilding;
     }
 
+    // Sets pointed tile and building
     @Override
     public void setPointedTile(int x, int y, boolean fromTransition) {
         super.setPointedTile(x, y, fromTransition);

@@ -14,9 +14,12 @@ import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.util.GeoBattleMath;
 import geobattle.geobattle.util.IntRect;
 
+// Building mode
 public final class BuildMode extends GameScreenModeData {
+    // Selected type of building
     private BuildingType buildingType;
 
+    // Textures of buildings
     private final BuildingTextures buildingTextures;
 
     public BuildMode(int pointedTileX, int pointedTileY, BuildingType buildingType, BuildingTextures buildingTextures) {
@@ -25,6 +28,7 @@ public final class BuildMode extends GameScreenModeData {
         this.buildingTextures = buildingTextures;
     }
 
+    // Sets type of building
     public void setBuildingType(BuildingType buildingType) {
         this.buildingType = buildingType;
     }
@@ -74,6 +78,7 @@ public final class BuildMode extends GameScreenModeData {
         }
     }
 
+    // Returns type of building
     public BuildingType getBuildingType() {
         return buildingType;
     }

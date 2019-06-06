@@ -12,11 +12,15 @@ import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.util.IntRect;
 
+// Normal mode
 public final class NormalMode extends GameScreenModeData {
+    // Pointed building
     private Building pointedBuilding;
 
+    // Pointed sector
     private Sector pointedSector;
 
+    // Game state
     private final GameState gameState;
 
     public NormalMode(int pointedTileX, int pointedTileY, GameState gameState) {
@@ -24,14 +28,17 @@ public final class NormalMode extends GameScreenModeData {
         this.gameState = gameState;
     }
 
+    // Returns pointed building
     public Building getPointedBuilding() {
         return pointedBuilding;
     }
 
+    // Returns pointed sector
     public Sector getPointedSector() {
         return pointedSector;
     }
 
+    // Sets pointed tile and pointed building or sector
     @Override
     public void setPointedTile(int x, int y, boolean fromTransition) {
         super.setPointedTile(x, y, fromTransition);

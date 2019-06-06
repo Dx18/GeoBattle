@@ -11,11 +11,15 @@ import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.util.IntRect;
 
+// Select sector to attack mode
 public final class SelectSectorMode extends GameScreenModeData {
+    // Pointed sector
     private Sector pointedSector;
 
+    // Player owning sector
     private int owningPlayerId;
 
+    // Game state
     private final GameState gameState;
 
     public SelectSectorMode(int pointedTileX, int pointedTileY, GameState gameState) {
@@ -24,14 +28,17 @@ public final class SelectSectorMode extends GameScreenModeData {
         owningPlayerId = -1;
     }
 
+    // Returns pointed sector
     public Sector getPointedSector() {
         return pointedSector;
     }
 
+    // Returns ID of player owning pointed sector (-1 if none)
     public int getOwningPlayerId() {
         return owningPlayerId;
     }
 
+    // Sets pointed tile and sector
     @Override
     public void setPointedTile(int x, int y, boolean fromTransition) {
         super.setPointedTile(x, y, fromTransition);

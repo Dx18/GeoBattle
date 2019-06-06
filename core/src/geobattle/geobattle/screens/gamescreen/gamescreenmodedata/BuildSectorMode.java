@@ -8,6 +8,7 @@ import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.util.IntRect;
 
+// Sector building
 public final class BuildSectorMode extends GameScreenModeData {
     public BuildSectorMode(int pointedTileX, int pointedTileY) {
         super(pointedTileX, pointedTileY);
