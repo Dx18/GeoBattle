@@ -19,16 +19,25 @@ import geobattle.geobattle.game.research.ResearchType;
 
 public final class ResearchGUI {
     public class ResearchTypeItem {
+        // Root of item
         public final VisTable root;
 
+        // Type of research
         public final ResearchType researchType;
 
+        // Value change
         private final VisLabel valueChange;
 
+        // Level indicators
         private final VisImage[] indicators;
 
+        // Button performing research
         private final VisTextButton researchButton;
 
+        // Cost of next research
+        private int researchCost;
+
+        // True if max level of research reached
         private boolean researched;
 
         public ResearchTypeItem(final GameScreen screen, final ResearchInfo researchInfo, final ResearchType researchType, Table itemsTable) {
@@ -85,6 +94,7 @@ public final class ResearchGUI {
             setResearchLevel(researchInfo.getLevel(researchType));
         }
 
+        // Sets research level
         public void setResearchLevel(int level) {
             for (int indicator = 0; indicator < indicators.length; indicator++) {
                 indicators[indicator].setDrawable(skin, level > indicator
@@ -92,15 +102,15 @@ public final class ResearchGUI {
                         : "researchIndicatorOff"
                 );
             }
-            int newCost = researchType.getCost(level + 1);
-            if (newCost == Integer.MAX_VALUE) {
+            researchCost = researchType.getCost(level + 1);
+            if (researchCost == Integer.MAX_VALUE) {
                 researchButton.setDisabled(true);
                 researchButton.setText("");
                 valueChange.setText(researchType.getValue(level) + "");
                 researched = true;
             } else {
                 researchButton.setDisabled(false);
-                researchButton.setText(newCost + "");
+                researchButton.setText(researchCost + "");
                 valueChange.setText(
                         researchType.getValue(level) +
                         " > " +
@@ -111,10 +121,13 @@ public final class ResearchGUI {
         }
     }
 
+    // GUI skin
     private final Skin skin;
 
+    // Root of GUI
     public final VisDialog root;
 
+    // Types of research
     private final ResearchTypeItem[] researchTypes;
 
     public ResearchGUI(AssetManager assetManager, final GameScreen screen) {
@@ -164,6 +177,7 @@ public final class ResearchGUI {
         root.center();
     }
 
+    // Sets research info
     public void setResearchInfo(ResearchInfo researchInfo) {
         for (ResearchTypeItem researchTypeItem : researchTypes)
             researchTypeItem.setResearchLevel(researchInfo.getLevel(researchTypeItem.researchType));
@@ -176,9 +190,11 @@ public final class ResearchGUI {
     }
 
     // Unlocks research buttons
-    public void unlockButtons() {
-        for (ResearchTypeItem researchTypeItem : researchTypes)
-            if (!researchTypeItem.researched)
-                researchTypeItem.researchButton.setDisabled(false);
+    public void unlockButtons(int resources) {
+        for (ResearchTypeItem researchTypeItem : researchTypes) {
+            researchTypeItem.researchButton.setDisabled(
+                    researchTypeItem.researched || resources < researchTypeItem.researchCost
+            );
+        }
     }
 }

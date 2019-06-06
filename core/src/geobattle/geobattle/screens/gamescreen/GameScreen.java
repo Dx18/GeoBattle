@@ -375,9 +375,10 @@ public final class GameScreen implements Screen {
 //            gui.debugInfo.setText("");
 //        }
 
-        if (gameState.getCurrentPlayer().getResearchCenters().hasNext())
-            gui.researchDialog.unlockButtons();
-        else
+        if (gameState.getCurrentPlayer().getResearchCenters().hasNext()) {
+            gui.researchDialog.setResearchInfo(gameState.getCurrentPlayer().getResearchInfo());
+            gui.researchDialog.unlockButtons((int) gameState.getResources());
+        } else
             gui.researchDialog.lockButtons();
 
         tilesStage.draw();
