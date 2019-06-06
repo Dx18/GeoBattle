@@ -35,6 +35,7 @@ import geobattle.geobattle.server.implementation.RealMapRenderer;
 import geobattle.geobattle.tutorial.Tutorial;
 import geobattle.geobattle.util.CoordinateConverter;
 import geobattle.geobattle.util.GeoBattleMath;
+import geobattle.geobattle.util.IntPoint;
 
 // Game screen
 public final class GameScreen implements Screen {
@@ -388,11 +389,10 @@ public final class GameScreen implements Screen {
         Iterator<PlayerState> players = gameState.getPlayers();
         while (players.hasNext()) {
             PlayerState player = players.next();
-            if (player.getSectorCount() > 0) {
-                Sector next = player.getAllSectors().next();
-
-                float worldX = CoordinateConverter.subTilesToWorld(next.x + Sector.SECTOR_SIZE / 2, map.getXOffset(), GeoBattleConst.SUBDIVISION);
-                float worldY = CoordinateConverter.subTilesToWorld(next.y + Sector.SECTOR_SIZE / 2, map.getYOffset(), GeoBattleConst.SUBDIVISION);
+            IntPoint centerPoint = player.getCenterPoint();
+            if (centerPoint != null) {
+                float worldX = CoordinateConverter.subTilesToWorld(centerPoint.x, map.getXOffset(), GeoBattleConst.SUBDIVISION);
+                float worldY = CoordinateConverter.subTilesToWorld(centerPoint.y, map.getYOffset(), GeoBattleConst.SUBDIVISION);
 
                 int screenX = (int) ((worldX - (camera.position.x - camera.viewportWidth / 2)) / camera.viewportWidth * Gdx.graphics.getWidth());
                 int screenY = (int) ((worldY - (camera.position.y - camera.viewportHeight / 2)) / camera.viewportHeight * Gdx.graphics.getHeight());
