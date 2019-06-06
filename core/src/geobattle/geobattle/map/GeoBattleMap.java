@@ -578,39 +578,38 @@ public class GeoBattleMap extends Actor {
         );
     }
 
+    // Calculates distance from camera to point on a map
+    private double getDistanceTo(double subTileX, double subTileY) {
+        int zoomLevel = 20 - Math.max(1, (int)MathUtils.log2(camera.viewportWidth));
+
+        int cameraSubTileX = CoordinateConverter.worldToSubTiles(camera.position.x, xOffset, GeoBattleConst.SUBDIVISION);
+        int cameraSubTileY = CoordinateConverter.worldToSubTiles(camera.position.y, yOffset, GeoBattleConst.SUBDIVISION);
+
+        double cameraHeight = zoomLevel >= 15
+                ? 100.0 / (1 << (zoomLevel - 15))
+                : 100.0 * (1 << (15 - zoomLevel));
+
+        return Math.sqrt(
+                Math.pow(cameraSubTileX - subTileX, 2) +
+                Math.pow(cameraSubTileY - subTileY, 2) +
+                Math.pow(cameraHeight, 2)
+        );
+    }
+
+    // Calculates sound volume for point on the map
+    private float getSoundVolumeAt(double subTileX, double subTileY) {
+        return getDistanceTo(subTileX, subTileY) <= 100 ? (float) ((getDistanceTo(subTileX, subTileY) / -100 + 1) * game.getSoundVolume()) : 0;
+    }
+
     @Override
     public void draw(Batch batch, float parentAlpha) {
         shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
 
-        int zoomLevel = 20 - Math.max(1, (int)MathUtils.log2(camera.viewportWidth));
-        if (zoomLevel >= 15) {
-            int cameraSubTileX = CoordinateConverter.worldToSubTiles(camera.position.x, xOffset, GeoBattleConst.SUBDIVISION);
-            int cameraSubTileY = CoordinateConverter.worldToSubTiles(camera.position.y, yOffset, GeoBattleConst.SUBDIVISION);
+        for (Map.Entry<Long, SoundInstance> soundInstance : soundInstances.entrySet()) {
+            long soundId = soundInstance.getKey();
+            SoundInstance sound = soundInstance.getValue();
 
-            double cameraHeight = 100.0 / (1 << (zoomLevel - 15));
-
-            for (Map.Entry<Long, SoundInstance> soundInstance : soundInstances.entrySet()) {
-                long soundId = soundInstance.getKey();
-                SoundInstance sound = soundInstance.getValue();
-
-                double distance = Math.sqrt(
-                        cameraHeight * cameraHeight +
-                        (sound.x - cameraSubTileX) * (sound.x - cameraSubTileX) +
-                        (sound.y - cameraSubTileY) * (sound.y - cameraSubTileY)
-                );
-
-                if (distance <= 100) {
-                    float volume = (float) ((distance / -100 + 1) * game.getSoundVolume());
-                    sound.sound.setVolume(soundId, volume);
-                } else
-                    sound.sound.setVolume(soundId, 0);
-            }
-        } else {
-            for (Map.Entry<Long, SoundInstance> soundInstance : soundInstances.entrySet()) {
-                long soundId = soundInstance.getKey();
-                SoundInstance sound = soundInstance.getValue();
-                sound.sound.setVolume(soundId, 0);
-            }
+            sound.sound.setVolume(soundId, getSoundVolumeAt(sound.x, sound.y));
         }
 
         mapRenderer.drawAndReduceTiles(batch, xOffset, yOffset, camera);
@@ -716,7 +715,8 @@ public class GeoBattleMap extends Actor {
                         animationInstances.add(new AnimationInstance(
                                 animations.explosion, bombDropped.x, bombDropped.y, 2
                         ));
-                        sounds.explosion.play(game.getSoundVolume());
+                        long soundId = sounds.explosion.play(game.getSoundVolume());
+                        sounds.explosion.setVolume(soundId, getSoundVolumeAt(bombDropped.x, bombDropped.y));
                     }
                 }
         );
