@@ -75,7 +75,6 @@ public final class TileRequestPool {
     // Max loading count
     private final int maxLoadingCount;
 
-    // Reads pixmap from input stream
     public TileRequestPool(String tileServerIp, int tileServerPort, String cachePath, int maxLoadingCount) {
         loadingCount = new AtomicInteger();
         requests = new Stack<TileRequest>();
@@ -97,6 +96,7 @@ public final class TileRequestPool {
         this.onLoad = onLoad;
     }
 
+    // Reads pixmap from input stream
     private static Pixmap readPixmap(InputStream inputStream) throws IOException {
         ByteArrayOutputStream result = new ByteArrayOutputStream();
 
