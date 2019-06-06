@@ -57,7 +57,7 @@ public final class TileRequestPool {
     // Requests
     private Stack<TileRequest> requests;
 
-    // Visible tile (real world). May be null
+    // Visible tiles (real world). May be null
     private IntRect visible;
 
     // Level of zoom. May be null
@@ -85,6 +85,11 @@ public final class TileRequestPool {
         this.tileServerPort = tileServerPort;
         this.cachePath = cachePath;
         this.maxLoadingCount = maxLoadingCount;
+    }
+
+    // Sets rect of visible tiles
+    public synchronized void setVisibleRect(IntRect visible) {
+        this.visible = visible;
     }
 
     public synchronized void setOnLoadListener(TileRequestCallback onLoad) {
@@ -235,28 +240,28 @@ public final class TileRequestPool {
         final TileRequest next;
         synchronized (this) {
             next = requests.pop();
-        }
-        if (
-                visible == null || zoomLevel == null ||
-                Math.abs(zoomLevel - next.zoomLevel) <= 2 &&
-                next.x >= visible.x &&
-                next.x < visible.x + visible.width &&
-                next.y >= visible.y &&
-                next.y < visible.y + visible.height
-        ) {
-            loadingCount.incrementAndGet();
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Pixmap result = requestCache(next);
-                    if (result == null) {
-                        result = requestSocket(next);
-                        if (result != null)
-                            writeToCache(result, next);
+            if (
+                    visible == null || zoomLevel == null ||
+                    Math.abs(zoomLevel - next.zoomLevel) <= 2 &&
+                    next.x >= visible.x &&
+                    next.x < visible.x + visible.width &&
+                    next.y >= visible.y &&
+                    next.y < visible.y + visible.height
+            ) {
+                loadingCount.incrementAndGet();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Pixmap result = requestCache(next);
+                        if (result == null) {
+                            result = requestSocket(next);
+                            if (result != null)
+                                writeToCache(result, next);
+                        }
+                        onLoad(result, next);
                     }
-                    onLoad(result, next);
-                }
-            }).start();
+                }).start();
+            }
         }
     }
 

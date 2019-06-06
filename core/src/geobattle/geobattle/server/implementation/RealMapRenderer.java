@@ -10,6 +10,7 @@ import geobattle.geobattle.map.GeoBattleCamera;
 import geobattle.geobattle.map.TileCounter;
 import geobattle.geobattle.map.TileTree;
 import geobattle.geobattle.server.MapRenderer;
+import geobattle.geobattle.util.IntRect;
 
 // Renderer of real map
 public final class RealMapRenderer implements MapRenderer {
@@ -56,6 +57,8 @@ public final class RealMapRenderer implements MapRenderer {
         final int startY = camera.getTileStartY(zoomLevel, yOffset);
         final int endX = camera.getTileEndX(zoomLevel, xOffset);
         final int endY = camera.getTileEndY(zoomLevel, yOffset);
+
+        tileRequestPool.setVisibleRect(new IntRect(startX, startY, endX - startX + 1, endY - startY + 1));
 
         for (int x = startX; x <= endX; x += (1 << (19 - zoomLevel)))
             for (int y = startY; y <= endY; y += (1 << (19 - zoomLevel))) {
