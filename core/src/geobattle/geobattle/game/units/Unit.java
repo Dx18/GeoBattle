@@ -181,19 +181,15 @@ public abstract class Unit {
     }
 
     // Draws unit
-    public void draw(Batch batch, GeoBattleMap map, UnitTextures unitTextures, Color color, boolean drawIcons) {
-        if (drawIcons) {
-
-        } else {
-            map.drawCenteredTexture(
-                    batch, x, y, getSizeX(), getSizeY(), direction,
-                    unitTextures.getTexture(getUnitType()), Color.WHITE
-            );
-            map.drawCenteredTexture(
-                    batch, x, y, getSizeX(), getSizeY(), direction,
-                    unitTextures.getTeamColorTexture(getUnitType()), color
-            );
-        }
+    public void draw(Batch batch, GeoBattleMap map, UnitTextures unitTextures, Color color) {
+        map.drawCenteredTexture(
+                batch, x, y, getSizeX(), getSizeY(), direction,
+                unitTextures.getTexture(getUnitType()), Color.WHITE
+        );
+        map.drawCenteredTexture(
+                batch, x, y, getSizeX(), getSizeY(), direction,
+                unitTextures.getTeamColorTexture(getUnitType()), color
+        );
     }
 
     // Returns width of unit
