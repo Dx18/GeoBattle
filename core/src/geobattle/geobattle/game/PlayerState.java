@@ -27,6 +27,7 @@ import geobattle.geobattle.game.units.Unit;
 import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.util.CastIterator;
 import geobattle.geobattle.util.GeoBattleMath;
+import geobattle.geobattle.util.IntPoint;
 import geobattle.geobattle.util.IntRect;
 import geobattle.geobattle.util.JoinIterator;
 import geobattle.geobattle.util.JsonObjects;
@@ -67,6 +68,9 @@ public class PlayerState {
         }
     };
 
+    // Point of base center
+    private IntPoint centerPoint;
+
     public PlayerState(String name, int playerId, Color color, ResearchInfo researchInfo) {
         this.name = name;
         this.playerId = playerId;
@@ -103,6 +107,12 @@ public class PlayerState {
                 (sector.y - sectors.get(0).y) % Sector.SECTOR_SIZE != 0)
         )
             throw new IllegalArgumentException("Sector is not aligned with other sectors");
+
+        if (centerPoint == null)
+            centerPoint = new IntPoint(0, 0);
+
+        centerPoint.x = (int) ((centerPoint.x * sectors.size() + sector.x + Sector.SECTOR_SIZE / 2) / (sectors.size() + 1.0));
+        centerPoint.y = (int) ((centerPoint.y * sectors.size() + sector.y + Sector.SECTOR_SIZE / 2) / (sectors.size() + 1.0));
 
         sectors.add(-index - 1, sector);
     }
@@ -419,5 +429,10 @@ public class PlayerState {
             getSector(sectorDiff.sectorId).applyDiff(sectorDiff);
         for (Sector added : diff.addedSectors)
             addSector(added);
+    }
+
+    // Returns point of base center
+    public IntPoint getCenterPoint() {
+        return centerPoint == null ? null : centerPoint.clone();
     }
 }

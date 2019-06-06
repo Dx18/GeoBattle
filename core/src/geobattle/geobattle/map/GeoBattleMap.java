@@ -214,28 +214,14 @@ public class GeoBattleMap extends Actor {
 
     // Moves camera to player's base (or does nothing if it does not exist)
     public void moveToBase() {
-        ArrayList<IntPoint> sectorPositions = new ArrayList<IntPoint>();
-        Iterator<Sector> sectors = gameState.getCurrentPlayer().getAllSectors();
-        while (sectors.hasNext()) {
-            Sector next = sectors.next();
-            sectorPositions.add(new IntPoint(next.x, next.y));
-        }
+        IntPoint centerPoint = gameState.getCurrentPlayer().getCenterPoint();
 
-        if (sectorPositions.size() == 0)
-            return;
-
-        double averageX = 0;
-        double averageY = 0;
-        for (IntPoint sectorPos : sectorPositions) {
-            averageX += (double) sectorPos.x / sectorPositions.size();
-            averageY += (double) sectorPos.y / sectorPositions.size();
-        }
-
-        camera.position.set(
-                CoordinateConverter.subTilesToWorld(averageX + Sector.SECTOR_SIZE / 2, xOffset, GeoBattleConst.SUBDIVISION),
-                CoordinateConverter.subTilesToWorld(averageY + Sector.SECTOR_SIZE / 2, yOffset, GeoBattleConst.SUBDIVISION),
-                0
-        );
+        if (centerPoint != null)
+            camera.position.set(
+                    CoordinateConverter.subTilesToWorld(centerPoint.x + Sector.SECTOR_SIZE / 2, xOffset, GeoBattleConst.SUBDIVISION),
+                    CoordinateConverter.subTilesToWorld(centerPoint.y + Sector.SECTOR_SIZE / 2, yOffset, GeoBattleConst.SUBDIVISION),
+                    0
+            );
     }
 
     // Updates map
@@ -426,10 +412,11 @@ public class GeoBattleMap extends Actor {
 
     // Draws sectors
     private void drawSectors(IntRect visible) {
+        Color playerSectorColor = new Color(1, 1, 1, 0.2f);
         Iterator<PlayerState> players = gameState.getPlayers();
         while (players.hasNext()) {
             PlayerState player = players.next();
-            Color playerSectorColor = player.getColor().cpy();
+            playerSectorColor.set(player.getColor());
             playerSectorColor.a = 0.2f;
 
             Iterator<Sector> sectors = player.getAllSectors();
@@ -574,7 +561,7 @@ public class GeoBattleMap extends Actor {
                         ))
                             continue;
 
-                        next.draw(batch, this, unitTextures, player.getColor(), drawIcons);
+                        next.draw(batch, this, unitTextures, player.getColor());
                     }
                 }
             }
