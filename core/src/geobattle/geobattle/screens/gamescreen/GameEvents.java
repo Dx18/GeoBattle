@@ -398,7 +398,7 @@ public class GameEvents {
                         @Override
                         public void onMatch(RatingRequestResult.RatingRequestSuccess ratingRequestSuccess) {
                             for (RatingEntry entry : ratingRequestSuccess.rating)
-                                entry.setPlayerData(gameState.getPlayer(entry.playerId));
+                                entry.setPlayerData(gameState.getPlayer(entry.playerId), gameState.getPlayerId());
                             screen.getGUI().ratingDialog.setRating(ratingRequestSuccess.rating, screen);
                         }
                     },

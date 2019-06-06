@@ -15,19 +15,28 @@ public final class RatingEntry {
     // Name of player
     private String name;
 
+    // True if this entry is about current player
+    private boolean currentPlayer;
+
     public RatingEntry(int playerId, int wealth) {
         this.playerId = playerId;
         this.wealth = wealth;
     }
 
     // Sets additional data
-    public void setPlayerData(PlayerState player) {
+    public void setPlayerData(PlayerState player, int currentPlayerId) {
         name = player.getName();
+        currentPlayer = player.getPlayerId() == currentPlayerId;
     }
 
     // Returns name of player
     public String getName() {
         return name;
+    }
+
+    // Returns true if this entry is about current player
+    public boolean isCurrentPlayer() {
+        return currentPlayer;
     }
 
     // Creates RatingEntry from JSON

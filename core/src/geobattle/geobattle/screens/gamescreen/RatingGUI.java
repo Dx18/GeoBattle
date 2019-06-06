@@ -33,6 +33,9 @@ public final class RatingGUI {
     // Entries of rating
     public final VisTable ratingEntries;
 
+    // Entry of rating for current player
+    public final VisTable currentPlayerRatingEntry;
+
     // Array list with entries of rating
     private final ArrayList<RatingEntry> rating;
 
@@ -42,8 +45,20 @@ public final class RatingGUI {
     // Current page
     private int currentPage;
 
+    public RatingGUI(AssetManager assetManager, GameScreen screen) {
+        skin = assetManager.get(GeoBattleAssets.GUI_SKIN);
+
+        root = new VisDialog(screen.getI18NBundle().get("rating"));
+
+        rating = new ArrayList<RatingEntry>();
+        ratingEntries = new VisTable();
+        currentPlayerRatingEntry = new VisTable();
+
+        init(screen);
+    }
+
     public void init(final GameScreen screen) {
-        final float listHeight = Gdx.graphics.getHeight() - 200 - Gdx.graphics.getPpcY() * 0.9f;
+        final float listHeight = Gdx.graphics.getHeight() - 210 - 2 * Gdx.graphics.getPpcY() * 0.9f;
         final float entryHeight = Gdx.graphics.getPpcY() * 0.6f + 10;
         entriesPerPage = (int) (listHeight / entryHeight);
         updateItems();
@@ -54,7 +69,12 @@ public final class RatingGUI {
 
         root.getContentTable().add(ratingEntries)
                 .width(Gdx.graphics.getWidth() - 120)
-                .height(Gdx.graphics.getHeight() - 200 - Gdx.graphics.getPpcY() * 0.9f)
+                .height(Gdx.graphics.getHeight() - 210 - 2 * Gdx.graphics.getPpcY() * 0.9f)
+                .pad(5);
+        root.getContentTable().row();
+        root.getContentTable().add(currentPlayerRatingEntry)
+                .width(Gdx.graphics.getWidth() - 120)
+                .height(Gdx.graphics.getPpcY() * 0.9f)
                 .pad(5);
 
         VisImageButton close = new VisImageButton("buttonBack");
@@ -106,23 +126,12 @@ public final class RatingGUI {
         root.center();
     }
 
-    public RatingGUI(AssetManager assetManager, GameScreen screen) {
-        skin = assetManager.get(GeoBattleAssets.GUI_SKIN);
-
-        root = new VisDialog(screen.getI18NBundle().get("rating"));
-
-        rating = new ArrayList<RatingEntry>();
-        ratingEntries = new VisTable();
-
-        init(screen);
-    }
-
     // Creates view for entry
     private VisTable createView(int place, RatingEntry ratingEntry) {
         VisTable result = new VisTable();
 
         VisTable root = new VisTable();
-        root.setBackground("listItemDeselected");
+        root.setBackground(ratingEntry.isCurrentPlayer() ? "listItemSelected" : "listItemDeselected");
 
         if (place > 3) {
             VisLabel label = new VisLabel(String.valueOf(place), "large");
@@ -162,8 +171,7 @@ public final class RatingGUI {
         ratingEntries.clear();
 
         int startIndex = entriesPerPage * currentPage;
-        int index = startIndex;
-        for (; index < startIndex + entriesPerPage && index < rating.size(); index++) {
+        for (int index = startIndex; index < startIndex + entriesPerPage && index < rating.size(); index++) {
             ratingEntries.add(createView(index + 1, rating.get(index)))
                     .growX();
             ratingEntries.row();
@@ -173,8 +181,6 @@ public final class RatingGUI {
     }
 
     public void setRating(RatingEntry[] rating, GameScreen screen) {
-        Gdx.app.log("GeoBattle", "setRating");
-
         this.rating.clear();
         Arrays.sort(rating, new Comparator<RatingEntry>() {
             @Override
@@ -184,5 +190,14 @@ public final class RatingGUI {
         });
         Collections.addAll(this.rating, rating);
         updateItems();
+
+        currentPlayerRatingEntry.clear();
+        for (int index = 0; index < this.rating.size(); index++) {
+            if (this.rating.get(index).isCurrentPlayer()) {
+                currentPlayerRatingEntry.add(createView(index + 1, this.rating.get(index)))
+                        .growX();
+                break;
+            }
+        }
     }
 }
