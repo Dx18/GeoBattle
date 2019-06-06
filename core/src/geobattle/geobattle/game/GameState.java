@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import geobattle.geobattle.game.attacking.AttackScript;
-import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.game.gamestatediff.GameStateDiff;
@@ -226,6 +225,7 @@ public class GameState {
         attackScripts = other.attackScripts;
     }
 
+    // Returns true if current player can building building of specified building type
     public boolean canBuildBuilding(BuildingType buildingType, int x, int y) {
         // Prevent BuildResult.NotEnoughResources
         if (getResources() < buildingType.cost) return false;
@@ -237,18 +237,8 @@ public class GameState {
         ).hasNext()) return false;
 
         // Prevent BuildResult.BuildingLimitExceeded
-        if (buildingType.maxCount != Integer.MAX_VALUE) {
-            Iterator<Building> buildings = getCurrentPlayer().getAllBuildings();
-            int count = 0;
-            while (buildings.hasNext() && count < buildingType.maxCount) {
-                Building next = buildings.next();
-                if (next.getBuildingType() == buildingType) {
-                    count++;
-                    if (count >= buildingType.maxCount)
-                        return false;
-                }
-            }
-        }
+        if (getCurrentPlayer().getCount(buildingType) >= buildingType.maxCount)
+            return false;
 
         // Prevent BuildResult.NotInTerritory
         Iterator<Sector> sectors = getCurrentPlayer().getAllSectors();
@@ -265,6 +255,7 @@ public class GameState {
         return false;
     }
 
+    // Returns true if current player can build sector at specified point
     public boolean canBuildSector(int x, int y) {
         PlayerState current = getCurrentPlayer();
 

@@ -1,6 +1,7 @@
 package geobattle.geobattle.game;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Predicate;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -12,6 +13,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 
 import geobattle.geobattle.game.buildings.Building;
+import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Generator;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Mine;
@@ -71,6 +73,9 @@ public class PlayerState {
     // Point of base center
     private IntPoint centerPoint;
 
+    // Count of buildings
+    private final ObjectIntMap<BuildingType> buildingCount;
+
     public PlayerState(String name, int playerId, Color color, ResearchInfo researchInfo) {
         this.name = name;
         this.playerId = playerId;
@@ -78,6 +83,7 @@ public class PlayerState {
         this.researchInfo = researchInfo;
         this.sectors = new ArrayList<Sector>();
         this.units = new ArrayList<Unit>();
+        this.buildingCount = new ObjectIntMap<BuildingType>();
     }
 
     // Clones player state
@@ -206,6 +212,7 @@ public class PlayerState {
                     building.x - 1, building.y - 1, building.getSizeX() + 2, building.getSizeY() + 2
             )) {
                 sector.addBuilding(building);
+                buildingCount.getAndIncrement(building.getBuildingType(), 0, 1);
                 break;
             }
     }
@@ -218,6 +225,7 @@ public class PlayerState {
                     building.x - 1, building.y - 1, building.getSizeX() + 2, building.getSizeY() + 2
             )) {
                 sector.removeBuilding(building);
+                buildingCount.getAndIncrement(building.getBuildingType(), 0, -1);
                 break;
             }
     }
@@ -306,6 +314,11 @@ public class PlayerState {
     // Returns iterator over hangars
     public Iterator<Hangar> getHangars() {
         return getBuildings(Hangar.class);
+    }
+
+    // Returns count of buildings player owns
+    public int getCount(BuildingType buildingType) {
+        return buildingCount.get(buildingType, 0);
     }
 
     // Adds unit and binds it to hangar
