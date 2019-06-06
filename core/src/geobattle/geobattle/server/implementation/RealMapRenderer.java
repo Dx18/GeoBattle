@@ -58,7 +58,14 @@ public final class RealMapRenderer implements MapRenderer {
         final int endX = camera.getTileEndX(zoomLevel, xOffset);
         final int endY = camera.getTileEndY(zoomLevel, yOffset);
 
-        tileRequestPool.setVisibleRect(new IntRect(startX, startY, endX - startX + 1, endY - startY + 1));
+        tileRequestPool.setVisibleData(
+                new IntRect(
+                        startX + xOffset, startY + yOffset,
+                        endX - startX + (1 << (19 - zoomLevel)),
+                        endY - startY + (1 << (19 - zoomLevel))
+                ),
+                zoomLevel
+        );
 
         for (int x = startX; x <= endX; x += (1 << (19 - zoomLevel)))
             for (int y = startY; y <= endY; y += (1 << (19 - zoomLevel))) {

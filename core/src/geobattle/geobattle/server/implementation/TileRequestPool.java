@@ -88,8 +88,9 @@ public final class TileRequestPool {
     }
 
     // Sets rect of visible tiles
-    public synchronized void setVisibleRect(IntRect visible) {
+    public synchronized void setVisibleData(IntRect visible, Integer zoomLevel) {
         this.visible = visible;
+        this.zoomLevel = zoomLevel;
     }
 
     public synchronized void setOnLoadListener(TileRequestCallback onLoad) {
