@@ -445,9 +445,13 @@ public final class GameScreen implements Screen {
     }
 
     // Gesture listener for game screen
-    private class GeoBattleGestureListener implements GestureDetector.GestureListener {
-        @Override
-        public boolean touchDown(float x, float y, int pointer, int button) { return false; }
+    private class GeoBattleGestureListener extends GestureDetector.GestureAdapter {
+        // Camera's initial viewport width at the beginning of zoom gesture
+        private Float initialViewportWidth;
+
+        // Camera's initial viewport height at the beginning of zoom gesture
+        private Float initialViewportHeight;
+
         @Override
         public boolean tap(float x, float y, int count, int button) {
             Vector3 point = new Vector3();
@@ -457,14 +461,11 @@ public final class GameScreen implements Screen {
 
             return true;
         }
-        @Override
-        public boolean longPress(float x, float y) { return false; }
-        @Override
-        public boolean fling(float velocityX, float velocityY, int button) { return false; }
 
         // Moves camera around
         @Override
         public boolean pan(float x, float y, float deltaX, float deltaY) {
+            Gdx.app.log("GeoBattle", "pan(" + x + ", " + y + ", " + deltaX + ", " + deltaY + ")");
             camera.translate(
                     -camera.viewportWidth * deltaX / Gdx.graphics.getWidth(),
                     camera.viewportHeight * deltaY / Gdx.graphics.getHeight()
@@ -474,12 +475,23 @@ public final class GameScreen implements Screen {
         }
 
         @Override
-        public boolean panStop(float x, float y, int pointer, int button) { return false; }
+        public boolean zoom(float initialDistance, float distance) {
+            if (initialViewportWidth == null || initialViewportHeight == null) {
+                initialViewportWidth = camera.viewportWidth;
+                initialViewportHeight = camera.viewportHeight;
+            }
+
+            float scale = initialDistance / distance;
+            camera.viewportWidth = initialViewportWidth * scale;
+            camera.viewportHeight = initialViewportHeight * scale;
+
+            return true;
+        }
+
         @Override
-        public boolean zoom(float initialDistance, float distance) { return false; }
-        @Override
-        public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) { return false; }
-        @Override
-        public void pinchStop() {}
+        public void pinchStop() {
+            initialViewportWidth = null;
+            initialViewportHeight = null;
+        }
     }
 }
