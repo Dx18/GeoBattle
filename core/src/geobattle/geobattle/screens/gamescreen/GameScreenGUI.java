@@ -8,7 +8,9 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Scaling;
 import com.kotcrab.vis.ui.widget.VisDialog;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisImageButton;
@@ -20,6 +22,7 @@ import geobattle.geobattle.GeoBattleAssets;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.tutorial.TutorialFactory;
+import geobattle.geobattle.tutorial.TutorialStep;
 
 // GUI for game screen
 public final class GameScreenGUI {
@@ -765,7 +768,7 @@ public final class GameScreenGUI {
     }
 
     // Shows dialog with question if player wants to go through the tutorial
-    public void showTutorialQuestionDialog(final GameScreen screen) {
+    public void showTutorialQuestionDialog(final AssetManager assetManager, final GameScreen screen) {
         if (tutorialQuestionDialogShown)
             return;
 
@@ -779,7 +782,7 @@ public final class GameScreenGUI {
         VisTextButton yes = new VisTextButton(screen.getI18NBundle().get("yes"), new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                screen.onSelectTutorial(new TutorialFactory().createMainTutorial(screen.getI18NBundle()));
+                screen.onSelectTutorial(new TutorialFactory().createMainTutorial(assetManager, screen.getI18NBundle()));
                 dialog.hide();
                 tutorialQuestionDialogShown = true;
             }
@@ -807,7 +810,7 @@ public final class GameScreenGUI {
         return tutorialMessageShown;
     }
 
-    public void showTutorialMessage(final GameScreen screen, String message) {
+    public void showTutorialMessage(final GameScreen screen, TutorialStep tutorialStep) {
         if (tutorialMessageShown)
             return;
 
@@ -815,13 +818,23 @@ public final class GameScreenGUI {
 
         VisTable root = new VisTable();
 
-        VisLabel messageText = new VisLabel(message);
+        VisLabel messageText = new VisLabel(tutorialStep.message);
         messageText.setWrap(true);
         messageText.setAlignment(Align.topLeft, Align.left);
         root.add(messageText)
-                .grow()
+                .growX()
                 .pad(30)
                 .align(Align.topLeft);
+
+        if (tutorialStep.image != null) {
+            root.row();
+            VisImage image = new VisImage(new TextureRegionDrawable(tutorialStep.image));
+            image.setScaling(Scaling.fit);
+            root.add(image)
+                    .expand()
+                    .pad(30)
+                    .align(Align.center);
+        }
 
         dialog.getContentTable().add(root)
                 .width(Gdx.graphics.getWidth() - 150)

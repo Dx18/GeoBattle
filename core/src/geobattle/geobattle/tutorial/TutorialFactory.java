@@ -1,6 +1,9 @@
 package geobattle.geobattle.tutorial;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -10,6 +13,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 
+import geobattle.geobattle.GeoBattleAssets;
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.screens.gamescreen.GameScreen;
@@ -55,7 +59,7 @@ public final class TutorialFactory {
         childrenArray.end();
     }
 
-    public Tutorial createMainTutorial(I18NBundle i18NBundle) {
+    public Tutorial createMainTutorial(AssetManager assetManager, I18NBundle i18NBundle) {
         JsonObject tutorial = new JsonParser().parse(new JsonReader(Gdx.files.internal(
                 String.format("tutorial/%s", i18NBundle.get("tutorialFile"))
         ).reader())).getAsJsonObject();
@@ -63,8 +67,8 @@ public final class TutorialFactory {
         class BuildTutorialStep extends TutorialStep {
             private BuildingType buildingType;
 
-            public BuildTutorialStep(BuildingType buildingType, String message) {
-                super(message);
+            public BuildTutorialStep(BuildingType buildingType, String message, TextureRegion image) {
+                super(message, image);
                 this.buildingType = buildingType;
             }
 
@@ -89,17 +93,18 @@ public final class TutorialFactory {
             }
         }
 
-        return new Tutorial(new TutorialStep[] {
-                new TutorialStep(tutorial.getAsJsonPrimitive("welcome").getAsString()) {
+        TextureAtlas buildings = assetManager.get(GeoBattleAssets.BUILDINGS_ATLAS);
+        TextureAtlas buttons = assetManager.get("skins/geoBattleSkin/skin.atlas");
 
-                },
-                new TutorialStep(tutorial.getAsJsonPrimitive("buildFirstSector").getAsString()) {
+        return new Tutorial(new TutorialStep[] {
+                new TutorialStep(tutorial.getAsJsonPrimitive("welcome").getAsString()) {},
+                new TutorialStep(tutorial.getAsJsonPrimitive("buildFirstSector").getAsString(), buttons.findRegion("ok")) {
                     @Override
                     public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
                         return gui.getMode() == GameScreenMode.NORMAL;
                     }
                 },
-                new TutorialStep(tutorial.getAsJsonPrimitive("enterBuildMode").getAsString()) {
+                new TutorialStep(tutorial.getAsJsonPrimitive("enterBuildMode").getAsString(), buttons.findRegion("build")) {
                     @Override
                     public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
                         setButtonsEnabled(gui.toolBar, "buildMode");
@@ -111,7 +116,7 @@ public final class TutorialFactory {
                         setButtonsDisabled(gui.toolBar);
                     }
                 },
-                new TutorialStep(tutorial.getAsJsonPrimitive("buildMine").getAsString()) {
+                new TutorialStep(tutorial.getAsJsonPrimitive("buildMine").getAsString(), buttons.findRegion("buildingType")) {
                     @Override
                     public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
                         if (gui.selectBuildingTypeDialog.getBuildingType() == BuildingType.MINE)
@@ -127,7 +132,7 @@ public final class TutorialFactory {
                         setButtonsDisabled(gui.buildToolBar);
                     }
                 },
-                new TutorialStep(tutorial.getAsJsonPrimitive("buildMoreMines").getAsString()) {
+                new TutorialStep(tutorial.getAsJsonPrimitive("buildMoreMines").getAsString(), buildings.findRegion(GeoBattleAssets.MINE)) {
                     @Override
                     public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
                         if (gui.getMode() == GameScreenMode.NORMAL) {
@@ -148,7 +153,7 @@ public final class TutorialFactory {
                         setButtonsDisabled(gui.buildToolBar);
                     }
                 },
-                new TutorialStep(tutorial.getAsJsonPrimitive("enterDestroyMode").getAsString()) {
+                new TutorialStep(tutorial.getAsJsonPrimitive("enterDestroyMode").getAsString(), buttons.findRegion("destroy")) {
                     @Override
                     public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
                         setButtonsEnabled(gui.toolBar, "destroyMode");
@@ -160,7 +165,7 @@ public final class TutorialFactory {
                         setButtonsDisabled(gui.toolBar);
                     }
                 },
-                new TutorialStep(tutorial.getAsJsonPrimitive("destroyMine").getAsString()) {
+                new TutorialStep(tutorial.getAsJsonPrimitive("destroyMine").getAsString(), buildings.findRegion(GeoBattleAssets.MINE)) {
                     @Override
                     public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
                         if (gui.getMode() == GameScreenMode.NORMAL)
@@ -174,7 +179,7 @@ public final class TutorialFactory {
                         setButtonsDisabled(gui.toolBar);
                     }
                 },
-                new TutorialStep(tutorial.getAsJsonPrimitive("buildGenerator").getAsString()) {
+                new TutorialStep(tutorial.getAsJsonPrimitive("buildGenerator").getAsString(), buildings.findRegion(GeoBattleAssets.GENERATOR)) {
                     @Override
                     public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
                         if (gui.getMode() == GameScreenMode.NORMAL) {
@@ -195,7 +200,7 @@ public final class TutorialFactory {
                         setButtonsDisabled(gui.buildToolBar);
                     }
                 },
-                new TutorialStep(tutorial.getAsJsonPrimitive("buildTurret").getAsString()) {
+                new TutorialStep(tutorial.getAsJsonPrimitive("buildTurret").getAsString(), buildings.findRegion(GeoBattleAssets.TURRET)) {
                     @Override
                     public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
                         if (gui.getMode() == GameScreenMode.NORMAL) {
@@ -216,7 +221,7 @@ public final class TutorialFactory {
                         setButtonsDisabled(gui.buildToolBar);
                     }
                 },
-                new TutorialStep(tutorial.getAsJsonPrimitive("buildHangar").getAsString()) {
+                new TutorialStep(tutorial.getAsJsonPrimitive("buildHangar").getAsString(), buildings.findRegion(GeoBattleAssets.HANGAR)) {
                     @Override
                     public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
                         if (gui.getMode() == GameScreenMode.NORMAL) {
@@ -237,7 +242,7 @@ public final class TutorialFactory {
                         setButtonsDisabled(gui.buildToolBar);
                     }
                 },
-                new TutorialStep(tutorial.getAsJsonPrimitive("openHangarDialog").getAsString()) {
+                new TutorialStep(tutorial.getAsJsonPrimitive("openHangarDialog").getAsString(), buttons.findRegion("hangar")) {
                     @Override
                     public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
                         setButtonsEnabled(gui.toolBar);
@@ -255,8 +260,8 @@ public final class TutorialFactory {
                         return gui.hangarDialog.root.getStage() == null;
                     }
                 },
-                new BuildTutorialStep(BuildingType.RESEARCH_CENTER, tutorial.getAsJsonPrimitive("buildResearchCenter").getAsString()),
-                new TutorialStep(tutorial.getAsJsonPrimitive("openResearchCenterDialog").getAsString()) {
+                new BuildTutorialStep(BuildingType.RESEARCH_CENTER, tutorial.getAsJsonPrimitive("buildResearchCenter").getAsString(), buildings.findRegion(GeoBattleAssets.RESEARCH_CENTER)),
+                new TutorialStep(tutorial.getAsJsonPrimitive("openResearchCenterDialog").getAsString(), buttons.findRegion("research")) {
                     @Override
                     public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
                         setButtonsEnabled(gui.toolBar, "researchMode");

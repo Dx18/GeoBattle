@@ -1,5 +1,7 @@
 package geobattle.geobattle.tutorial;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.screens.gamescreen.GameScreen;
 import geobattle.geobattle.screens.gamescreen.GameScreenGUI;
@@ -9,8 +11,16 @@ public abstract class TutorialStep {
     // Message of current step
     public final String message;
 
+    public final TextureRegion image;
+
     public TutorialStep(String message) {
         this.message = message;
+        this.image = null;
+    }
+
+    public TutorialStep(String message, TextureRegion image) {
+        this.message = message;
+        this.image = image;
     }
 
     // Invokes when step of tutorial begins

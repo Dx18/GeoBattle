@@ -136,7 +136,7 @@ public final class GameScreen implements Screen {
         onSelectTutorial(null);
 
         if (mode == GameScreenMode.BUILD_FIRST_SECTOR)
-            gui.showTutorialQuestionDialog(this);
+            gui.showTutorialQuestionDialog(assetManager, this);
 
         // Input handling
         InputMultiplexer input = new InputMultiplexer();
@@ -236,7 +236,7 @@ public final class GameScreen implements Screen {
 
     public void onTutorialMessage() {
         if (tutorial != null && tutorial.getCurrent() != null)
-            gui.showTutorialMessage(this, tutorial.getCurrent().message);
+            gui.showTutorialMessage(this, tutorial.getCurrent());
     }
 
     // Sets tutorial
@@ -248,7 +248,7 @@ public final class GameScreen implements Screen {
         gui.tutorialMessageButton.setVisible(this.tutorial != null);
         if (this.tutorial != null && this.tutorial.getCurrent() != null) {
             this.tutorial.getCurrent().onBegin(this, gui, gameState);
-            gui.showTutorialMessage(this, this.tutorial.getCurrent().message);
+            gui.showTutorialMessage(this, this.tutorial.getCurrent());
         }
     }
 
@@ -316,7 +316,7 @@ public final class GameScreen implements Screen {
             tutorial.nextStep();
             if (tutorial.getCurrent() != null) {
                 tutorial.getCurrent().onBegin(this, gui, gameState);
-                gui.showTutorialMessage(this, tutorial.getCurrent().message);
+                gui.showTutorialMessage(this, tutorial.getCurrent());
             } else {
                 gui.tutorialMessageButton.setVisible(false);
             }
