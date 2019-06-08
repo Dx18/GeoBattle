@@ -811,7 +811,7 @@ public final class GameScreenGUI {
         if (tutorialMessageShown)
             return;
 
-        final VisDialog dialog = new VisDialog("", "transparent");
+        final VisDialog dialog = new VisDialog(screen.getI18NBundle().get("tutorial"));
 
         VisTable root = new VisTable();
 
@@ -820,7 +820,6 @@ public final class GameScreenGUI {
         messageText.setAlignment(Align.topLeft, Align.left);
         root.add(messageText)
                 .grow()
-                // .expand()
                 .pad(30)
                 .align(Align.topLeft);
 
@@ -828,7 +827,7 @@ public final class GameScreenGUI {
                 .width(Gdx.graphics.getWidth() - 150)
                 .height(Gdx.graphics.getHeight() / 2);
 
-        VisTextButton close = new VisTextButton(screen.getI18NBundle().get("close"));
+        VisTextButton close = new VisTextButton(screen.getI18NBundle().get("next"));
         close.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
