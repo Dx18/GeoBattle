@@ -465,11 +465,12 @@ public final class GameScreen implements Screen {
         // Moves camera around
         @Override
         public boolean pan(float x, float y, float deltaX, float deltaY) {
-            Gdx.app.log("GeoBattle", "pan(" + x + ", " + y + ", " + deltaX + ", " + deltaY + ")");
             camera.translate(
                     -camera.viewportWidth * deltaX / Gdx.graphics.getWidth(),
                     camera.viewportHeight * deltaY / Gdx.graphics.getHeight()
             );
+
+            camera.fix(map.getXOffset(), map.getYOffset());
 
             return true;
         }
@@ -484,6 +485,8 @@ public final class GameScreen implements Screen {
             float scale = initialDistance / distance;
             camera.viewportWidth = initialViewportWidth * scale;
             camera.viewportHeight = initialViewportHeight * scale;
+
+            camera.fix(map.getXOffset(), map.getYOffset());
 
             return true;
         }
