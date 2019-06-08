@@ -218,8 +218,8 @@ public class GeoBattleMap extends Actor {
 
         if (centerPoint != null)
             camera.position.set(
-                    CoordinateConverter.subTilesToWorld(centerPoint.x + Sector.SECTOR_SIZE / 2, xOffset, GeoBattleConst.SUBDIVISION),
-                    CoordinateConverter.subTilesToWorld(centerPoint.y + Sector.SECTOR_SIZE / 2, yOffset, GeoBattleConst.SUBDIVISION),
+                    CoordinateConverter.subTilesToWorld(centerPoint.x, xOffset, GeoBattleConst.SUBDIVISION),
+                    CoordinateConverter.subTilesToWorld(centerPoint.y, yOffset, GeoBattleConst.SUBDIVISION),
                     0
             );
     }
