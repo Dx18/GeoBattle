@@ -172,19 +172,17 @@ public final class GeoBattle extends Game {
                 VisTextButton.VisTextButtonStyle.class, TextField.TextFieldStyle.class,
                 VisTextField.VisTextFieldStyle.class, List.ListStyle.class
         }) {
-            try {
                 for (Field field : cls.getFields()) {
                     if (field.getType().equals(BitmapFont.class)) {
                         for (Object style : skin.getAll(cls).values()) {
-                            int index = fontsOld.indexOf(field.get(style));
-                            if (index != -1)
-                                field.set(style, fonts.get(index));
+                            try {
+                                int index = fontsOld.indexOf(field.get(style));
+                                if (index != -1)
+                                    field.set(style, fonts.get(index));
+                            } catch (IllegalAccessException ignored) {}
                         }
                     }
                 }
-            } catch (IllegalAccessException ignored) {
-
-            }
         }
     }
 
