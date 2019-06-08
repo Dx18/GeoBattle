@@ -254,44 +254,34 @@ public final class TileRequestPool {
     // Requests next tile
     private void next() {
         synchronized (this) {
-            if (requests.isEmpty())
+            if (loadingCount.get() >= maxLoadingCount)
                 return;
-        }
-        if (loadingCount.get() >= maxLoadingCount)
-            return;
-
-        final TileRequest next;
-        synchronized (this) {
-            next = requests.pop();
-            if (
-                    visible == null || zoomLevel == null ||
-                    Math.abs(zoomLevel - next.zoomLevel) <= 2 &&
-                    next.x >= visible.x &&
-                    next.x < visible.x + visible.width &&
-                    next.y >= visible.y &&
-                    next.y < visible.y + visible.height
-            ) {
-                loadingCount.incrementAndGet();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Pixmap result = requestCache(next);
-                        if (result == null) {
-                            result = requestSocket(next);
-                            if (result != null)
-                                writeToCache(result, next);
+            while (!requests.isEmpty()) {
+                final TileRequest next = requests.pop();
+                if (
+                        visible == null || zoomLevel == null ||
+                        Math.abs(zoomLevel - next.zoomLevel) <= 2 &&
+                        next.x >= visible.x &&
+                        next.x < visible.x + visible.width &&
+                        next.y >= visible.y &&
+                        next.y < visible.y + visible.height
+                ) {
+                    loadingCount.incrementAndGet();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Pixmap result = requestCache(next);
+                            if (result == null) {
+                                result = requestSocket(next);
+                                if (result != null)
+                                    writeToCache(result, next);
+                            }
+                            onLoad(result, next);
                         }
-                        onLoad(result, next);
-                    }
-                }).start();
-            } else {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        onLoad(null, next);
-                        next();
-                    }
-                }).start();
+                    }).start();
+                    break;
+                } else
+                    onLoad(null, next);
             }
         }
     }
