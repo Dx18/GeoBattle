@@ -245,10 +245,6 @@ public final class TileRequestPool {
     private void onLoad(Pixmap pixmap, TileRequest tileRequest) {
         if (onLoad != null)
             onLoad.onLoad(pixmap, tileRequest.x, tileRequest.y, tileRequest.zoomLevel);
-        synchronized (this) {
-            loadingCount.decrementAndGet();
-            next();
-        }
     }
 
     // Requests next tile
@@ -277,6 +273,8 @@ public final class TileRequestPool {
                                     writeToCache(result, next);
                             }
                             onLoad(result, next);
+                            loadingCount.decrementAndGet();
+                            next();
                         }
                     }).start();
                     break;
