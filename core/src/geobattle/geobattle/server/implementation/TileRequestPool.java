@@ -284,6 +284,14 @@ public final class TileRequestPool {
                         onLoad(result, next);
                     }
                 }).start();
+            } else {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        onLoad(null, next);
+                        next();
+                    }
+                }).start();
             }
         }
     }
