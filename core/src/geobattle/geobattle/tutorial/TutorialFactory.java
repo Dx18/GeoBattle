@@ -60,6 +60,35 @@ public final class TutorialFactory {
                 String.format("tutorial/%s", i18NBundle.get("tutorialFile"))
         ).reader())).getAsJsonObject();
 
+        class BuildTutorialStep extends TutorialStep {
+            private BuildingType buildingType;
+
+            public BuildTutorialStep(BuildingType buildingType, String message) {
+                super(message);
+                this.buildingType = buildingType;
+            }
+
+            @Override
+            public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                if (gui.getMode() == GameScreenMode.NORMAL) {
+                    setButtonsEnabled(gui.toolBar, "buildMode");
+                } else if (gui.getMode() == GameScreenMode.BUILD) {
+                    if (gui.selectBuildingTypeDialog.getBuildingType() == buildingType)
+                        setButtonsEnabled(gui.buildToolBar, "build", "buildingType");
+                    else
+                        setButtonsEnabled(gui.buildToolBar, "buildingType");
+                }
+
+                return gameState.getCurrentPlayer().getCount(buildingType) >= 1;
+            }
+
+            @Override
+            public void onEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                setButtonsDisabled(gui.toolBar);
+                setButtonsDisabled(gui.buildToolBar);
+            }
+        }
+
         return new Tutorial(new TutorialStep[] {
                 new TutorialStep(tutorial.getAsJsonPrimitive("welcome").getAsString()) {
 
@@ -98,6 +127,53 @@ public final class TutorialFactory {
                         setButtonsDisabled(gui.buildToolBar);
                     }
                 },
+                new TutorialStep(tutorial.getAsJsonPrimitive("buildMoreMines").getAsString()) {
+                    @Override
+                    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                        if (gui.getMode() == GameScreenMode.NORMAL) {
+                            setButtonsEnabled(gui.toolBar, "buildMode");
+                        } else if (gui.getMode() == GameScreenMode.BUILD) {
+                            if (gui.selectBuildingTypeDialog.getBuildingType() == BuildingType.MINE)
+                                setButtonsEnabled(gui.buildToolBar, "build", "buildingType");
+                            else
+                                setButtonsEnabled(gui.buildToolBar, "buildingType");
+                        }
+
+                        return gameState.getCurrentPlayer().getCount(BuildingType.MINE) >= 3;
+                    }
+
+                    @Override
+                    public void onEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                        setButtonsDisabled(gui.toolBar);
+                        setButtonsDisabled(gui.buildToolBar);
+                    }
+                },
+                new TutorialStep(tutorial.getAsJsonPrimitive("enterDestroyMode").getAsString()) {
+                    @Override
+                    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                        setButtonsEnabled(gui.toolBar, "destroyMode");
+                        return gui.getMode() == GameScreenMode.DESTROY;
+                    }
+
+                    @Override
+                    public void onEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                        setButtonsDisabled(gui.toolBar);
+                    }
+                },
+                new TutorialStep(tutorial.getAsJsonPrimitive("destroyMine").getAsString()) {
+                    @Override
+                    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                        if (gui.getMode() == GameScreenMode.NORMAL)
+                            setButtonsEnabled(gui.toolBar, "destroyMode");
+
+                        return gameState.getCurrentPlayer().getCount(BuildingType.MINE) <= 2;
+                    }
+
+                    @Override
+                    public void onEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                        setButtonsDisabled(gui.toolBar);
+                    }
+                },
                 new TutorialStep(tutorial.getAsJsonPrimitive("buildGenerator").getAsString()) {
                     @Override
                     public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
@@ -117,6 +193,85 @@ public final class TutorialFactory {
                     public void onEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
                         setButtonsDisabled(gui.toolBar);
                         setButtonsDisabled(gui.buildToolBar);
+                    }
+                },
+                new TutorialStep(tutorial.getAsJsonPrimitive("buildTurret").getAsString()) {
+                    @Override
+                    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                        if (gui.getMode() == GameScreenMode.NORMAL) {
+                            setButtonsEnabled(gui.toolBar, "buildMode");
+                        } else if (gui.getMode() == GameScreenMode.BUILD) {
+                            if (gui.selectBuildingTypeDialog.getBuildingType() == BuildingType.TURRET)
+                                setButtonsEnabled(gui.buildToolBar, "build", "buildingType");
+                            else
+                                setButtonsEnabled(gui.buildToolBar, "buildingType");
+                        }
+
+                        return gameState.getCurrentPlayer().getCount(BuildingType.TURRET) >= 1;
+                    }
+
+                    @Override
+                    public void onEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                        setButtonsDisabled(gui.toolBar);
+                        setButtonsDisabled(gui.buildToolBar);
+                    }
+                },
+                new TutorialStep(tutorial.getAsJsonPrimitive("buildHangar").getAsString()) {
+                    @Override
+                    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                        if (gui.getMode() == GameScreenMode.NORMAL) {
+                            setButtonsEnabled(gui.toolBar, "buildMode");
+                        } else if (gui.getMode() == GameScreenMode.BUILD) {
+                            if (gui.selectBuildingTypeDialog.getBuildingType() == BuildingType.HANGAR)
+                                setButtonsEnabled(gui.buildToolBar, "build", "buildingType");
+                            else
+                                setButtonsEnabled(gui.buildToolBar, "buildingType");
+                        }
+
+                        return gameState.getCurrentPlayer().getCount(BuildingType.HANGAR) >= 1;
+                    }
+
+                    @Override
+                    public void onEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                        setButtonsDisabled(gui.toolBar);
+                        setButtonsDisabled(gui.buildToolBar);
+                    }
+                },
+                new TutorialStep(tutorial.getAsJsonPrimitive("openHangarDialog").getAsString()) {
+                    @Override
+                    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                        setButtonsEnabled(gui.toolBar);
+                        return gui.hangarDialog.root.getStage() != null;
+                    }
+
+                    @Override
+                    public void onEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                        setButtonsDisabled(gui.toolBar);
+                    }
+                },
+                new TutorialStep(tutorial.getAsJsonPrimitive("closeHangarDialog").getAsString()) {
+                    @Override
+                    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                        return gui.hangarDialog.root.getStage() == null;
+                    }
+                },
+                new BuildTutorialStep(BuildingType.RESEARCH_CENTER, tutorial.getAsJsonPrimitive("buildResearchCenter").getAsString()),
+                new TutorialStep(tutorial.getAsJsonPrimitive("openResearchCenterDialog").getAsString()) {
+                    @Override
+                    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                        setButtonsEnabled(gui.toolBar, "researchMode");
+                        return gui.researchDialog.root.getStage() != null;
+                    }
+
+                    @Override
+                    public void onEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                        setButtonsDisabled(gui.toolBar);
+                    }
+                },
+                new TutorialStep(tutorial.getAsJsonPrimitive("closeResearchCenterDialog").getAsString()) {
+                    @Override
+                    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
+                        return gui.researchDialog.root.getStage() == null;
                     }
                 },
                 new TutorialStep(tutorial.getAsJsonPrimitive("yourPossibilities").getAsString()) {},
