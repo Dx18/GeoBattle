@@ -71,7 +71,7 @@ public final class GeoBattleGUI {
                 message.setAlignment(Align.center, Align.center);
                 background.add(message)
                         .expandX()
-                        .height(50)
+                        .height(Gdx.graphics.getPpcY() * 0.7f)
                         .padLeft(30)
                         .padRight(30)
                         .align(Align.center);
