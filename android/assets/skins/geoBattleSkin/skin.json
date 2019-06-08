@@ -1,8 +1,8 @@
 {
-  BitmapFont: {
-    large: { file: font-36.fnt },
-    medium: { file: font-28.fnt },
-    small: { file: font-20.fnt },
+  com.badlogic.gdx.graphics.g2d.BitmapFont: {
+    large: { file: font-40.fnt },
+    medium: { file: font-32.fnt },
+    small: { file: font-24.fnt },
     default: small,
   },
   Color: {

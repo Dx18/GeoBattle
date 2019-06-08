@@ -5,14 +5,25 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.assets.loaders.TextureLoader;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.kotcrab.vis.ui.VisUI;
+import com.kotcrab.vis.ui.widget.VisTextButton;
+import com.kotcrab.vis.ui.widget.VisTextField;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import geobattle.geobattle.actionresults.MatchBranch;
 import geobattle.geobattle.actionresults.StateRequestResult;
@@ -81,11 +92,6 @@ public final class GeoBattle extends Game {
 
         assetManager.load(GeoBattleAssets.GUI_SKIN, Skin.class);
 
-        TextureLoader.TextureParameter param = new TextureLoader.TextureParameter();
-        param.genMipMaps = true;
-
-        assetManager.load(GeoBattleAssets.GUI_SKIN, Skin.class);
-
         assetManager.load(GeoBattleAssets.BUILDINGS_ATLAS, TextureAtlas.class);
         assetManager.load(GeoBattleAssets.BUILDING_ICONS_ATLAS, TextureAtlas.class);
 
@@ -111,6 +117,8 @@ public final class GeoBattle extends Game {
 
         i18NBundle = assetManager.get(GeoBattleAssets.I18N);
 
+        generateAndUpdateFonts(assetManager);
+
         if (!VisUI.isLoaded())
             VisUI.load(assetManager.get(GeoBattleAssets.GUI_SKIN, Skin.class));
 
@@ -130,6 +138,55 @@ public final class GeoBattle extends Game {
 
         setScreen(new MainMenuScreen(assetManager, this));
 	}
+
+	// Generates fonts and updates GUI skin
+	private void generateAndUpdateFonts(AssetManager assetManager) {
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font.ttf"));
+
+        FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        fontParameter.characters += "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+
+        java.util.List<BitmapFont> fonts = new ArrayList<BitmapFont>();
+
+        fontParameter.size = (int) (Gdx.graphics.getPpcY() * 0.24f);
+        fonts.add(generator.generateFont(fontParameter));
+
+        fontParameter.size = (int) (fontParameter.size * 1.35f);
+        fonts.add(generator.generateFont(fontParameter));
+
+        fontParameter.size = (int) (fontParameter.size * 1.2f);
+        fonts.add(generator.generateFont(fontParameter));
+
+        generator.dispose();
+
+        Skin skin = assetManager.get(GeoBattleAssets.GUI_SKIN);
+
+        java.util.List<BitmapFont> fontsOld = Arrays.asList(
+                skin.getFont("small"),
+                skin.getFont("medium"),
+                skin.getFont("large")
+        );
+
+        for (Class cls : new Class[] {
+                TextButton.TextButtonStyle.class, Label.LabelStyle.class,
+                VisTextButton.VisTextButtonStyle.class, TextField.TextFieldStyle.class,
+                VisTextField.VisTextFieldStyle.class, List.ListStyle.class
+        }) {
+            try {
+                for (Field field : cls.getFields()) {
+                    if (field.getType().equals(BitmapFont.class)) {
+                        for (Object style : skin.getAll(cls).values()) {
+                            int index = fontsOld.indexOf(field.get(style));
+                            if (index != -1)
+                                field.set(style, fonts.get(index));
+                        }
+                    }
+                }
+            } catch (IllegalAccessException ignored) {
+
+            }
+        }
+    }
 
 	public void setMusicVolume(float volume) {
         musicController.setVolume(volume);
