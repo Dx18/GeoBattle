@@ -23,7 +23,7 @@ public final class BuildSectorMode extends GameScreenModeData {
 
         Color playerColor = gameState.getCurrentPlayer().getColor();
 
-        boolean canBuildSector = gameState.canBuildSector(buildX, buildY);
+        boolean canBuildSector = gameState.canBuildSector(buildX, buildY, null);
         Color mainColor = canBuildSector
                 ? new Color(playerColor.r, playerColor.g, playerColor.b, 0.1f)
                 : new Color(1, 0, 0, 0.05f);

@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.attacking.AttackScript;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Sector;
@@ -226,19 +227,30 @@ public class GameState {
     }
 
     // Returns true if current player can building building of specified building type
-    public boolean canBuildBuilding(BuildingType buildingType, int x, int y) {
+    public boolean canBuildBuilding(BuildingType buildingType, int x, int y, GeoBattle game) {
         // Prevent BuildResult.NotEnoughResources
-        if (getResources() < buildingType.cost) return false;
+        if (getResources() < buildingType.cost) {
+            if (game != null)
+                game.showMessage(game.getI18NBundle().format("buildResultNotEnoughResources", buildingType.cost));
+            return false;
+        }
 
         // Prevent BuildResult.CollisionFound
         if (getCurrentPlayer().getBuildingsInRect(
                 x - 1, y - 1,
                 buildingType.sizeX + 2, buildingType.sizeY + 2
-        ).hasNext()) return false;
+        ).hasNext()) {
+            if (game != null)
+                game.showMessage(game.getI18NBundle().get("buildResultCollisionFound"));
+            return false;
+        }
 
         // Prevent BuildResult.BuildingLimitExceeded
-        if (getCurrentPlayer().getCount(buildingType) >= buildingType.maxCount)
+        if (getCurrentPlayer().getCount(buildingType) >= buildingType.maxCount) {
+            if (game != null)
+                game.showMessage(game.getI18NBundle().format("buildResultBuildingLimitExceeded", buildingType.maxCount));
             return false;
+        }
 
         // Prevent BuildResult.NotInTerritory
         Iterator<Sector> sectors = getCurrentPlayer().getAllSectors();
@@ -248,27 +260,40 @@ public class GameState {
                     x - 1, y - 1,
                     buildingType.sizeX + 2, buildingType.sizeY + 2
             )) {
-                return !next.isBlocked();
+                if (next.isBlocked()) {
+                    if (game != null)
+                        game.showMessage(game.getI18NBundle().get("buildResultSectorBlocked"));
+                    return false;
+                }
+                return true;
             }
         }
 
+        if (game != null)
+            game.showMessage(game.getI18NBundle().get("buildResultNotInTerritory"));
         return false;
     }
 
     // Returns true if current player can build sector at specified point
-    public boolean canBuildSector(int x, int y) {
+    public boolean canBuildSector(int x, int y, GeoBattle game) {
         PlayerState current = getCurrentPlayer();
 
         if (current.getAllSectors().hasNext()) {
             int cost = 50 + current.getSectorCount() * 25;
 
-            if (resources < cost)
+            if (resources < cost) {
+                if (game != null)
+                    game.showMessage(game.getI18NBundle().format("sectorBuildResultNotEnoughResources", cost));
                 return false;
+            }
 
             Sector sector = getCurrentPlayer().getAllSectors().next();
 
-            if ((x - sector.x) % Sector.SECTOR_SIZE != 0 || (y - sector.y) % Sector.SECTOR_SIZE != 0)
+            if ((x - sector.x) % Sector.SECTOR_SIZE != 0 || (y - sector.y) % Sector.SECTOR_SIZE != 0) {
+                if (game != null)
+                    game.showMessage(game.getI18NBundle().get("sectorBuildResultWrongPosition"));
                 return false;
+            }
 
             boolean isNeighbour = false;
 
@@ -283,12 +308,18 @@ public class GameState {
                     isNeighbour = true;
                     break;
                 }
-                if (next.x == x && next.y == y)
+                if (next.x == x && next.y == y) {
+                    if (game != null)
+                        game.showMessage(game.getI18NBundle().get("sectorBuildResultWrongPosition"));
                     return false;
+                }
             }
 
-            if (!isNeighbour)
+            if (!isNeighbour) {
+                if (game != null)
+                    game.showMessage(game.getI18NBundle().get("sectorBuildResultWrongPosition"));
                 return false;
+            }
         }
 
         for (PlayerState enemy : players) {
@@ -302,7 +333,11 @@ public class GameState {
                 if (GeoBattleMath.tileRectanglesIntersect(
                         next.x, next.y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE,
                         x, y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE
-                )) return false;
+                )) {
+                    if (game != null)
+                        game.showMessage(game.getI18NBundle().get("sectorBuildResultIntersectsWithEnemy"));
+                    return false;
+                }
             }
         }
 

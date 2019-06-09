@@ -88,7 +88,7 @@ public class GameEvents {
         coordinates.x -= Sector.SECTOR_SIZE / 2;
         coordinates.y -= Sector.SECTOR_SIZE / 2;
 
-        if (!gameState.canBuildSector(coordinates.x, coordinates.y))
+        if (!gameState.canBuildSector(coordinates.x, coordinates.y, game))
             return;
 
         game.getExternalAPI().server.onSectorBuildEvent(authInfo, coordinates.x, coordinates.y, new Callback<SectorBuildResult>() {
@@ -115,7 +115,7 @@ public class GameEvents {
         coordinates.x -= ((coordinates.x - sector.x) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;
         coordinates.y -= ((coordinates.y - sector.y) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;
 
-        if (!gameState.canBuildSector(coordinates.x, coordinates.y))
+        if (!gameState.canBuildSector(coordinates.x, coordinates.y, game))
             return;
 
         game.getExternalAPI().server.onSectorBuildEvent(authInfo, coordinates.x, coordinates.y, new Callback<SectorBuildResult>() {
@@ -154,7 +154,7 @@ public class GameEvents {
         coordinates.x -= buildingType.sizeX / 2;
         coordinates.y -= buildingType.sizeY / 2;
 
-        if (!gameState.canBuildBuilding(map.getSelectedBuildingType(), coordinates.x, coordinates.y))
+        if (!gameState.canBuildBuilding(map.getSelectedBuildingType(), coordinates.x, coordinates.y, game))
             return;
 
         game.getExternalAPI().server.onBuildEvent(authInfo, buildingType, coordinates.x, coordinates.y, new Callback<BuildResult>() {

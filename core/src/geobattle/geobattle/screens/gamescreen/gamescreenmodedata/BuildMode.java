@@ -38,7 +38,7 @@ public final class BuildMode extends GameScreenModeData {
         int buildX = pointedTileX - buildingType.sizeX / 2;
         int buildY = pointedTileY - buildingType.sizeY / 2;
 
-        Color color = gameState.canBuildBuilding(buildingType, buildX, buildY)
+        Color color = gameState.canBuildBuilding(buildingType, buildX, buildY, null)
                 ? new Color(0, 1, 0, 0.6f)
                 : new Color(1, 0, 0, 0.3f);
 
