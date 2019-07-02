@@ -69,7 +69,7 @@ buildingType
   index: -1
 button
   rotate: false
-  xy: 614, 126
+  xy: 810, 193
   size: 11, 11
   split: 5, 5, 5, 5
   orig: 11, 11
@@ -77,7 +77,7 @@ button
   index: -1
 buttonMenu
   rotate: false
-  xy: 512, 11
+  xy: 716, 145
   size: 59, 59
   split: 29, 29, 29, 29
   orig: 59, 59
@@ -148,7 +148,7 @@ infoBackgroundBottom
   index: -1
 infoBackgroundLeft
   rotate: false
-  xy: 272, 11
+  xy: 553, 59
   size: 11, 11
   split: 5, 5, 5, 5
   orig: 11, 11
@@ -156,7 +156,7 @@ infoBackgroundLeft
   index: -1
 infoBackgroundRight
   rotate: false
-  xy: 695, 193
+  xy: 664, 91
   size: 11, 11
   split: 5, 5, 5, 5
   orig: 11, 11
@@ -164,7 +164,7 @@ infoBackgroundRight
   index: -1
 listItemDeselected
   rotate: false
-  xy: 606, 67
+  xy: 512, 26
   size: 5, 3
   split: 3, 1, 1, 1
   orig: 5, 3
@@ -172,7 +172,7 @@ listItemDeselected
   index: -1
 listItemSelected
   rotate: false
-  xy: 655, 175
+  xy: 614, 73
   size: 5, 3
   split: 3, 1, 1, 1
   orig: 5, 3
@@ -180,7 +180,7 @@ listItemSelected
   index: -1
 message
   rotate: false
-  xy: 272, 6
+  xy: 272, 19
   size: 3, 3
   split: 1, 1, 1, 1
   orig: 3, 3
@@ -237,7 +237,7 @@ ok
   index: -1
 panel
   rotate: false
-  xy: 614, 139
+  xy: 512, 31
   size: 39, 39
   split: 19, 19, 19, 19
   orig: 39, 39
@@ -280,7 +280,7 @@ research
   index: -1
 researchIndicator
   rotate: false
-  xy: 612, 180
+  xy: 614, 78
   size: 48, 24
   orig: 48, 24
   offset: 0, 0
@@ -321,30 +321,37 @@ toBase
   orig: 100, 100
   offset: 0, 0
   index: -1
-toPlayer
+toOtherBase
   rotate: false
   xy: 612, 206
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
-tutorialMessage
+toPlayer
   rotate: false
   xy: 714, 206
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
-update
+tutorialMessage
   rotate: false
   xy: 816, 206
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
+update
+  rotate: false
+  xy: 918, 206
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
 window
   rotate: false
-  xy: 573, 13
+  xy: 777, 147
   size: 31, 57
   split: 15, 15, 46, 10
   orig: 31, 57
@@ -352,7 +359,7 @@ window
   index: -1
 windowCentered
   rotate: false
-  xy: 662, 183
+  xy: 716, 122
   size: 31, 21
   split: 15, 15, 10, 10
   orig: 31, 21
@@ -360,14 +367,14 @@ windowCentered
   index: -1
 zoomIn
   rotate: false
-  xy: 918, 206
+  xy: 512, 72
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 zoomOut
   rotate: false
-  xy: 512, 72
+  xy: 614, 104
   size: 100, 100
   orig: 100, 100
   offset: 0, 0

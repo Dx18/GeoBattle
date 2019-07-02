@@ -59,6 +59,18 @@ public class PlayerState {
         }
     };
 
+    // X of sector with min X
+    private int minSectorX;
+
+    // Y of sector with min Y
+    private int minSectorY;
+
+    // X of sector with max X
+    private int maxSectorX;
+
+    // Y of sector with max Y
+    private int maxSectorY;
+
     // Point of base center
     private IntPoint centerPoint;
 
@@ -73,6 +85,11 @@ public class PlayerState {
         this.sectors = new ArrayList<Sector>();
         this.units = new ArrayList<Unit>();
         this.buildingCount = new ObjectIntMap<BuildingType>();
+
+        minSectorX = Integer.MAX_VALUE;
+        minSectorY = Integer.MAX_VALUE;
+        maxSectorX = Integer.MIN_VALUE;
+        maxSectorY = Integer.MIN_VALUE;
     }
 
     // Clones player state
@@ -103,6 +120,15 @@ public class PlayerState {
         )
             throw new IllegalArgumentException("Sector is not aligned with other sectors");
 
+        if (sector.x < minSectorX)
+            minSectorX = sector.x;
+        if (sector.y < minSectorY)
+            minSectorY = sector.y;
+        if (sector.x > maxSectorX)
+            maxSectorX = sector.x;
+        if (sector.y > maxSectorY)
+            maxSectorY = sector.y;
+
         if (centerPoint == null)
             centerPoint = new IntPoint(0, 0);
 
@@ -119,6 +145,27 @@ public class PlayerState {
             throw new IllegalArgumentException("Cannot remove sector with specified ID");
 
         sectors.remove(removeIndex);
+
+        if (
+                sector.x == minSectorX || sector.y == minSectorY ||
+                sector.x == maxSectorX || sector.y == maxSectorY
+        ) {
+            minSectorX = Integer.MAX_VALUE;
+            minSectorY = Integer.MAX_VALUE;
+            maxSectorX = Integer.MIN_VALUE;
+            maxSectorY = Integer.MIN_VALUE;
+
+            for (Sector currentSector : sectors) {
+                if (currentSector.x < minSectorX)
+                    minSectorX = currentSector.x;
+                if (currentSector.y < minSectorY)
+                    minSectorY = currentSector.y;
+                if (currentSector.x > maxSectorX)
+                    maxSectorX = currentSector.x;
+                if (currentSector.y > maxSectorY)
+                    maxSectorY = currentSector.y;
+            }
+        }
 
         if (sectors.isEmpty()) {
             centerPoint = null;
@@ -330,5 +377,25 @@ public class PlayerState {
     // Returns point of base center
     public IntPoint getCenterPoint() {
         return centerPoint == null ? null : centerPoint.clone();
+    }
+
+    // Returns X of sector with min X
+    public int getMinSectorX() {
+        return minSectorX;
+    }
+
+    // Returns Y of sector with min Y
+    public int getMinSectorY() {
+        return minSectorY;
+    }
+
+    // Returns X of sector with max X
+    public int getMaxSectorX() {
+        return maxSectorX;
+    }
+
+    // Returns Y of sector with max Y
+    public int getMaxSectorY() {
+        return maxSectorY;
     }
 }

@@ -225,6 +225,23 @@ public class GeoBattleMap extends Actor {
             );
     }
 
+    // Moves camera to specific player's base (or does nothing if it does not exist)
+    public void moveToBase(int playerId) {
+        PlayerState player = gameState.getPlayer(playerId);
+
+        if (player == null)
+            return;
+
+        IntPoint centerPoint = player.getCenterPoint();
+
+        if (centerPoint != null)
+            camera.position.set(
+                    CoordinateConverter.subTilesToWorld(centerPoint.x, xOffset, GeoBattleConst.SUBDIVISION),
+                    CoordinateConverter.subTilesToWorld(centerPoint.y, yOffset, GeoBattleConst.SUBDIVISION),
+                    0
+            );
+    }
+
     // Updates map
     @Override
     public void act(float delta) {

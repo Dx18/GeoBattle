@@ -61,7 +61,7 @@ public final class RatingGUI {
         final float listHeight = Gdx.graphics.getHeight() - 210 - 2 * Gdx.graphics.getPpcY() * 0.9f;
         final float entryHeight = Gdx.graphics.getPpcY() * 0.6f + 10;
         entriesPerPage = (int) (listHeight / entryHeight);
-        updateItems();
+        updateItems(screen);
 
         root.getContentTable().clear();
         root.getButtonsTable().clear();
@@ -104,7 +104,7 @@ public final class RatingGUI {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 currentPage--;
-                updateItems();
+                updateItems(screen);
             }
         });
         root.getButtonsTable().add(prevPage)
@@ -116,7 +116,7 @@ public final class RatingGUI {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 currentPage++;
-                updateItems();
+                updateItems(screen);
             }
         });
         root.getButtonsTable().add(nextPage)
@@ -127,7 +127,7 @@ public final class RatingGUI {
     }
 
     // Creates view for entry
-    private VisTable createView(int place, RatingEntry ratingEntry) {
+    private VisTable createView(int place, final RatingEntry ratingEntry, final GameScreen screen) {
         VisTable result = new VisTable();
 
         VisTable root = new VisTable();
@@ -155,6 +155,18 @@ public final class RatingGUI {
                 .height(Gdx.graphics.getPpcY() * 0.6f)
                 .align(Align.center);
 
+        VisImageButton toBase = new VisImageButton("buttonToOtherBase");
+        toBase.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                screen.onMoveToBase(ratingEntry.playerId);
+                RatingGUI.this.root.hide();
+            }
+        });
+        root.add(toBase)
+                .width(Gdx.graphics.getPpcX() * 0.6f)
+                .height(Gdx.graphics.getPpcY() * 0.6f);
+
         result.add(root)
                 .growX()
                 .padTop(5)
@@ -164,7 +176,7 @@ public final class RatingGUI {
     }
 
     // Updates table of items
-    private void updateItems() {
+    private void updateItems(GameScreen screen) {
         currentPage = Math.min(MathUtils.ceil((float) rating.size() / entriesPerPage) - 1, currentPage);
         currentPage = Math.max(currentPage, 0);
 
@@ -172,7 +184,7 @@ public final class RatingGUI {
 
         int startIndex = entriesPerPage * currentPage;
         for (int index = startIndex; index < startIndex + entriesPerPage && index < rating.size(); index++) {
-            ratingEntries.add(createView(index + 1, rating.get(index)))
+            ratingEntries.add(createView(index + 1, rating.get(index), screen))
                     .growX();
             ratingEntries.row();
         }
@@ -189,12 +201,12 @@ public final class RatingGUI {
             }
         });
         Collections.addAll(this.rating, rating);
-        updateItems();
+        updateItems(screen);
 
         currentPlayerRatingEntry.clear();
         for (int index = 0; index < this.rating.size(); index++) {
             if (this.rating.get(index).isCurrentPlayer()) {
-                currentPlayerRatingEntry.add(createView(index + 1, this.rating.get(index)))
+                currentPlayerRatingEntry.add(createView(index + 1, this.rating.get(index), screen))
                         .growX();
                 break;
             }

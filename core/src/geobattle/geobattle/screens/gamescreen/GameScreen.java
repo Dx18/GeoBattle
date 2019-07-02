@@ -228,6 +228,10 @@ public final class GameScreen implements Screen {
         map.moveToPlayer();
     }
 
+    public void onMoveToBase(int playerId) {
+        map.moveToBase(playerId);
+    }
+
     // Invokes when player wants to move to its base
     public void onMoveToBase() {
         map.moveToBase();
