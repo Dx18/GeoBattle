@@ -540,7 +540,7 @@ public class GeoBattleMap extends Actor {
         Iterator<PlayerState> players = gameState.getPlayers();
         while (players.hasNext()) {
             PlayerState player = players.next();
-            ReadOnlyArrayList<Building>[] buildings = player.getAllBuildingsList();
+            ReadOnlyArrayList<Building>[] buildings = player.getAllBuildings();
             for (int sector = 0; sector < buildings.length; sector++) {
                 for (int buildingIndex = 0; buildingIndex < buildings[sector].size(); buildingIndex++) {
                     Building building = buildings[sector].get(buildingIndex);

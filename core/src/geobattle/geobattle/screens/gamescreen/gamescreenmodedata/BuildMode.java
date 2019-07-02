@@ -52,7 +52,7 @@ public final class BuildMode extends GameScreenModeData {
     public void drawOverlay(ShapeRenderer shapeRenderer, GeoBattleMap map, GameState gameState, IntRect visible) {
         Color color = new Color(1, 0, 0, 0.3f);
 
-        ReadOnlyArrayList<Building>[] buildings = gameState.getCurrentPlayer().getAllBuildingsList();
+        ReadOnlyArrayList<Building>[] buildings = gameState.getCurrentPlayer().getAllBuildings();
         for (int sector = 0; sector < buildings.length; sector++) {
             for (int buildingIndex = 0; buildingIndex < buildings[sector].size(); buildingIndex++) {
                 Building next = buildings[sector].get(buildingIndex);

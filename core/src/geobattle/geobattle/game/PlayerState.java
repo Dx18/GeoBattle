@@ -224,7 +224,7 @@ public class PlayerState {
         return null;
     }
 
-    public ReadOnlyArrayList<Building>[] getAllBuildingsList() {
+    public ReadOnlyArrayList<Building>[] getAllBuildings() {
         ReadOnlyArrayList<Building>[] result = new ReadOnlyArrayList[sectors.size()];
         for (int sectorIndex = 0; sectorIndex < sectors.size(); sectorIndex++)
             result[sectorIndex] = sectors.get(sectorIndex).getAllBuildings();
