@@ -2,7 +2,6 @@ package geobattle.geobattle.game;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.ObjectIntMap;
-import com.badlogic.gdx.utils.Predicate;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -10,7 +9,6 @@ import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
@@ -19,11 +17,8 @@ import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.game.gamestatediff.PlayerStateDiff;
 import geobattle.geobattle.game.gamestatediff.SectorDiff;
 import geobattle.geobattle.game.research.ResearchInfo;
-import geobattle.geobattle.game.units.Bomber;
-import geobattle.geobattle.game.units.Spotter;
 import geobattle.geobattle.game.units.Unit;
 import geobattle.geobattle.game.units.UnitType;
-import geobattle.geobattle.util.CastIterator;
 import geobattle.geobattle.util.IntPoint;
 import geobattle.geobattle.util.JsonObjects;
 import geobattle.geobattle.util.ReadOnlyArrayList;
@@ -284,45 +279,6 @@ public class PlayerState {
             return units.get(index);
 
         return null;
-    }
-
-    // Returns iterator over all units
-    public Iterator<Unit> getAllUnits() {
-        return units.iterator();
-    }
-
-    // Returns iterator over specified type of buildings
-    public <T extends Unit> Iterator<T> getUnits(final UnitType type) {
-        final Predicate.PredicateIterator<Unit> filtered = new Predicate.PredicateIterator<Unit>(units, new Predicate<Unit>() {
-            @Override
-            public boolean evaluate(Unit unit) {
-                return unit.getUnitType() == type;
-            }
-        });
-
-        return new CastIterator<Unit, T>(filtered);
-    }
-
-    // Returns iterator over specified type of buildings
-    public <T extends Unit> Iterator<T> getUnits(final Class<T> type) {
-        final Predicate.PredicateIterator<Unit> filtered = new Predicate.PredicateIterator<Unit>(units, new Predicate<Unit>() {
-            @Override
-            public boolean evaluate(Unit unit) {
-                return type.isInstance(unit);
-            }
-        });
-
-        return new CastIterator<Unit, T>(filtered);
-    }
-
-    // Returns iterator over bombers
-    public Iterator<Bomber> getBombers() {
-        return getUnits(Bomber.class);
-    }
-
-    // Returns iterator over spotters
-    public Iterator<Spotter> getSpotters() {
-        return getUnits(Spotter.class);
     }
 
     // Returns name of player
