@@ -430,27 +430,56 @@ public class GeoBattleMap extends Actor {
 
     // Draws sectors
     private void drawSectors(IntRect visible) {
-        Color playerSectorColor = new Color(1, 1, 1, 0.2f);
-        Iterator<PlayerState> players = gameState.getPlayers();
-        while (players.hasNext()) {
-            PlayerState player = players.next();
-            playerSectorColor.set(player.getColor());
-            playerSectorColor.a = 0.2f;
+        if (Math.min(visible.width, visible.height) < 3000) {
+            Color playerSectorColor = new Color(1, 1, 1, 0.2f);
+            Iterator<PlayerState> players = gameState.getPlayers();
+            while (players.hasNext()) {
+                PlayerState player = players.next();
+                playerSectorColor.set(player.getColor());
+                playerSectorColor.a = 0.2f;
 
-            ReadOnlyArrayList<Sector> sectors = player.getAllSectors();
-            for (int sectorIndex = 0; sectorIndex < sectors.size(); sectorIndex++) {
-                Sector next = sectors.get(sectorIndex);
+                ReadOnlyArrayList<Sector> sectors = player.getAllSectors();
+                for (int sectorIndex = 0; sectorIndex < sectors.size(); sectorIndex++) {
+                    Sector next = sectors.get(sectorIndex);
+
+                    if (!GeoBattleMath.tileRectanglesIntersect(
+                            visible.x, visible.y,
+                            visible.width, visible.height,
+                            next.x, next.y,
+                            Sector.SECTOR_SIZE, Sector.SECTOR_SIZE
+                    ))
+                        continue;
+
+                    drawRegionRectSubTiles(
+                            next.x, next.y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE, playerSectorColor
+                    );
+                }
+            }
+        } else {
+            Color playerSectorColor = new Color(1, 1, 1, 0);
+            Iterator<PlayerState> players = gameState.getPlayers();
+            while (players.hasNext()) {
+                PlayerState player = players.next();
+                playerSectorColor.set(player.getColor());
+                playerSectorColor.a = 0;
+
+                int minSectorX = player.getMinSectorX();
+                int minSectorY = player.getMinSectorY();
+                int maxSectorX = player.getMaxSectorX();
+                int maxSectorY = player.getMaxSectorY();
+
+                int width = maxSectorX - minSectorX + Sector.SECTOR_SIZE;
+                int height = maxSectorY - minSectorY + Sector.SECTOR_SIZE;
 
                 if (!GeoBattleMath.tileRectanglesIntersect(
                         visible.x, visible.y,
                         visible.width, visible.height,
-                        next.x, next.y,
-                        Sector.SECTOR_SIZE, Sector.SECTOR_SIZE
+                        minSectorX, minSectorY, width, height
                 ))
                     continue;
 
                 drawRegionRectSubTiles(
-                        next.x, next.y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE, playerSectorColor
+                        minSectorX, minSectorY, width, height, playerSectorColor
                 );
             }
         }
