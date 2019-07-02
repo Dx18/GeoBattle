@@ -14,12 +14,8 @@ import java.util.Iterator;
 
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
-import geobattle.geobattle.game.buildings.Generator;
 import geobattle.geobattle.game.buildings.Hangar;
-import geobattle.geobattle.game.buildings.Mine;
-import geobattle.geobattle.game.buildings.ResearchCenter;
 import geobattle.geobattle.game.buildings.Sector;
-import geobattle.geobattle.game.buildings.Turret;
 import geobattle.geobattle.game.gamestatediff.PlayerStateDiff;
 import geobattle.geobattle.game.gamestatediff.SectorDiff;
 import geobattle.geobattle.game.research.ResearchInfo;
@@ -28,11 +24,9 @@ import geobattle.geobattle.game.units.Spotter;
 import geobattle.geobattle.game.units.Unit;
 import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.util.CastIterator;
-import geobattle.geobattle.util.GeoBattleMath;
 import geobattle.geobattle.util.IntPoint;
-import geobattle.geobattle.util.IntRect;
-import geobattle.geobattle.util.JoinIterator;
 import geobattle.geobattle.util.JsonObjects;
+import geobattle.geobattle.util.ReadOnlyArrayList;
 
 // State of player
 public class PlayerState {
@@ -175,29 +169,12 @@ public class PlayerState {
         return null;
     }
 
-    // Returns iterator over sectors
-    public Iterator<Sector> getAllSectors() {
-        return sectors.iterator();
+    // Returns read-only list of sectors
+    public ReadOnlyArrayList<Sector> getAllSectors() {
+        return new ReadOnlyArrayList<Sector>(sectors);
     }
 
-    // Returns all sectors in rect
-    public Iterator<Sector> getSectorsInRect(final int x, final int y, final int width, final int height) {
-        return new Predicate.PredicateIterator<Sector>(getAllSectors(), new Predicate<Sector>() {
-            @Override
-            public boolean evaluate(Sector sector) {
-                return GeoBattleMath.tileRectanglesIntersect(
-                        x, y, width, height,
-                        sector.x, sector.y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE
-                );
-            }
-        });
-    }
-
-    // Returns all sectors in rect
-    public Iterator<Sector> getSectorsInRect(IntRect rect) {
-        return getSectorsInRect(rect.x, rect.y, rect.width, rect.height);
-    }
-
+    // Returns count of sectors
     public int getSectorCount() {
         return sectors.size();
     }
@@ -252,68 +229,11 @@ public class PlayerState {
         return null;
     }
 
-    // Returns all buildings in rect
-    public Iterator<Building> getBuildingsInRect(final int x, final int y, final int width, final int height) {
-        return new Predicate.PredicateIterator<Building>(getAllBuildings(), new Predicate<Building>() {
-            @Override
-            public boolean evaluate(Building building) {
-                return GeoBattleMath.tileRectanglesIntersect(
-                        x, y, width, height,
-                        building.x, building.y, building.getSizeX(), building.getSizeY()
-                );
-            }
-        });
-    }
-
-    // Returns all buildings in rect
-    public Iterator<Building> getBuildingsInRect(IntRect rect) {
-        return getBuildingsInRect(rect.x, rect.y, rect.width, rect.height);
-    }
-
-    // Returns iterator over all buildings
-    public Iterator<Building> getAllBuildings() {
-        ArrayList<Iterator<Building>> buildingIterators = new ArrayList<Iterator<Building>>(sectors.size());
-        for (Sector sector : sectors) {
-            buildingIterators.add(sector.getAllBuildings());
-        }
-        return new JoinIterator<Building>(buildingIterators);
-    }
-
-    // Returns iterator over specified type of buildings
-    public <T extends Building> Iterator<T> getBuildings(final Class<T> type) {
-        final Predicate.PredicateIterator<Building> filtered = new Predicate.PredicateIterator<Building>(getAllBuildings(), new Predicate<Building>() {
-            @Override
-            public boolean evaluate(Building building) {
-                return type.isInstance(building);
-            }
-        });
-
-        return new CastIterator<Building, T>(filtered);
-    }
-
-    // Returns iterator over research centers
-    public Iterator<ResearchCenter> getResearchCenters() {
-        return getBuildings(ResearchCenter.class);
-    }
-
-    // Returns iterator over turrets
-    public Iterator<Turret> getTurrets() {
-        return getBuildings(Turret.class);
-    }
-
-    // Returns iterator over generators
-    public Iterator<Generator> getGenerators() {
-        return getBuildings(Generator.class);
-    }
-
-    // Returns iterator over mines
-    public Iterator<Mine> getMines() {
-        return getBuildings(Mine.class);
-    }
-
-    // Returns iterator over hangars
-    public Iterator<Hangar> getHangars() {
-        return getBuildings(Hangar.class);
+    public ReadOnlyArrayList<Building>[] getAllBuildingsList() {
+        ReadOnlyArrayList<Building>[] result = new ReadOnlyArrayList[sectors.size()];
+        for (int sectorIndex = 0; sectorIndex < sectors.size(); sectorIndex++)
+            result[sectorIndex] = sectors.get(sectorIndex).getAllBuildings();
+        return result;
     }
 
     // Returns count of buildings player owns

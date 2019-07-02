@@ -13,12 +13,14 @@ import java.util.Iterator;
 
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.game.attacking.AttackScript;
+import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.game.gamestatediff.GameStateDiff;
 import geobattle.geobattle.game.gamestatediff.PlayerStateDiff;
 import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.util.GeoBattleMath;
+import geobattle.geobattle.util.ReadOnlyArrayList;
 
 // State of game
 public class GameState {
@@ -235,16 +237,6 @@ public class GameState {
             return false;
         }
 
-        // Prevent BuildResult.CollisionFound
-        if (getCurrentPlayer().getBuildingsInRect(
-                x - 1, y - 1,
-                buildingType.sizeX + 2, buildingType.sizeY + 2
-        ).hasNext()) {
-            if (game != null)
-                game.showMessage(game.getI18NBundle().get("buildResultCollisionFound"));
-            return false;
-        }
-
         // Prevent BuildResult.BuildingLimitExceeded
         if (getCurrentPlayer().getCount(buildingType) >= buildingType.maxCount) {
             if (game != null)
@@ -253,9 +245,9 @@ public class GameState {
         }
 
         // Prevent BuildResult.NotInTerritory
-        Iterator<Sector> sectors = getCurrentPlayer().getAllSectors();
-        while (sectors.hasNext()) {
-            Sector next = sectors.next();
+        ReadOnlyArrayList<Sector> sectors = getCurrentPlayer().getAllSectors();
+        for (int sector = 0; sector < sectors.size(); sector++) {
+            Sector next = sectors.get(sector);
             if (next.containsRect(
                     x - 1, y - 1,
                     buildingType.sizeX + 2, buildingType.sizeY + 2
@@ -265,6 +257,22 @@ public class GameState {
                         game.showMessage(game.getI18NBundle().get("buildResultSectorBlocked"));
                     return false;
                 }
+
+                // Prevent BuildResult.CollisionFound
+                ReadOnlyArrayList<Building> buildings = next.getAllBuildings();
+                for (int buildingIndex = 0; buildingIndex < buildings.size(); buildingIndex++) {
+                    Building building = buildings.get(buildingIndex);
+
+                    if (GeoBattleMath.tileRectanglesIntersect(
+                            building.x, building.y, building.getSizeX(), building.getSizeY(),
+                            x - 1, y - 1, buildingType.sizeX + 2, buildingType.sizeY + 2
+                    )) {
+                        if (game != null)
+                            game.showMessage(game.getI18NBundle().get("buildResultCollisionFound"));
+                        return false;
+                    }
+                }
+
                 return true;
             }
         }
@@ -278,7 +286,7 @@ public class GameState {
     public boolean canBuildSector(int x, int y, GeoBattle game) {
         PlayerState current = getCurrentPlayer();
 
-        if (current.getAllSectors().hasNext()) {
+        if (current.getSectorCount() > 0) {
             int cost = 50 + current.getSectorCount() * 25;
 
             if (resources < cost) {
@@ -287,7 +295,7 @@ public class GameState {
                 return false;
             }
 
-            Sector sector = getCurrentPlayer().getAllSectors().next();
+            Sector sector = getCurrentPlayer().getAllSectors().get(0);
 
             if ((x - sector.x) % Sector.SECTOR_SIZE != 0 || (y - sector.y) % Sector.SECTOR_SIZE != 0) {
                 if (game != null)
@@ -297,9 +305,9 @@ public class GameState {
 
             boolean isNeighbour = false;
 
-            Iterator<Sector> sectors = getCurrentPlayer().getAllSectors();
-            while (sectors.hasNext()) {
-                Sector next = sectors.next();
+            ReadOnlyArrayList<Sector> sectors = getCurrentPlayer().getAllSectors();
+            for (int sectorIndex = 0; sectorIndex < sectors.size(); sectorIndex++) {
+                Sector next = sectors.get(sectorIndex);
 
                 if (
                         Math.abs(next.x - x) == Sector.SECTOR_SIZE && next.y == y ||
@@ -326,9 +334,9 @@ public class GameState {
             if (enemy == getCurrentPlayer())
                 continue;
 
-            Iterator<Sector> enemySectors = enemy.getAllSectors();
-            while (enemySectors.hasNext()) {
-                Sector next = enemySectors.next();
+            ReadOnlyArrayList<Sector> enemySectors = enemy.getAllSectors();
+            for (int sectorIndex = 0; sectorIndex < enemySectors.size(); sectorIndex++) {
+                Sector next = enemySectors.get(sectorIndex);
 
                 if (GeoBattleMath.tileRectanglesIntersect(
                         next.x, next.y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE,

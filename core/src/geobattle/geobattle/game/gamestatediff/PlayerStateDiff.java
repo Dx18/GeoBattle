@@ -1,10 +1,10 @@
 package geobattle.geobattle.game.gamestatediff;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import geobattle.geobattle.game.PlayerState;
 import geobattle.geobattle.game.buildings.Sector;
+import geobattle.geobattle.util.ReadOnlyArrayList;
 
 // Difference between player states
 public final class PlayerStateDiff {
@@ -28,9 +28,9 @@ public final class PlayerStateDiff {
         removedSectors = new ArrayList<Sector>();
         changedSectors = new ArrayList<SectorDiff>();
 
-        Iterator<Sector> sectors1 = player1.getAllSectors();
-        while (sectors1.hasNext()) {
-            Sector next = sectors1.next();
+        ReadOnlyArrayList<Sector> sectors1 = player1.getAllSectors();
+        for (int sectorIndex = 0; sectorIndex < sectors1.size(); sectorIndex++) {
+            Sector next = sectors1.get(sectorIndex);
 
             Sector sector = player2.getSector(next.sectorId);
             if (sector == null)
@@ -39,9 +39,9 @@ public final class PlayerStateDiff {
                 changedSectors.add(new SectorDiff(next.sectorId, next, sector));
         }
 
-        Iterator<Sector> sectors2 = player2.getAllSectors();
-        while (sectors2.hasNext()) {
-            Sector next = sectors2.next();
+        ReadOnlyArrayList<Sector> sectors2 = player2.getAllSectors();
+        for (int sectorIndex = 0; sectorIndex < sectors2.size(); sectorIndex++) {
+            Sector next = sectors2.get(sectorIndex);
 
             if (player1.getSector(next.sectorId) == null)
                 addedSectors.add(next);

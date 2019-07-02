@@ -16,7 +16,7 @@ public final class BuildSectorMode extends GameScreenModeData {
 
     @Override
     public void draw(ShapeRenderer shapeRenderer, GeoBattleMap map, GameState gameState, IntRect visible) {
-        Sector sector = gameState.getCurrentPlayer().getAllSectors().next();
+        Sector sector = gameState.getCurrentPlayer().getAllSectors().get(0);
 
         int buildX = pointedTileX - ((pointedTileX - sector.x) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;
         int buildY = pointedTileY - ((pointedTileY - sector.y) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;

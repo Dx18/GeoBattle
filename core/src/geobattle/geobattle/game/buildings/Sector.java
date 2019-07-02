@@ -3,7 +3,6 @@ package geobattle.geobattle.game.buildings;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.Predicate;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -22,9 +21,9 @@ import geobattle.geobattle.game.units.Unit;
 import geobattle.geobattle.game.units.UnitGroup;
 import geobattle.geobattle.map.BuildingTextures;
 import geobattle.geobattle.map.GeoBattleMap;
-import geobattle.geobattle.util.CastIterator;
 import geobattle.geobattle.util.GeoBattleMath;
 import geobattle.geobattle.util.IntRect;
+import geobattle.geobattle.util.ReadOnlyArrayList;
 
 // Sector
 public final class Sector {
@@ -135,20 +134,24 @@ public final class Sector {
         for (int groupIndex = 0; groupIndex < attackingUnits.size(); ) {
             UnitGroup group = attackingUnits.get(groupIndex);
             if (group.getCount() == 0) {
-                Iterator<Turret> turrets = getTurrets();
-                while (turrets.hasNext()) {
-                    Turret next = turrets.next();
-                    if (next.getTarget() != null && next.getTarget().hangarId == group.hangarId)
-                        next.setTarget(null);
+                for (int buildingIndex = 0; buildingIndex < buildings.size(); buildingIndex++) {
+                    Building building = buildings.get(buildingIndex);
+                    if (building instanceof Turret) {
+                        Turret turret = (Turret) building;
+                        if (turret.getTarget() != null && turret.getTarget().hangarId == group.hangarId)
+                            turret.setTarget(null);
+                    }
                 }
                 attackingUnits.remove(groupIndex);
             } else
                 groupIndex++;
         }
 
-        Iterator<Turret> turrets = getTurrets();
-        while (turrets.hasNext()) {
-            Turret turret = turrets.next();
+        for (int buildingIndex = 0; buildingIndex < buildings.size(); buildingIndex++) {
+            Building building = buildings.get(buildingIndex);
+            if (!(building instanceof Turret))
+                continue;
+            Turret turret = (Turret) building;
 
             if (attackingUnits.size() != 0 && (turret.getTargetTime() <= 0 || turret.getTarget() == null)) {
                 int group = (int) (Math.random() * attackingUnits.size());
@@ -289,46 +292,9 @@ public final class Sector {
         return null;
     }
 
-    // Returns iterator over all buildings
-    public Iterator<Building> getAllBuildings() {
-        return buildings.iterator();
-    }
-
-    // Returns iterator over specified type of buildings
-    public <T extends Building> Iterator<T> getBuildings(final Class<T> type) {
-        final Predicate.PredicateIterator<Building> filtered = new Predicate.PredicateIterator<Building>(getAllBuildings(), new Predicate<Building>() {
-            @Override
-            public boolean evaluate(Building building) {
-                return type.isInstance(building);
-            }
-        });
-
-        return new CastIterator<Building, T>(filtered);
-    }
-
-    // Returns iterator over research centers
-    public Iterator<ResearchCenter> getResearchCenters() {
-        return getBuildings(ResearchCenter.class);
-    }
-
-    // Returns iterator over turrets
-    public Iterator<Turret> getTurrets() {
-        return getBuildings(Turret.class);
-    }
-
-    // Returns iterator over generators
-    public Iterator<Generator> getGenerators() {
-        return getBuildings(Generator.class);
-    }
-
-    // Returns iterator over mines
-    public Iterator<Mine> getMines() {
-        return getBuildings(Mine.class);
-    }
-
-    // Returns iterator over hangars
-    public Iterator<Hangar> getHangars() {
-        return getBuildings(Hangar.class);
+    // Returns read-only list of all buildings
+    public ReadOnlyArrayList<Building> getAllBuildings() {
+        return new ReadOnlyArrayList<Building>(buildings);
     }
 
     // Clones sector

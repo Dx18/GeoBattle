@@ -1,12 +1,12 @@
 package geobattle.geobattle.game.units;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import geobattle.geobattle.actionresults.MatchBranch;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
+import geobattle.geobattle.util.ReadOnlyArrayList;
 
 public abstract class UnitGroupState {
     // State when units stay in hangar
@@ -64,17 +64,11 @@ public abstract class UnitGroupState {
             this.sector = sector;
             this.attackedBuildings = new Building[4];
 
-            ArrayList<Building> allBuildings = new ArrayList<Building>();
+            ReadOnlyArrayList<Building> allBuildings = sector != null
+                    ? sector.getAllBuildings()
+                    : new ReadOnlyArrayList<Building>(new ArrayList<Building>());
 
-            if (sector != null) {
-                Iterator<Building> buildings = sector.getAllBuildings();
-                while (buildings.hasNext()) {
-                    Building next = buildings.next();
-                    allBuildings.add(next);
-                }
-            }
-
-            this.allBuildings = allBuildings.toArray(new Building[0]);
+            this.allBuildings = allBuildings.copy().toArray(new Building[0]);
         }
     }
 

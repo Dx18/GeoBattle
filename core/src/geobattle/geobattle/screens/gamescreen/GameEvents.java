@@ -41,6 +41,7 @@ import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.Callback;
 import geobattle.geobattle.util.GeoBattleMath;
 import geobattle.geobattle.util.IntPoint;
+import geobattle.geobattle.util.ReadOnlyArrayList;
 
 // Game events
 public class GameEvents {
@@ -111,7 +112,7 @@ public class GameEvents {
         if (!GeoBattleMath.tileRectangleContains(map.getVisibleRect(), coordinates.x, coordinates.y))
             return;
 
-        Sector sector = gameState.getCurrentPlayer().getAllSectors().next();
+        Sector sector = gameState.getCurrentPlayer().getAllSectors().get(0);
         coordinates.x -= ((coordinates.x - sector.x) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;
         coordinates.y -= ((coordinates.y - sector.y) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;
 
@@ -436,9 +437,9 @@ public class GameEvents {
         // Resetting sector blocks
         Iterator<PlayerState> players = gameState.getPlayers();
         while (players.hasNext()) {
-            Iterator<Sector> sectors = players.next().getAllSectors();
-            while (sectors.hasNext())
-                sectors.next().setBlocked(false);
+            ReadOnlyArrayList<Sector> sectors = players.next().getAllSectors();
+            for (int sectorIndex = 0; sectorIndex < sectors.size(); sectorIndex++)
+                sectors.get(sectorIndex).setBlocked(false);
         }
         scripts = gameState.getAttackScripts();
         while (scripts.hasNext()) {
@@ -545,12 +546,14 @@ public class GameEvents {
         players = gameState.getPlayers();
         while (players.hasNext()) {
             PlayerState player = players.next();
-            Iterator<Sector> sectors = player.getAllSectors();
-            while (sectors.hasNext()) {
-                Sector next = sectors.next();
-                Iterator<Hangar> hangars = next.getHangars();
-                while (hangars.hasNext()) {
-                    hangars.next().units.update(delta, gameState.getTime(), map);
+            ReadOnlyArrayList<Sector> sectors = player.getAllSectors();
+            for (int sectorIndex = 0; sectorIndex < sectors.size(); sectorIndex++) {
+                Sector next = sectors.get(sectorIndex);
+                ReadOnlyArrayList<Building> buildings = next.getAllBuildings();
+                for (int building = 0; building < buildings.size(); building++) {
+                    Building nextBuilding = buildings.get(building);
+                    if (nextBuilding instanceof Hangar)
+                        ((Hangar) nextBuilding).units.update(delta, gameState.getTime(), map);
                 }
                 next.update(delta, gameState.getTime(), map);
 

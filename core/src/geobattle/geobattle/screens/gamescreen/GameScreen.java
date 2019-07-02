@@ -24,7 +24,6 @@ import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.GeoBattleConst;
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.PlayerState;
-import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.map.GeoBattleCamera;
@@ -343,16 +342,11 @@ public final class GameScreen implements Screen {
         if (mode != GameScreenMode.BUILD || selectedBuildingType.maxCount == Integer.MAX_VALUE) {
             gui.maxBuildingCountLabel.setText("");
         } else {
-            int count = 0;
-            Iterator<Building> buildings = gameState.getCurrentPlayer().getAllBuildings();
-            while (buildings.hasNext())
-                if (buildings.next().getBuildingType() == selectedBuildingType)
-                    count++;
-
             gui.maxBuildingCountLabel.setText(String.format(
                     Locale.US,
                     "%d / %d",
-                    count, selectedBuildingType.maxCount
+                    gameState.getCurrentPlayer().getCount(selectedBuildingType),
+                    selectedBuildingType.maxCount
             ));
         }
 
@@ -376,7 +370,7 @@ public final class GameScreen implements Screen {
 //            gui.debugInfo.setText("");
 //        }
 
-        if (gameState.getCurrentPlayer().getResearchCenters().hasNext()) {
+        if (gameState.getCurrentPlayer().getCount(BuildingType.RESEARCH_CENTER) > 0) {
             gui.researchDialog.setResearchInfo(gameState.getCurrentPlayer().getResearchInfo());
             gui.researchDialog.unlockButtons((int) gameState.getResources());
         } else

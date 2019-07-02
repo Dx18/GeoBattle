@@ -44,6 +44,7 @@ import geobattle.geobattle.util.CoordinateConverter;
 import geobattle.geobattle.util.GeoBattleMath;
 import geobattle.geobattle.util.IntPoint;
 import geobattle.geobattle.util.IntRect;
+import geobattle.geobattle.util.ReadOnlyArrayList;
 
 // Class for game and map rendering
 public class GeoBattleMap extends Actor {
@@ -419,9 +420,9 @@ public class GeoBattleMap extends Actor {
             playerSectorColor.set(player.getColor());
             playerSectorColor.a = 0.2f;
 
-            Iterator<Sector> sectors = player.getAllSectors();
-            while (sectors.hasNext()) {
-                Sector next = sectors.next();
+            ReadOnlyArrayList<Sector> sectors = player.getAllSectors();
+            for (int sectorIndex = 0; sectorIndex < sectors.size(); sectorIndex++) {
+                Sector next = sectors.get(sectorIndex);
 
                 if (!GeoBattleMath.tileRectanglesIntersect(
                         visible.x, visible.y,
@@ -451,9 +452,9 @@ public class GeoBattleMap extends Actor {
         while (players.hasNext()) {
             PlayerState player = players.next();
 
-            Iterator<Sector> sectors = player.getAllSectors();
-            while (sectors.hasNext()) {
-                Sector next = sectors.next();
+            ReadOnlyArrayList<Sector> sectors = player.getAllSectors();
+            for (int sectorIndex = 0; sectorIndex < sectors.size(); sectorIndex++) {
+                Sector next = sectors.get(sectorIndex);
 
                 if (!GeoBattleMath.tileRectanglesIntersect(
                         visible.x, visible.y,
@@ -495,15 +496,23 @@ public class GeoBattleMap extends Actor {
         Iterator<PlayerState> players = gameState.getPlayers();
         while (players.hasNext()) {
             PlayerState player = players.next();
-            Iterator<Sector> sectors = player.getAllSectors();
-            while (sectors.hasNext()) {
-                Sector nextSector = sectors.next();
+            ReadOnlyArrayList<Sector> sectors = player.getAllSectors();
+            for (int sectorIndex = 0; sectorIndex < sectors.size(); sectorIndex++) {
+                Sector nextSector = sectors.get(sectorIndex);
+
+                if (!GeoBattleMath.tileRectanglesIntersect(
+                        visible.x, visible.y,
+                        visible.width, visible.height,
+                        nextSector.x, nextSector.y,
+                        Sector.SECTOR_SIZE, Sector.SECTOR_SIZE
+                ))
+                    continue;
 
                 nextSector.drawBeacon(batch, this, buildingTextures, player.getColor(), drawIcons);
 
-                Iterator<Building> buildings = nextSector.getAllBuildings();
-                while (buildings.hasNext()) {
-                    Building nextBuilding = buildings.next();
+                ReadOnlyArrayList<Building> buildings = nextSector.getAllBuildings();
+                for (int building = 0; building < buildings.size(); building++) {
+                    Building nextBuilding = buildings.get(building);
 
                     if (!GeoBattleMath.tileRectanglesIntersect(
                             visible.x, visible.y,
@@ -531,37 +540,42 @@ public class GeoBattleMap extends Actor {
         Iterator<PlayerState> players = gameState.getPlayers();
         while (players.hasNext()) {
             PlayerState player = players.next();
-            Iterator<Hangar> hangars = player.getHangars();
-            while (hangars.hasNext()) {
-                Hangar nextHangar = hangars.next();
+            ReadOnlyArrayList<Building>[] buildings = player.getAllBuildingsList();
+            for (int sector = 0; sector < buildings.length; sector++) {
+                for (int buildingIndex = 0; buildingIndex < buildings[sector].size(); buildingIndex++) {
+                    Building building = buildings[sector].get(buildingIndex);
+                    if (!(building instanceof Hangar))
+                        continue;
+                    Hangar nextHangar = (Hangar) building;
 
-                if (drawIcons) {
-                    if (!(nextHangar.units.getState() instanceof UnitGroupState.Idle)) {
-                        drawCenteredTexture(
-                                batch, nextHangar.units.x, nextHangar.units.y,
-                                6, 6, 0, unitTextures.unitGroupTexture,
-                                player.getColor()
-                        );
-                    }
-                } else {
-                    Iterator<Unit> units = nextHangar.units.getAllUnits();
-                    while (units.hasNext()) {
-                        Unit next = units.next();
+                    if (drawIcons) {
+                        if (!(nextHangar.units.getState() instanceof UnitGroupState.Idle)) {
+                            drawCenteredTexture(
+                                    batch, nextHangar.units.x, nextHangar.units.y,
+                                    6, 6, 0, unitTextures.unitGroupTexture,
+                                    player.getColor()
+                            );
+                        }
+                    } else {
+                        Iterator<Unit> units = nextHangar.units.getAllUnits();
+                        while (units.hasNext()) {
+                            Unit next = units.next();
 
-                        if (next == null)
-                            continue;
+                            if (next == null)
+                                continue;
 
-                        int unitSize = Math.max(next.getSizeX(), next.getSizeY()) * 3;
+                            int unitSize = Math.max(next.getSizeX(), next.getSizeY()) * 3;
 
-                        if (!GeoBattleMath.tileRectanglesIntersect(
-                                visible.x, visible.y,
-                                visible.width, visible.height,
-                                (int) next.x - unitSize / 2, (int) next.y - unitSize / 2,
-                                unitSize, unitSize
-                        ))
-                            continue;
+                            if (!GeoBattleMath.tileRectanglesIntersect(
+                                    visible.x, visible.y,
+                                    visible.width, visible.height,
+                                    (int) next.x - unitSize / 2, (int) next.y - unitSize / 2,
+                                    unitSize, unitSize
+                            ))
+                                continue;
 
-                        next.draw(batch, this, unitTextures, player.getColor());
+                            next.draw(batch, this, unitTextures, player.getColor());
+                        }
                     }
                 }
             }

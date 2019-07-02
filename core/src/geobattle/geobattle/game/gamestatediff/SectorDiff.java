@@ -1,12 +1,12 @@
 package geobattle.geobattle.game.gamestatediff;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
+import geobattle.geobattle.util.ReadOnlyArrayList;
 
 // Difference between sectors
 public final class SectorDiff {
@@ -30,17 +30,17 @@ public final class SectorDiff {
         removedBuildings = new ArrayList<Building>();
         changedHangars = new ArrayList<HangarDiff>();
 
-        Iterator<Building> buildings1 = sector1.getAllBuildings();
-        while (buildings1.hasNext()) {
-            Building next = buildings1.next();
+        ReadOnlyArrayList<Building> buildings1 = sector1.getAllBuildings();
+        for (int buildingIndex = 0; buildingIndex < buildings1.size(); buildingIndex++) {
+            Building next = buildings1.get(buildingIndex);
 
             if (sector2.getBuilding(next.id) == null)
                 removedBuildings.add(next);
         }
 
-        Iterator<Building> buildings2 = sector2.getAllBuildings();
-        while (buildings2.hasNext()) {
-            Building next = buildings2.next();
+        ReadOnlyArrayList<Building> buildings2 = sector2.getAllBuildings();
+        for (int buildingIndex = 0; buildingIndex < buildings2.size(); buildingIndex++) {
+            Building next = buildings2.get(buildingIndex);
 
             if (sector1.getBuilding(next.id) == null)
                 addedBuildings.add(next);

@@ -4,8 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-import java.util.Iterator;
-
 import geobattle.geobattle.game.GameState;
 import geobattle.geobattle.game.buildings.Building;
 import geobattle.geobattle.game.buildings.BuildingType;
@@ -13,6 +11,7 @@ import geobattle.geobattle.map.BuildingTextures;
 import geobattle.geobattle.map.GeoBattleMap;
 import geobattle.geobattle.util.GeoBattleMath;
 import geobattle.geobattle.util.IntRect;
+import geobattle.geobattle.util.ReadOnlyArrayList;
 
 // Building mode
 public final class BuildMode extends GameScreenModeData {
@@ -53,28 +52,25 @@ public final class BuildMode extends GameScreenModeData {
     public void drawOverlay(ShapeRenderer shapeRenderer, GeoBattleMap map, GameState gameState, IntRect visible) {
         Color color = new Color(1, 0, 0, 0.3f);
 
-        Iterator<Building> intersected = gameState.getCurrentPlayer().getBuildingsInRect(
-                pointedTileX - buildingType.sizeX / 2 - 1,
-                pointedTileY - buildingType.sizeY / 2 - 1,
-                buildingType.sizeX + 2,
-                buildingType.sizeY + 2
-        );
-        while (intersected.hasNext()) {
-            Building next = intersected.next();
+        ReadOnlyArrayList<Building>[] buildings = gameState.getCurrentPlayer().getAllBuildingsList();
+        for (int sector = 0; sector < buildings.length; sector++) {
+            for (int buildingIndex = 0; buildingIndex < buildings[sector].size(); buildingIndex++) {
+                Building next = buildings[sector].get(buildingIndex);
 
-            IntRect intersection = GeoBattleMath.getTileRectangleIntersection(
-                    pointedTileX - buildingType.sizeX / 2 - 1,
-                    pointedTileY - buildingType.sizeY / 2 - 1,
-                    buildingType.sizeX + 2,
-                    buildingType.sizeY + 2,
-                    next.x, next.y, next.getSizeX(), next.getSizeY()
-            );
+                IntRect intersection = GeoBattleMath.getTileRectangleIntersection(
+                        pointedTileX - buildingType.sizeX / 2 - 1,
+                        pointedTileY - buildingType.sizeY / 2 - 1,
+                        buildingType.sizeX + 2,
+                        buildingType.sizeY + 2,
+                        next.x, next.y, next.getSizeX(), next.getSizeY()
+                );
 
-            map.drawRegionRectSubTiles(
-                    intersection.x, intersection.y,
-                    intersection.width, intersection.height,
-                    color
-            );
+                map.drawRegionRectSubTiles(
+                        intersection.x, intersection.y,
+                        intersection.width, intersection.height,
+                        color
+                );
+            }
         }
     }
 

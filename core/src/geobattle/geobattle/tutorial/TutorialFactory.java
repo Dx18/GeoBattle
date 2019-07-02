@@ -124,7 +124,7 @@ public final class TutorialFactory {
                         else
                             setButtonsEnabled(gui.buildToolBar, "buildingType");
 
-                        return gameState.getCurrentPlayer().getMines().hasNext();
+                        return gameState.getCurrentPlayer().getCount(BuildingType.MINE) > 0;
                     }
 
                     @Override
@@ -191,7 +191,7 @@ public final class TutorialFactory {
                                 setButtonsEnabled(gui.buildToolBar, "buildingType");
                         }
 
-                        return gameState.getCurrentPlayer().getGenerators().hasNext();
+                        return gameState.getCurrentPlayer().getCount(BuildingType.GENERATOR) > 0;
                     }
 
                     @Override
