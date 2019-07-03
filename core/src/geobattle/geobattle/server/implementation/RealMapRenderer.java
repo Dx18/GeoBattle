@@ -67,7 +67,23 @@ public final class RealMapRenderer implements MapRenderer {
                 zoomLevel
         );
 
-        for (int x = startX; x <= endX; x += (1 << (19 - zoomLevel)))
+        int middle = startX + (endX - startX) / 3 - (endX - startX) / 3 % (1 << (19 - zoomLevel));
+
+        for (int x = middle; x >= startX; x -= (1 << (19 - zoomLevel)))
+            for (int y = startY; y <= endY; y += (1 << (19 - zoomLevel))) {
+                Texture tile = tiles.getTile(x, y, zoomLevel, xOffset, yOffset, tileRequestPool, counter);
+
+                if (tile != null)
+                    batch.draw(
+                            tile,
+                            x,
+                            y,
+                            1 << (19 - zoomLevel),
+                            1 << (19 - zoomLevel)
+                    );
+            }
+
+        for (int x = endX; x > middle; x -= (1 << (19 - zoomLevel)))
             for (int y = startY; y <= endY; y += (1 << (19 - zoomLevel))) {
                 Texture tile = tiles.getTile(x, y, zoomLevel, xOffset, yOffset, tileRequestPool, counter);
 
