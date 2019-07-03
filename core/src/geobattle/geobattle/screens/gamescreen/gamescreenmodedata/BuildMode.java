@@ -57,6 +57,15 @@ public final class BuildMode extends GameScreenModeData {
             for (int buildingIndex = 0; buildingIndex < buildings[sector].size(); buildingIndex++) {
                 Building next = buildings[sector].get(buildingIndex);
 
+                if (!GeoBattleMath.tileRectanglesIntersect(
+                        pointedTileX - buildingType.sizeX / 2 - 1,
+                        pointedTileY - buildingType.sizeY / 2 - 1,
+                        buildingType.sizeX + 2,
+                        buildingType.sizeY + 2,
+                        next.x, next.y, next.getSizeX(), next.getSizeY()
+                ))
+                        continue;
+
                 IntRect intersection = GeoBattleMath.getTileRectangleIntersection(
                         pointedTileX - buildingType.sizeX / 2 - 1,
                         pointedTileY - buildingType.sizeY / 2 - 1,
