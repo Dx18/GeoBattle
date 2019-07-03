@@ -10,9 +10,11 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.Queue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -27,6 +29,7 @@ import geobattle.geobattle.game.buildings.BuildingType;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.game.units.Unit;
+import geobattle.geobattle.game.units.UnitGroup;
 import geobattle.geobattle.game.units.UnitGroupState;
 import geobattle.geobattle.map.animations.AnimationInstance;
 import geobattle.geobattle.map.animations.Animations;
@@ -44,6 +47,7 @@ import geobattle.geobattle.util.CoordinateConverter;
 import geobattle.geobattle.util.GeoBattleMath;
 import geobattle.geobattle.util.IntPoint;
 import geobattle.geobattle.util.IntRect;
+import geobattle.geobattle.util.QuadTree;
 import geobattle.geobattle.util.ReadOnlyArrayList;
 
 // Class for game and map rendering
@@ -581,46 +585,136 @@ public class GeoBattleMap extends Actor {
                 CoordinateConverter.realWorldToSubTiles(camera.viewportHeight, GeoBattleConst.SUBDIVISION)
         );
 
-        boolean drawIcons = visibleTiles >= 100;
+        if (visibleTiles >= 400) {
+            IntRect mapRect = new IntRect(0, 0, 1 << 23, 1 << 23);
+            int maxDistance = visibleTiles / 50;
 
-        Iterator<PlayerState> players = gameState.getPlayers();
-        while (players.hasNext()) {
-            PlayerState player = players.next();
-            ReadOnlyArrayList<Building>[] buildings = player.getAllBuildings();
-            for (int sector = 0; sector < buildings.length; sector++) {
-                for (int buildingIndex = 0; buildingIndex < buildings[sector].size(); buildingIndex++) {
-                    Building building = buildings[sector].get(buildingIndex);
-                    if (!(building instanceof Hangar))
-                        continue;
-                    Hangar nextHangar = (Hangar) building;
+            Iterator<PlayerState> players = gameState.getPlayers();
+            while (players.hasNext()) {
+                PlayerState player = players.next();
+                Color color = new Color(player.getColor());
+                color.a = 0.6f;
+                ReadOnlyArrayList<Building>[] buildings = player.getAllBuildings();
+                QuadTree<UnitGroup> units = new QuadTree<UnitGroup>(16, mapRect);
+                for (int sector = 0; sector < buildings.length; sector++) {
+                    for (int buildingIndex = 0; buildingIndex < buildings[sector].size(); buildingIndex++) {
+                        Building building = buildings[sector].get(buildingIndex);
+                        if (!(building instanceof Hangar))
+                            continue;
 
-                    if (drawIcons) {
-                        if (!(nextHangar.units.getState() instanceof UnitGroupState.Idle)) {
-                            drawCenteredTexture(
-                                    batch, nextHangar.units.x, nextHangar.units.y,
-                                    6, 6, 0, unitTextures.unitGroupTexture,
-                                    player.getColor()
-                            );
+                        Hangar nextHangar = (Hangar) building;
+
+                        if (nextHangar.units.getState() instanceof UnitGroupState.Idle)
+                            continue;
+
+                        if (!GeoBattleMath.tileRectangleContains(
+                                visible, (int) nextHangar.units.x, (int) nextHangar.units.y
+                        ))
+                            continue;
+
+                        units.insertAsPoint(
+                                nextHangar.units,
+                                new IntPoint((int) nextHangar.units.x, (int) nextHangar.units.y),
+                                null
+                        );
+                    }
+                }
+
+                while (true) {
+                    HashSet<UnitGroup> maybeGroup = units.queryByRect(mapRect, 1);
+                    if (maybeGroup.size() == 0)
+                        break;
+
+                    UnitGroup group = maybeGroup.iterator().next();
+                    Queue<UnitGroup> groups = new Queue<UnitGroup>();
+                    groups.addLast(group);
+
+                    ArrayList<UnitGroup> component = new ArrayList<UnitGroup>();
+                    while (!groups.isEmpty()) {
+                        UnitGroup currentGroup = groups.removeFirst();
+                        units.removeAsPoint(new IntPoint((int) currentGroup.x, (int) currentGroup.y));
+                        component.add(currentGroup);
+
+                        HashSet<UnitGroup> nextGroups = units.queryByRect(new IntRect(
+                                (int) currentGroup.x - maxDistance,
+                                (int) currentGroup.y - maxDistance,
+                                maxDistance * 2 + 1,
+                                maxDistance * 2 + 1
+                        ));
+
+                        for (UnitGroup nextGroup : nextGroups) {
+                            groups.addLast(nextGroup);
+                            units.removeAsPoint(new IntPoint((int) nextGroup.x, (int) nextGroup.y));
                         }
-                    } else {
-                        Iterator<Unit> units = nextHangar.units.getAllUnits();
-                        while (units.hasNext()) {
-                            Unit next = units.next();
+                    }
 
-                            if (next == null)
-                                continue;
+                    int minX = Integer.MAX_VALUE;
+                    int minY = Integer.MAX_VALUE;
+                    int maxX = Integer.MIN_VALUE;
+                    int maxY = Integer.MIN_VALUE;
 
-                            int unitSize = Math.max(next.getSizeX(), next.getSizeY()) * 3;
+                    for (UnitGroup componentGroup : component) {
+                        if ((int) componentGroup.x < minX)
+                            minX = (int) componentGroup.x;
+                        if ((int) componentGroup.y < minY)
+                            minY = (int) componentGroup.y;
+                        if ((int) componentGroup.x > maxX)
+                            maxX = (int) componentGroup.x;
+                        if ((int) componentGroup.y > maxY)
+                            maxY = (int) componentGroup.y;
+                    }
 
-                            if (!GeoBattleMath.tileRectanglesIntersect(
-                                    visible.x, visible.y,
-                                    visible.width, visible.height,
-                                    (int) next.x - unitSize / 2, (int) next.y - unitSize / 2,
-                                    unitSize, unitSize
-                            ))
-                                continue;
+                    int size = Math.max(maxX - minX + 1 + 2 * maxDistance, maxY - minY + 1 + 2 * maxDistance);
 
-                            next.draw(batch, this, unitTextures, player.getColor());
+                    drawCenteredTexture(
+                            batch,
+                            (minX + maxX) / 2.0, (minY + maxY) / 2.0,
+                            size, size, 0, unitTextures.unitGroupTexture, color
+                    );
+                }
+            }
+        } else {
+            boolean drawIcons = visibleTiles >= 100;
+
+            Iterator<PlayerState> players = gameState.getPlayers();
+            while (players.hasNext()) {
+                PlayerState player = players.next();
+                ReadOnlyArrayList<Building>[] buildings = player.getAllBuildings();
+                for (int sector = 0; sector < buildings.length; sector++) {
+                    for (int buildingIndex = 0; buildingIndex < buildings[sector].size(); buildingIndex++) {
+                        Building building = buildings[sector].get(buildingIndex);
+                        if (!(building instanceof Hangar))
+                            continue;
+                        Hangar nextHangar = (Hangar) building;
+
+                        if (drawIcons) {
+                            if (!(nextHangar.units.getState() instanceof UnitGroupState.Idle)) {
+                                drawCenteredTexture(
+                                        batch, nextHangar.units.x, nextHangar.units.y,
+                                        6, 6, 0, unitTextures.unitGroupTexture,
+                                        player.getColor()
+                                );
+                            }
+                        } else {
+                            Iterator<Unit> units = nextHangar.units.getAllUnits();
+                            while (units.hasNext()) {
+                                Unit next = units.next();
+
+                                if (next == null)
+                                    continue;
+
+                                int unitSize = Math.max(next.getSizeX(), next.getSizeY()) * 3;
+
+                                if (!GeoBattleMath.tileRectanglesIntersect(
+                                        visible.x, visible.y,
+                                        visible.width, visible.height,
+                                        (int) next.x - unitSize / 2, (int) next.y - unitSize / 2,
+                                        unitSize, unitSize
+                                ))
+                                    continue;
+
+                                next.draw(batch, this, unitTextures, player.getColor());
+                            }
                         }
                     }
                 }
