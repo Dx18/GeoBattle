@@ -67,9 +67,16 @@ public final class TutorialFactory {
         class BuildTutorialStep extends TutorialStep {
             private BuildingType buildingType;
 
+            private int count;
+
             public BuildTutorialStep(BuildingType buildingType, String message, TextureRegion image) {
+                this(buildingType, 1, message, image);
+            }
+
+            public BuildTutorialStep(BuildingType buildingType, int count, String message, TextureRegion image) {
                 super(message, image);
                 this.buildingType = buildingType;
+                this.count = count;
             }
 
             @Override
@@ -83,7 +90,7 @@ public final class TutorialFactory {
                         setButtonsEnabled(gui.buildToolBar, "buildingType");
                 }
 
-                return gameState.getCurrentPlayer().getCount(buildingType) >= 1;
+                return gameState.getCurrentPlayer().getCount(buildingType) >= count;
             }
 
             @Override
@@ -132,27 +139,7 @@ public final class TutorialFactory {
                         setButtonsDisabled(gui.buildToolBar);
                     }
                 },
-                new TutorialStep(tutorial.getAsJsonPrimitive("buildMoreMines").getAsString(), buildings.findRegion(GeoBattleAssets.MINE)) {
-                    @Override
-                    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
-                        if (gui.getMode() == GameScreenMode.NORMAL) {
-                            setButtonsEnabled(gui.toolBar, "buildMode");
-                        } else if (gui.getMode() == GameScreenMode.BUILD) {
-                            if (gui.selectBuildingTypeDialog.getBuildingType() == BuildingType.MINE)
-                                setButtonsEnabled(gui.buildToolBar, "build", "buildingType");
-                            else
-                                setButtonsEnabled(gui.buildToolBar, "buildingType");
-                        }
-
-                        return gameState.getCurrentPlayer().getCount(BuildingType.MINE) >= 3;
-                    }
-
-                    @Override
-                    public void onEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
-                        setButtonsDisabled(gui.toolBar);
-                        setButtonsDisabled(gui.buildToolBar);
-                    }
-                },
+                new BuildTutorialStep(BuildingType.MINE, 3, tutorial.getAsJsonPrimitive("buildMoreMines").getAsString(), buildings.findRegion(GeoBattleAssets.MINE)),
                 new TutorialStep(tutorial.getAsJsonPrimitive("enterDestroyMode").getAsString(), buttons.findRegion("destroy")) {
                     @Override
                     public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
@@ -179,69 +166,9 @@ public final class TutorialFactory {
                         setButtonsDisabled(gui.toolBar);
                     }
                 },
-                new TutorialStep(tutorial.getAsJsonPrimitive("buildGenerator").getAsString(), buildings.findRegion(GeoBattleAssets.GENERATOR)) {
-                    @Override
-                    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
-                        if (gui.getMode() == GameScreenMode.NORMAL) {
-                            setButtonsEnabled(gui.toolBar, "buildMode");
-                        } else if (gui.getMode() == GameScreenMode.BUILD) {
-                            if (gui.selectBuildingTypeDialog.getBuildingType() == BuildingType.GENERATOR)
-                                setButtonsEnabled(gui.buildToolBar, "build", "buildingType");
-                            else
-                                setButtonsEnabled(gui.buildToolBar, "buildingType");
-                        }
-
-                        return gameState.getCurrentPlayer().getCount(BuildingType.GENERATOR) > 0;
-                    }
-
-                    @Override
-                    public void onEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
-                        setButtonsDisabled(gui.toolBar);
-                        setButtonsDisabled(gui.buildToolBar);
-                    }
-                },
-                new TutorialStep(tutorial.getAsJsonPrimitive("buildTurret").getAsString(), buildings.findRegion(GeoBattleAssets.TURRET)) {
-                    @Override
-                    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
-                        if (gui.getMode() == GameScreenMode.NORMAL) {
-                            setButtonsEnabled(gui.toolBar, "buildMode");
-                        } else if (gui.getMode() == GameScreenMode.BUILD) {
-                            if (gui.selectBuildingTypeDialog.getBuildingType() == BuildingType.TURRET)
-                                setButtonsEnabled(gui.buildToolBar, "build", "buildingType");
-                            else
-                                setButtonsEnabled(gui.buildToolBar, "buildingType");
-                        }
-
-                        return gameState.getCurrentPlayer().getCount(BuildingType.TURRET) >= 1;
-                    }
-
-                    @Override
-                    public void onEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
-                        setButtonsDisabled(gui.toolBar);
-                        setButtonsDisabled(gui.buildToolBar);
-                    }
-                },
-                new TutorialStep(tutorial.getAsJsonPrimitive("buildHangar").getAsString(), buildings.findRegion(GeoBattleAssets.HANGAR)) {
-                    @Override
-                    public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
-                        if (gui.getMode() == GameScreenMode.NORMAL) {
-                            setButtonsEnabled(gui.toolBar, "buildMode");
-                        } else if (gui.getMode() == GameScreenMode.BUILD) {
-                            if (gui.selectBuildingTypeDialog.getBuildingType() == BuildingType.HANGAR)
-                                setButtonsEnabled(gui.buildToolBar, "build", "buildingType");
-                            else
-                                setButtonsEnabled(gui.buildToolBar, "buildingType");
-                        }
-
-                        return gameState.getCurrentPlayer().getCount(BuildingType.HANGAR) >= 1;
-                    }
-
-                    @Override
-                    public void onEnd(GameScreen screen, GameScreenGUI gui, GameState gameState) {
-                        setButtonsDisabled(gui.toolBar);
-                        setButtonsDisabled(gui.buildToolBar);
-                    }
-                },
+                new BuildTutorialStep(BuildingType.GENERATOR, tutorial.getAsJsonPrimitive("buildGenerator").getAsString(), buildings.findRegion(GeoBattleAssets.GENERATOR)),
+                new BuildTutorialStep(BuildingType.TURRET, tutorial.getAsJsonPrimitive("buildTurret").getAsString(), buildings.findRegion(GeoBattleAssets.TURRET)),
+                new BuildTutorialStep(BuildingType.HANGAR, tutorial.getAsJsonPrimitive("buildHangar").getAsString(), buildings.findRegion(GeoBattleAssets.HANGAR)),
                 new TutorialStep(tutorial.getAsJsonPrimitive("openHangarDialog").getAsString(), buttons.findRegion("hangar")) {
                     @Override
                     public boolean update(GameScreen screen, GameScreenGUI gui, GameState gameState) {
