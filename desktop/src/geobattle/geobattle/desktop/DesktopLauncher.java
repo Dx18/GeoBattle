@@ -74,7 +74,7 @@ public class DesktopLauncher {
             return new ExternalAPI(
                     new SocketServer(11999, "78.47.182.60", 12000),
                     new FixedGeolocationAPI(longitude, latitude),
-                    new TileRequestPool("82.146.61.124", 11998, cachePath, 10),
+                    new TileRequestPool("82.146.61.124", 11998, cachePath, 3),
                     oSAPI
             );
         } catch (FileNotFoundException e) {
