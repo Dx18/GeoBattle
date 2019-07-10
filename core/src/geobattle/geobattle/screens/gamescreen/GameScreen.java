@@ -336,15 +336,19 @@ public final class GameScreen implements Screen {
             gui.sectorInfo.setVisible(false);
         }
 
-        if (mode != GameScreenMode.NORMAL)
+        if (mode != GameScreenMode.NORMAL) {
             gui.currentModeLabel.setText(getI18NBundle().get(String.format("mode%s", mode.toString())));
-        else
+            gui.currentModeLabel.getParent().setVisible(true);
+        } else {
             gui.currentModeLabel.setText("");
+            gui.currentModeLabel.getParent().setVisible(false);
+        }
 
         BuildingType selectedBuildingType = map.getSelectedBuildingType();
 
         if (mode != GameScreenMode.BUILD || selectedBuildingType.maxCount == Integer.MAX_VALUE) {
             gui.maxBuildingCountLabel.setText("");
+            gui.maxBuildingCountLabel.getParent().setVisible(false);
         } else {
             gui.maxBuildingCountLabel.setText(String.format(
                     Locale.US,
@@ -352,6 +356,7 @@ public final class GameScreen implements Screen {
                     gameState.getCurrentPlayer().getCount(selectedBuildingType),
                     selectedBuildingType.maxCount
             ));
+            gui.maxBuildingCountLabel.getParent().setVisible(true);
         }
 
         gui.onBuildingSelected(map.getPointedBuilding());

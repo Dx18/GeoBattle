@@ -170,9 +170,9 @@ public final class GameScreenGUI {
         researchDialog = new ResearchGUI(assetManager, screen);
 
         labels = new VisTable();
-        currentModeLabel = new VisLabel("<currentMode>", "black");
+        currentModeLabel = new VisLabel("<currentMode>");
         currentModeLabel.setAlignment(Align.center);
-        maxBuildingCountLabel = new VisLabel("<maxBuildingCount>", "black");
+        maxBuildingCountLabel = new VisLabel("<maxBuildingCount>");
         maxBuildingCountLabel.setAlignment(Align.center);
         guiStage.addActor(labels);
 
@@ -646,13 +646,25 @@ public final class GameScreenGUI {
         labels.clear();
         labels.setFillParent(true);
 
-        labels.add(currentModeLabel)
-                .growX()
+        VisTable currentModeLabelRoot = new VisTable();
+        currentModeLabelRoot.setBackground("button");
+
+        currentModeLabelRoot.add(currentModeLabel)
+                .padLeft(30)
+                .padRight(30)
                 .height(40);
+        labels.add(currentModeLabelRoot);
+
         labels.row();
-        labels.add(maxBuildingCountLabel)
-                .growX()
+
+        VisTable maxBuildingCountLabelRoot = new VisTable();
+        maxBuildingCountLabelRoot.setBackground("infoBackgroundBottom");
+
+        maxBuildingCountLabelRoot.add(maxBuildingCountLabel)
+                .padLeft(30)
+                .padRight(30)
                 .height(40);
+        labels.add(maxBuildingCountLabelRoot);
 
         labels.top().padTop(150);
     }
