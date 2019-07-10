@@ -3,6 +3,7 @@ package geobattle.geobattle.game.buildings;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.ObjectIntMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -84,6 +85,9 @@ public final class Sector {
     // Incoming units
     public final TimedObjectQueue<UnitGroup> incomingUnits;
 
+    // Count of building
+    private final ObjectIntMap<BuildingType> buildingCount;
+
     // Comparator for buildings
     private final static Comparator<Building> buildingComparator = new Comparator<Building>() {
         @Override
@@ -105,6 +109,7 @@ public final class Sector {
         attackingUnits = new ArrayList<UnitGroup>();
         healthInterpolations = new TimedObjectQueue<HealthInterpolation>();
         incomingUnits = new TimedObjectQueue<UnitGroup>();
+        this.buildingCount = new ObjectIntMap<BuildingType>();
     }
 
     // Updates `maxHealth` and `energy`
@@ -239,6 +244,7 @@ public final class Sector {
             throw new IllegalArgumentException("Cannot add building with existing ID");
 
         buildings.add(-index - 1, building);
+        buildingCount.getAndIncrement(building.getBuildingType(), 0, 1);
         health += building.getBuildingType().healthBonus;
         updateConstParameters();
     }
@@ -250,6 +256,7 @@ public final class Sector {
             throw new IllegalArgumentException("Cannot remove building with specified ID");
 
         buildings.remove(removeIndex);
+        buildingCount.getAndIncrement(building.getBuildingType(), 0, -1);
         updateConstParameters();
     }
 
@@ -295,6 +302,11 @@ public final class Sector {
     // Returns read-only list of all buildings
     public ReadOnlyArrayList<Building> getAllBuildings() {
         return new ReadOnlyArrayList<Building>(buildings);
+    }
+
+    // Returns count of buildings of specific type
+    public int getCount(BuildingType buildingType) {
+        return buildingCount.get(buildingType, 0);
     }
 
     // Clones sector
