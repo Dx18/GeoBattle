@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import geobattle.geobattle.actionresults.MatchBranch;
 import geobattle.geobattle.game.buildings.Building;
+import geobattle.geobattle.game.buildings.BuildingParams;
+import geobattle.geobattle.game.buildings.BuildingType;
+import geobattle.geobattle.game.buildings.Generator;
 import geobattle.geobattle.game.buildings.Hangar;
 import geobattle.geobattle.game.buildings.Sector;
 import geobattle.geobattle.util.ReadOnlyArrayList;
@@ -64,11 +67,38 @@ public abstract class UnitGroupState {
             this.sector = sector;
             this.attackedBuildings = new Building[4];
 
-            ReadOnlyArrayList<Building> allBuildings = sector != null
+            ArrayList<Building> allBuildings = (sector != null
                     ? sector.getAllBuildings()
-                    : new ReadOnlyArrayList<Building>(new ArrayList<Building>());
+                    : new ReadOnlyArrayList<Building>(new ArrayList<Building>())).copy();
 
-            this.allBuildings = allBuildings.copy().toArray(new Building[0]);
+            if (sector != null) {
+                if (allBuildings.size() == 0) {
+                    allBuildings.add(new Generator(new BuildingParams(
+                            (int) (sector.x + Math.random() * (Sector.SECTOR_SIZE - BuildingType.GENERATOR.sizeX + 1)),
+                            (int) (sector.y + Math.random() * Sector.SECTOR_SIZE / 3),
+                            -1, -1, -1
+                    )));
+                    allBuildings.add(new Generator(new BuildingParams(
+                            (int) (sector.x + Math.random() * (Sector.SECTOR_SIZE - BuildingType.GENERATOR.sizeX + 1)),
+                            (int) (sector.y + Sector.SECTOR_SIZE / 2 + Math.random() * Sector.SECTOR_SIZE / 3),
+                            -1, -1, -1
+                    )));
+                } else if (allBuildings.size() == 1) {
+                    Building existing = allBuildings.get(0);
+
+                    int x, y;
+                    do {
+                        x = sector.x + (int) (Math.random() * (Sector.SECTOR_SIZE - existing.getSizeX() + 1));
+                        y = sector.y + (int) (Math.random() * (Sector.SECTOR_SIZE - existing.getSizeY() + 1));
+                    } while (Math.abs(x - existing.x) < 3 && Math.abs(y - existing.y) < 3);
+
+                    allBuildings.add(new Generator(new BuildingParams(
+                            x, y, -1, -1, -1
+                    )));
+                }
+            }
+
+            this.allBuildings = allBuildings.toArray(new Building[0]);
         }
     }
 
