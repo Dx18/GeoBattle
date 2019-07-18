@@ -15,6 +15,7 @@ import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
 import geobattle.geobattle.GeoBattleAssets;
+import geobattle.geobattle.GeoBattleConst;
 import geobattle.geobattle.server.OSAPI;
 
 public final class SettingsScreenGUI {
@@ -52,9 +53,9 @@ public final class SettingsScreenGUI {
 
         settings = new VisTable();
         soundVolume = new VisSlider(0, 1, 0.01f, false);
-        soundVolume.setValue(Float.parseFloat(oSAPI.loadValue("soundVolume", "0.5f")));
+        soundVolume.setValue(Float.parseFloat(oSAPI.loadValue("soundVolume", String.valueOf(GeoBattleConst.DEFAULT_SOUND_VOLUME))));
         musicVolume = new VisSlider(0, 1, 0.01f, false);
-        musicVolume.setValue(Float.parseFloat(oSAPI.loadValue("musicVolume", "0.5")));
+        musicVolume.setValue(Float.parseFloat(oSAPI.loadValue("musicVolume", String.valueOf(GeoBattleConst.DEFAULT_MUSIC_VOLUME))));
 
         String currentMapQuality = oSAPI.loadValue("mapQuality", MAP_QUALITY_VALUES[DEFAULT_MAP_QUALITY]);
         mapQualityValue = DEFAULT_MAP_QUALITY;

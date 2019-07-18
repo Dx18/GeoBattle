@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.I18NBundle;
 
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.GeoBattleAssets;
+import geobattle.geobattle.GeoBattleConst;
 import geobattle.geobattle.screens.BackButtonProcessor;
 import geobattle.geobattle.util.GeoBattleMath;
 
@@ -92,13 +93,13 @@ public final class SettingsScreen implements Screen {
 
     public void onSaveSettings() {
         game.setMusicVolume(
-                Float.parseFloat(game.getExternalAPI().oSAPI.loadValue("musicVolume", "0.5"))
+                Float.parseFloat(game.getExternalAPI().oSAPI.loadValue("musicVolume", String.valueOf(GeoBattleConst.DEFAULT_MUSIC_VOLUME)))
         );
         game.setSoundVolume(
-                Float.parseFloat(game.getExternalAPI().oSAPI.loadValue("soundVolume", "0.5"))
+                Float.parseFloat(game.getExternalAPI().oSAPI.loadValue("soundVolume", String.valueOf(GeoBattleConst.DEFAULT_SOUND_VOLUME)))
         );
         game.getExternalAPI().tileRequestPool.setMapQuality(
-                game.getExternalAPI().oSAPI.loadValue("mapQuality", "mapQualityHigh")
+                game.getExternalAPI().oSAPI.loadValue("mapQuality", GeoBattleConst.DEFAULT_MAP_QUALITY)
         );
         game.switchToMainMenuScreen();
     }

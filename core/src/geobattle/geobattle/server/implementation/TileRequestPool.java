@@ -22,6 +22,7 @@ import java.util.Locale;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import geobattle.geobattle.GeoBattleConst;
 import geobattle.geobattle.util.IntRect;
 
 // Pool for tile requesting
@@ -97,7 +98,7 @@ public final class TileRequestPool {
         this.tileServerPort = tileServerPort;
         this.cachePath = cachePath;
         this.maxLoadingCount = maxLoadingCount;
-        this.mapQuality = "mapQualityHigh";
+        this.mapQuality = GeoBattleConst.DEFAULT_MAP_QUALITY;
     }
 
     // Sets rect of visible tiles

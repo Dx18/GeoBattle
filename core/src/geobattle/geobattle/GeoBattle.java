@@ -122,16 +122,16 @@ public final class GeoBattle extends Game {
         if (!VisUI.isLoaded())
             VisUI.load(assetManager.get(GeoBattleAssets.GUI_SKIN, Skin.class));
 
-        soundVolume = Float.parseFloat(externalAPI.oSAPI.loadValue("soundVolume", "0.5"));
+        soundVolume = Float.parseFloat(externalAPI.oSAPI.loadValue("soundVolume", String.valueOf(GeoBattleConst.DEFAULT_SOUND_VOLUME)));
 
         musicController = new GeoBattleMusicController(new String[] {
                 GeoBattleAssets.MUSIC_BACKGROUND_1,
                 GeoBattleAssets.MUSIC_BACKGROUND_2,
                 GeoBattleAssets.MUSIC_BACKGROUND_3
-        }, Float.parseFloat(externalAPI.oSAPI.loadValue("musicVolume", "0.5")));
+        }, Float.parseFloat(externalAPI.oSAPI.loadValue("musicVolume", String.valueOf(GeoBattleConst.DEFAULT_MUSIC_VOLUME))));
         musicController.nextTrack();
 
-        externalAPI.tileRequestPool.setMapQuality(externalAPI.oSAPI.loadValue("mapQuality", "mapQualityHigh"));
+        externalAPI.tileRequestPool.setMapQuality(externalAPI.oSAPI.loadValue("mapQuality", GeoBattleConst.DEFAULT_MAP_QUALITY));
 
         guiStage = new Stage();
         gui = new GeoBattleGUI(assetManager, this, guiStage, 3);
