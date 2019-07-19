@@ -141,8 +141,8 @@ public class GeoBattleMap extends Actor {
         this.pointedTile = new IntPoint((int) geolocation.x, (int) geolocation.y);
 
         this.screenModes = new HashMap<GameScreenMode, GameScreenModeData>();
-        this.screenModes.put(GameScreenMode.BUILD_FIRST_SECTOR, new BuildFirstSectorMode(0, 0));
-        this.screenModes.put(GameScreenMode.BUILD_SECTOR, new BuildSectorMode(0, 0));
+        this.screenModes.put(GameScreenMode.BUILD_FIRST_SECTOR, new BuildFirstSectorMode(0, 0, game));
+        this.screenModes.put(GameScreenMode.BUILD_SECTOR, new BuildSectorMode(0, 0, game));
         this.screenModes.put(GameScreenMode.NORMAL, new NormalMode(0, 0, this.gameState));
         this.screenModes.put(GameScreenMode.BUILD, new BuildMode(0, 0, BuildingType.GENERATOR, buildingTextures));
         this.screenModes.put(GameScreenMode.DESTROY, new DestroyMode(0, 0, this.gameState));

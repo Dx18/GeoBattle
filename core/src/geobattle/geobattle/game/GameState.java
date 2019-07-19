@@ -20,6 +20,7 @@ import geobattle.geobattle.game.gamestatediff.GameStateDiff;
 import geobattle.geobattle.game.gamestatediff.PlayerStateDiff;
 import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.util.GeoBattleMath;
+import geobattle.geobattle.util.IntPoint;
 import geobattle.geobattle.util.ReadOnlyArrayList;
 
 // State of game
@@ -283,8 +284,17 @@ public class GameState {
     }
 
     // Returns true if current player can build sector at specified point
-    public boolean canBuildSector(int x, int y, GeoBattle game) {
+    public boolean canBuildSector(int x, int y, GeoBattle game, IntPoint playerPosition) {
         PlayerState current = getCurrentPlayer();
+
+        if (!GeoBattleMath.tileRectangleContains(
+                x, y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE,
+                playerPosition.x, playerPosition.y
+        )) {
+            if (game != null)
+                game.showMessage(game.getI18NBundle().get("sectorBuildResultWrongGeolocation"));
+            return false;
+        }
 
         if (current.getSectorCount() > 0) {
             int cost = 50 + current.getSectorCount() * 25;

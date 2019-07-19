@@ -1,12 +1,14 @@
 package geobattle.geobattle.screens.gamescreen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
 import geobattle.geobattle.GeoBattle;
+import geobattle.geobattle.GeoBattleConst;
 import geobattle.geobattle.actionresults.AttackResult;
 import geobattle.geobattle.actionresults.BuildResult;
 import geobattle.geobattle.actionresults.DestroyResult;
@@ -39,6 +41,7 @@ import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.SelectHangarsMo
 import geobattle.geobattle.screens.gamescreen.gamescreenmodedata.SelectSectorMode;
 import geobattle.geobattle.server.AuthInfo;
 import geobattle.geobattle.server.Callback;
+import geobattle.geobattle.util.CoordinateConverter;
 import geobattle.geobattle.util.GeoBattleMath;
 import geobattle.geobattle.util.IntPoint;
 import geobattle.geobattle.util.ReadOnlyArrayList;
@@ -89,7 +92,14 @@ public class GameEvents {
         coordinates.x -= Sector.SECTOR_SIZE / 2;
         coordinates.y -= Sector.SECTOR_SIZE / 2;
 
-        if (!gameState.canBuildSector(coordinates.x, coordinates.y, game))
+        Vector2 playerPosition = GeoBattleMath.latLongToMercator(
+                game.getExternalAPI().geolocationAPI.getCurrentCoordinates()
+        );
+
+        if (!gameState.canBuildSector(coordinates.x, coordinates.y, game, new IntPoint(
+                CoordinateConverter.realWorldToSubTiles(playerPosition.x, GeoBattleConst.SUBDIVISION),
+                CoordinateConverter.realWorldToSubTiles(playerPosition.y, GeoBattleConst.SUBDIVISION)
+        )))
             return;
 
         game.getExternalAPI().server.onSectorBuildEvent(authInfo, coordinates.x, coordinates.y, new Callback<SectorBuildResult>() {
@@ -116,7 +126,14 @@ public class GameEvents {
         coordinates.x -= ((coordinates.x - sector.x) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;
         coordinates.y -= ((coordinates.y - sector.y) % Sector.SECTOR_SIZE + Sector.SECTOR_SIZE) % Sector.SECTOR_SIZE;
 
-        if (!gameState.canBuildSector(coordinates.x, coordinates.y, game))
+        Vector2 playerPosition = GeoBattleMath.latLongToMercator(
+                game.getExternalAPI().geolocationAPI.getCurrentCoordinates()
+        );
+
+        if (!gameState.canBuildSector(coordinates.x, coordinates.y, game, new IntPoint(
+                CoordinateConverter.realWorldToSubTiles(playerPosition.x, GeoBattleConst.SUBDIVISION),
+                CoordinateConverter.realWorldToSubTiles(playerPosition.y, GeoBattleConst.SUBDIVISION)
+        )))
             return;
 
         game.getExternalAPI().server.onSectorBuildEvent(authInfo, coordinates.x, coordinates.y, new Callback<SectorBuildResult>() {
@@ -344,6 +361,20 @@ public class GameEvents {
         SelectSectorMode selectSectorMode = (SelectSectorMode) map.getScreenModeData(GameScreenMode.SELECT_SECTOR);
         if (selectSectorMode.getPointedSector() == null)
             return;
+
+        Vector2 playerPosition = GeoBattleMath.latLongToMercator(
+                game.getExternalAPI().geolocationAPI.getCurrentCoordinates()
+        );
+
+        Sector victimSector = selectSectorMode.getPointedSector();
+        if (!GeoBattleMath.tileRectangleContains(
+                victimSector.x, victimSector.y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE,
+                CoordinateConverter.realWorldToSubTiles(playerPosition.x, GeoBattleConst.SUBDIVISION),
+                CoordinateConverter.realWorldToSubTiles(playerPosition.y, GeoBattleConst.SUBDIVISION)
+        )) {
+            game.showMessage(game.getI18NBundle().get("attackResultWrongGeolocation"));
+            return;
+        }
 
         int attackerId = gameState.getPlayerId();
         int victimId = selectSectorMode.getOwningPlayerId();
