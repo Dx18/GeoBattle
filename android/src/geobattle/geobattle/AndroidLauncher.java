@@ -24,14 +24,10 @@ import geobattle.geobattle.server.implementation.FixedGeolocationAPI;
 import geobattle.geobattle.server.implementation.SocketServer;
 import geobattle.geobattle.server.implementation.TileRequestPool;
 
+// Android launcher for GeoBattle
 public class AndroidLauncher extends AndroidApplication {
-    private class GeoBattleLocationListener implements  LocationListener {
-        private final String provider;
-
-        public GeoBattleLocationListener(String provider) {
-            this.provider = provider;
-        }
-
+    // Location listener
+    private class GeoBattleLocationListener implements LocationListener {
         @Override
         public void onLocationChanged(Location location) {
             geolocationAPI.setLongitude((float) location.getLongitude());
@@ -39,51 +35,41 @@ public class AndroidLauncher extends AndroidApplication {
         }
 
         @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
+        public void onStatusChanged(String provider, int status, Bundle extras) {}
 
         @Override
-        public void onProviderEnabled(String provider) {
-
-        }
+        public void onProviderEnabled(String provider) {}
 
         @Override
-        public void onProviderDisabled(String provider) {
-
-        }
+        public void onProviderDisabled(String provider) {}
     }
 
+    // API of geolocation
     FixedGeolocationAPI geolocationAPI;
 
+    // External API
     ExternalAPI externalAPI;
 
+    // Location manager for GPS
     LocationManager gpsLocationManager;
 
+    // Location listener for GPS
     LocationListener gpsLocationListener;
 
+    // Location manager for network
     LocationManager networkLocationManager;
 
+    // Location listener for network
     LocationListener networkLocationListener;
 
+    // Geolocation permission request
     private final int PERMISSIONS_REQUEST_GEOLOCATION = 100;
 
-    private final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 101;
-
-    private final char[] APP_ID = new char[] {
-            'D', '6', '6', 'l', '1', 'm', 'T', 'a', 'h', 'R',
-            'C', 'a', 'u', 'm', 'S', '4', 'H', 'X', 'm', 'h'
-    };
-
-    private final char[] APP_CODE = new char[] {
-            '7', 'u', 'A', 'x', 'l', 'w', 'V', 'n', 'W', 'G', '_',
-            '2', 'f', 'K', 'J', '4', 'y', 'x', 'A', 'p', 'b', 'w'
-    };
-
+    // Game settings
     private SharedPreferences settings;
 
     @Override
-    protected void onCreate (Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         settings = getSharedPreferences("default", Context.MODE_PRIVATE);
@@ -93,13 +79,7 @@ public class AndroidLauncher extends AndroidApplication {
         requestGeolocation();
     }
 
-//    private String getBestGeolocationProvider() {
-//        Criteria criteria = new Criteria();
-//        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-//
-//        return locationManager.getBestProvider(criteria, true);
-//    }
-
+    // Requests geolocation permission
     private void requestGeolocation() {
         if (
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
@@ -117,23 +97,7 @@ public class AndroidLauncher extends AndroidApplication {
             if (initial != null) {
                 geolocationAPI.setLongitude((float) initial.getLongitude());
                 geolocationAPI.setLatitude((float) initial.getLatitude());
-            } else {
-                geolocationAPI.setLongitude(44.432085f);
-                geolocationAPI.setLatitude(48.649366f);
             }
-
-            requestExternalStorage();
-        }
-    }
-
-    private void requestExternalStorage() {
-        if (
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-        } else {
-            // startGame();
         }
     }
 
@@ -142,14 +106,7 @@ public class AndroidLauncher extends AndroidApplication {
 
         OSAPI oSAPI = new OSAPI() {
             @Override
-            public void showMessage(final String message) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
+            public void showMessage(final String message) {}
 
             @Override
             public void saveValue(String key, String value) {
@@ -169,9 +126,7 @@ public class AndroidLauncher extends AndroidApplication {
             }
 
             @Override
-            public void saveCertificate(String name, String certificate) {
-
-            }
+            public void saveCertificate(String name, String certificate) {}
 
             @Override
             public List<ServerAddress> getCustomServers() {
@@ -203,15 +158,6 @@ public class AndroidLauncher extends AndroidApplication {
                     return;
                 }
                 break;
-            case PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    requestExternalStorage();
-                } else {
-                    Toast.makeText(this, "Some needed permissions were not granted", Toast.LENGTH_LONG).show();
-                    finish();
-                    return;
-                }
-                break;
             default:
                 Toast.makeText(this, "Unknown activity result with request code " + requestCode, Toast.LENGTH_LONG).show();
                 break;
@@ -222,9 +168,9 @@ public class AndroidLauncher extends AndroidApplication {
     protected void onResume() {
         try {
             super.onResume();
-            gpsLocationListener = new GeoBattleLocationListener(LocationManager.GPS_PROVIDER);
+            gpsLocationListener = new GeoBattleLocationListener();
             gpsLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsLocationListener);
-            networkLocationListener = new GeoBattleLocationListener(LocationManager.NETWORK_PROVIDER);
+            networkLocationListener = new GeoBattleLocationListener();
             networkLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocationListener);
         } catch (SecurityException e) {
             finish();
