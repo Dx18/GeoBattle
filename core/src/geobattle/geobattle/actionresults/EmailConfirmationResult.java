@@ -65,6 +65,31 @@ public abstract class EmailConfirmationResult implements ActionResult {
         }
     }
 
+    // Invalid version of client
+    public static final class InvalidVersion extends EmailConfirmationResult {
+        // Min version of client
+        public final String min;
+
+        // Max version of client
+        public final String max;
+
+        public InvalidVersion(String min, String max) {
+            this.min = min;
+            this.max = max;
+        }
+
+        public static InvalidVersion fromJson(JsonObject object) {
+            String min = object.getAsJsonPrimitive("min").getAsString();
+            String max = object.getAsJsonPrimitive("max").getAsString();
+            return new InvalidVersion(min, max);
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.showMessage(game.getI18NBundle().format("invalidVersion", min, max));
+        }
+    }
+
     // JSON request is not well-formed
     public static final class MalformedJson extends EmailConfirmationResult {
         public MalformedJson() {}
@@ -114,6 +139,8 @@ public abstract class EmailConfirmationResult implements ActionResult {
             return WrongCode.fromJson(object);
         else if (type.equals("DoesNotExist"))
             return DoesNotExist.fromJson(object);
+        else if (type.equals("InvalidVersion"))
+            return InvalidVersion.fromJson(object);
         else if (type.equals("MalformedJson"))
             return MalformedJson.fromJson(object);
         else if (type.equals("IncorrectData"))
@@ -126,6 +153,7 @@ public abstract class EmailConfirmationResult implements ActionResult {
             MatchBranch<EmailConfirmed> emailConfirmed,
             MatchBranch<WrongCode> wrongCode,
             MatchBranch<DoesNotExist> doesNotExist,
+            MatchBranch<InvalidVersion> invalidVersion,
             MatchBranch<MalformedJson> malformedJson,
             MatchBranch<IncorrectData> incorrectData
     ) {
@@ -135,6 +163,8 @@ public abstract class EmailConfirmationResult implements ActionResult {
             wrongCode.onMatch((WrongCode) this);
         else if (doesNotExist != null && this instanceof DoesNotExist)
             doesNotExist.onMatch((DoesNotExist) this);
+        else if (invalidVersion != null && this instanceof InvalidVersion)
+            invalidVersion.onMatch((InvalidVersion) this);
         else if (malformedJson != null && this instanceof MalformedJson)
             malformedJson.onMatch((MalformedJson) this);
         else if (incorrectData != null && this instanceof IncorrectData)

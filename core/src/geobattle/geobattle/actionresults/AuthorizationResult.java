@@ -43,6 +43,31 @@ public abstract class AuthorizationResult implements ActionResult {
         }
     }
 
+    // Version of client is invalid
+    public static final class InvalidVersion extends AuthorizationResult {
+        // Min version
+        public final String min;
+
+        // Max version
+        public final String max;
+
+        public InvalidVersion(String min, String max) {
+            this.min = min;
+            this.max = max;
+        }
+
+        public static InvalidVersion fromJson(JsonObject object) {
+            String min = object.getAsJsonPrimitive("min").getAsString();
+            String max = object.getAsJsonPrimitive("max").getAsString();
+            return new InvalidVersion(min, max);
+        }
+
+        @Override
+        public void apply(GeoBattle game, GameState gameState) {
+            game.showMessage(game.getI18NBundle().format("invalidVersion", min, max));
+        }
+    }
+
     // JSON request is not well-formed
     public static final class MalformedJson extends AuthorizationResult {
         public MalformedJson() {}
@@ -90,6 +115,8 @@ public abstract class AuthorizationResult implements ActionResult {
             return Success.fromJson(object);
         else if (type.equals("PairNotFound"))
             return PairNotFound.fromJson(object);
+        else if (type.equals("InvalidVersion"))
+            return InvalidVersion.fromJson(object);
         else if (type.equals("MalformedJson"))
             return MalformedJson.fromJson(object);
         else if (type.equals("IncorrectData"))
@@ -101,6 +128,7 @@ public abstract class AuthorizationResult implements ActionResult {
     public void match(
             MatchBranch<Success> success,
             MatchBranch<PairNotFound> pairNotFound,
+            MatchBranch<InvalidVersion> invalidVersion,
             MatchBranch<MalformedJson> malformedJson,
             MatchBranch<IncorrectData> incorrectData
     ) {
@@ -108,6 +136,8 @@ public abstract class AuthorizationResult implements ActionResult {
             success.onMatch((Success) this);
         else if (pairNotFound != null && this instanceof PairNotFound)
             pairNotFound.onMatch((PairNotFound) this);
+        else if (invalidVersion != null && this instanceof InvalidVersion)
+            invalidVersion.onMatch((InvalidVersion) this);
         else if (malformedJson != null && this instanceof MalformedJson)
             malformedJson.onMatch((MalformedJson) this);
         else if (incorrectData != null && this instanceof IncorrectData)

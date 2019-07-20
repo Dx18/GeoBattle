@@ -10,9 +10,13 @@ public final class EmailConfirmationEvent {
     // Code player sending to server
     public final int code;
 
-    public EmailConfirmationEvent(String name, int code) {
+    // Version of client
+    public final String clientVersion;
+
+    public EmailConfirmationEvent(String name, int code, String clientVersion) {
         this.name = name;
         this.code = code;
+        this.clientVersion = clientVersion;
     }
 
     // Converts EmailConfirmationEvent to JSON
@@ -21,6 +25,7 @@ public final class EmailConfirmationEvent {
         object.addProperty("type", "EmailConfirmationEvent");
         object.addProperty("name", name);
         object.addProperty("code", code);
+        object.addProperty("clientVersion", clientVersion);
         return object;
     }
 }

@@ -106,6 +106,6 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = 1920 / 2;
 		config.height = 1080;
-		new LwjglApplication(new GeoBattle(externalAPI), config);
+		new LwjglApplication(new GeoBattle(externalAPI, "1.0.0+official"), config);
 	}
 }

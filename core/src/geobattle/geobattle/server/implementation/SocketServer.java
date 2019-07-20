@@ -409,7 +409,7 @@ public final class SocketServer implements Server {
                     port = SocketServer.this.port;
                 }
 
-                String resultStr = requestSSL(ip, port, new AuthorizationEvent(playerName, password).toJson().toString());
+                String resultStr = requestSSL(ip, port, new AuthorizationEvent(playerName, password, game.clientVersion).toJson().toString());
 
                 synchronized (SocketServer.this) {
                     authorizationEvent = null;
@@ -974,7 +974,7 @@ public final class SocketServer implements Server {
                     port = SocketServer.this.port;
                 }
 
-                String resultStr = requestSSL(ip, port, new EmailConfirmationEvent(name, code).toJson().toString());
+                String resultStr = requestSSL(ip, port, new EmailConfirmationEvent(name, code, game.clientVersion).toJson().toString());
 
                 synchronized (SocketServer.this) {
                     emailConfirmationEvent = null;

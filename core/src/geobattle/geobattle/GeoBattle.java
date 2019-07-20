@@ -63,9 +63,13 @@ public final class GeoBattle extends Game {
 	// Overlaying GUI of game
 	private GeoBattleGUI gui;
 
+	// Version of client
+	public final String clientVersion;
+
 	// Constructor
-    public GeoBattle(ExternalAPI externalAPI) {
+    public GeoBattle(ExternalAPI externalAPI, String clientVersion) {
         this.externalAPI = externalAPI;
+        this.clientVersion = clientVersion;
     }
 
     @Override

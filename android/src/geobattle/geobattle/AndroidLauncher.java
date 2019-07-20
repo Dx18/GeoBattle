@@ -187,7 +187,7 @@ public class AndroidLauncher extends AndroidApplication {
         );
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
         config.useImmersiveMode = true;
-        initialize(new GeoBattle(externalAPI), config);
+        initialize(new GeoBattle(externalAPI, BuildConfig.VERSION_NAME), config);
     }
 
     @Override
