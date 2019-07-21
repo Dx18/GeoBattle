@@ -439,6 +439,16 @@ public class GeoBattleMap extends Actor {
             Iterator<PlayerState> players = gameState.getPlayers();
             while (players.hasNext()) {
                 PlayerState player = players.next();
+
+                IntRect playerRect = new IntRect(
+                        player.getMinSectorX(), player.getMinSectorY(),
+                        player.getMaxSectorX() - player.getMinSectorX() + Sector.SECTOR_SIZE,
+                        player.getMaxSectorY() - player.getMinSectorY() + Sector.SECTOR_SIZE
+                );
+
+                if (!GeoBattleMath.tileRectanglesIntersect(visible, playerRect))
+                    continue;
+
                 playerSectorColor.set(player.getColor());
                 playerSectorColor.a = 0.2f;
 
@@ -464,6 +474,16 @@ public class GeoBattleMap extends Actor {
             Iterator<PlayerState> players = gameState.getPlayers();
             while (players.hasNext()) {
                 PlayerState player = players.next();
+
+                IntRect playerRect = new IntRect(
+                        player.getMinSectorX(), player.getMinSectorY(),
+                        player.getMaxSectorX() - player.getMinSectorX() + Sector.SECTOR_SIZE,
+                        player.getMaxSectorY() - player.getMinSectorY() + Sector.SECTOR_SIZE
+                );
+
+                if (!GeoBattleMath.tileRectanglesIntersect(visible, playerRect))
+                    continue;
+
                 playerSectorColor.set(player.getColor());
                 playerSectorColor.a = 0;
 
@@ -501,6 +521,15 @@ public class GeoBattleMap extends Actor {
         Iterator<PlayerState> players = gameState.getPlayers();
         while (players.hasNext()) {
             PlayerState player = players.next();
+
+            IntRect playerRect = new IntRect(
+                    player.getMinSectorX(), player.getMinSectorY(),
+                    player.getMaxSectorX() - player.getMinSectorX() + Sector.SECTOR_SIZE,
+                    player.getMaxSectorY() - player.getMinSectorY() + Sector.SECTOR_SIZE
+            );
+
+            if (!GeoBattleMath.tileRectanglesIntersect(visible, playerRect))
+                continue;
 
             ReadOnlyArrayList<Sector> sectors = player.getAllSectors();
             for (int sectorIndex = 0; sectorIndex < sectors.size(); sectorIndex++) {
@@ -546,6 +575,16 @@ public class GeoBattleMap extends Actor {
         Iterator<PlayerState> players = gameState.getPlayers();
         while (players.hasNext()) {
             PlayerState player = players.next();
+
+            IntRect playerRect = new IntRect(
+                    player.getMinSectorX(), player.getMinSectorY(),
+                    player.getMaxSectorX() - player.getMinSectorX() + Sector.SECTOR_SIZE,
+                    player.getMaxSectorY() - player.getMinSectorY() + Sector.SECTOR_SIZE
+            );
+
+            if (!GeoBattleMath.tileRectanglesIntersect(visible, playerRect))
+                continue;
+
             ReadOnlyArrayList<Sector> sectors = player.getAllSectors();
             for (int sectorIndex = 0; sectorIndex < sectors.size(); sectorIndex++) {
                 Sector nextSector = sectors.get(sectorIndex);
