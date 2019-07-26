@@ -17,7 +17,6 @@ import geobattle.geobattle.game.gamestatediff.PlayerStateDiff;
 import geobattle.geobattle.game.gamestatediff.SectorDiff;
 import geobattle.geobattle.game.research.ResearchInfo;
 import geobattle.geobattle.game.units.Unit;
-import geobattle.geobattle.game.units.UnitType;
 import geobattle.geobattle.util.IntPoint;
 import geobattle.geobattle.util.JsonObjects;
 import geobattle.geobattle.util.ReadOnlyArrayList;
@@ -296,32 +295,6 @@ public class PlayerState {
     public void addUnit(Unit.ServerSide unit) {
         Building hangar = getBuilding(unit.hangarId);
         addUnit(Unit.from(unit, hangar.x, hangar.y));
-    }
-
-    // Removes unit and unbinds it from hangar
-    public void removeUnit(Unit unit) {
-        // TODO Check if null and not hangar
-        Hangar hangar = (Hangar) getBuilding(unit.hangarId);
-        hangar.units.removeUnit(unit);
-
-        int removeIndex = Collections.binarySearch(units, unit, unitComparator);
-        if (removeIndex < 0)
-            throw new IllegalArgumentException("Cannot remove unit with specified ID");
-        units.remove(removeIndex);
-    }
-
-    // Returns unit with specified ID
-    // Returns null if there is no such unit
-    public Unit getUnit(int id) {
-        int index = Collections.binarySearch(units, new Unit(0, 0, 0, id, 0, 0, UnitType.BOMBER) {
-            @Override
-            public Unit clone() { return null; }
-        }, unitComparator);
-
-        if (index >= 0)
-            return units.get(index);
-
-        return null;
     }
 
     // Returns name of player
