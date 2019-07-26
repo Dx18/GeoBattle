@@ -135,13 +135,20 @@ public final class QuadTree<T> {
         }
     }
 
+    public void removeAsRect(T item, IntRect rect) {
+        removeAsPoint(item, new IntPoint(rect.x, rect.y));
+        removeAsPoint(item, new IntPoint(rect.x, rect.y + rect.height - 1));
+        removeAsPoint(item, new IntPoint(rect.x + rect.width - 1, rect.y));
+        removeAsPoint(item, new IntPoint(rect.x + rect.width - 1, rect.y + rect.height - 1));
+    }
+
     // Removes points equal to given point
-    public void removeAsPoint(IntPoint point) {
+    public void removeAsPoint(T item, IntPoint point) {
         int newLength = 0;
         for (int index = 0; index < points.size(); index++) {
             QuadTreePoint existingPoint = points.get(index);
 
-            if (existingPoint.x != point.x || existingPoint.y != point.y) {
+            if (existingPoint.data != item || existingPoint.x != point.x || existingPoint.y != point.y) {
                 points.set(newLength, existingPoint);
                 newLength++;
             }
@@ -151,25 +158,25 @@ public final class QuadTree<T> {
 
         if (topLeft != null)
             if (GeoBattleMath.tileRectanglesIntersect(rect, topLeft.rect)) {
-                topLeft.removeAsPoint(point);
+                topLeft.removeAsPoint(item, point);
                 return;
             }
 
         if (topRight != null)
             if (GeoBattleMath.tileRectanglesIntersect(rect, topRight.rect)) {
-                topRight.removeAsPoint(point);
+                topRight.removeAsPoint(item, point);
                 return;
             }
 
         if (bottomRight != null)
             if (GeoBattleMath.tileRectanglesIntersect(rect, bottomRight.rect)) {
-                bottomRight.removeAsPoint(point);
+                bottomRight.removeAsPoint(item, point);
                 return;
             }
 
         if (bottomLeft != null)
             if (GeoBattleMath.tileRectanglesIntersect(rect, bottomLeft.rect))
-                bottomLeft.removeAsPoint(point);
+                bottomLeft.removeAsPoint(item, point);
     }
 
     // Queries all items in rect
