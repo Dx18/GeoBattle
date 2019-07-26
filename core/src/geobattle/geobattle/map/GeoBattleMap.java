@@ -316,49 +316,34 @@ public class GeoBattleMap extends Actor {
                 CoordinateConverter.subTilesToRealWorld(width, GeoBattleConst.SUBDIVISION),
                 CoordinateConverter.subTilesToRealWorld(height, GeoBattleConst.SUBDIVISION),
                 color,
-                new Color(color.r, color.g, color.b, 1),
-                0x1111
+                new Color(color.r, color.g, color.b, 1)
         );
     }
 
     // Draws advanced region rect in sub-tile coordinates
-    public void drawRegionRectAdvancedSubTiles(int x, int y, int width, int height, Color mainColor, Color borderColor, int borderInfo) {
+    public void drawRegionRectAdvancedSubTiles(int x, int y, int width, int height, Color mainColor, Color borderColor) {
         drawRegionRectAdvanced(
                 CoordinateConverter.subTilesToWorld(x, xOffset, GeoBattleConst.SUBDIVISION),
                 CoordinateConverter.subTilesToWorld(y, yOffset, GeoBattleConst.SUBDIVISION),
                 CoordinateConverter.subTilesToRealWorld(width, GeoBattleConst.SUBDIVISION),
                 CoordinateConverter.subTilesToRealWorld(height, GeoBattleConst.SUBDIVISION),
                 mainColor,
-                borderColor,
-                borderInfo
+                borderColor
         );
     }
 
     // Draws region rect in world coordinates
     public void drawRegionRect(float x, float y, float width, float height, Color color) {
-        drawRegionRectAdvanced(x, y, width, height, color, new Color(color.r, color.g, color.b, 1), 0x1111);
+        drawRegionRectAdvanced(x, y, width, height, color, new Color(color.r, color.g, color.b, 1));
     }
 
     // Draws advanced region rect in sub-tile coordinates
-    public void drawRegionRectAdvanced(float x, float y, float width, float height, Color mainColor, Color borderColor, int borderInfo) {
-        final int BORDER_TYPE_SIZE = 4;
-        final int BORDER_TYPE_MASK = (1 << BORDER_TYPE_SIZE) - 1;
-        final int TOP = 0;
-        final int RIGHT = TOP + BORDER_TYPE_SIZE;
-        final int BOTTOM = RIGHT + BORDER_TYPE_SIZE;
-        final int LEFT = BOTTOM + BORDER_TYPE_SIZE;
-        final int SOLID = 1;
-        final int DASHED = 2;
-
+    public void drawRegionRectAdvanced(float x, float y, float width, float height, Color mainColor, Color borderColor) {
         // Width of border in pixels
         final int BORDER_SIZE_PX = 5;
-        final int DASH_SIZE_PX = 25;
-        final int DASH_GAP_SIZE_PX = 5;
 
         // Width of stroke in world
         float borderSize = camera.viewportWidth / Gdx.graphics.getWidth() * BORDER_SIZE_PX;
-        float dashSize = camera.viewportWidth / Gdx.graphics.getWidth() * DASH_SIZE_PX;
-        float dashGapSize = camera.viewportWidth / Gdx.graphics.getWidth() * DASH_GAP_SIZE_PX;
 
         shapeRenderer.setColor(mainColor);
 
@@ -367,61 +352,16 @@ public class GeoBattleMap extends Actor {
         shapeRenderer.setColor(borderColor);
 
         // Top border
-        switch ((borderInfo >> TOP) & BORDER_TYPE_MASK) {
-            case SOLID:
-                shapeRenderer.rect(x - borderSize / 2, y + height - borderSize / 2, borderSize + width, borderSize);
-                break;
-            case DASHED:
-                float dashCoord = 0;
-                while (dashCoord < borderSize + width) {
-                    shapeRenderer.rect(x - borderSize / 2 + dashCoord, y + height - borderSize / 2, Math.min(dashSize, borderSize + width - dashCoord), borderSize);
-                    dashCoord += dashSize + dashGapSize;
-                }
-                break;
-        }
+        shapeRenderer.rect(x - borderSize / 2, y + height - borderSize / 2, borderSize + width, borderSize);
 
         // Right border
-        switch ((borderInfo >> RIGHT) & BORDER_TYPE_MASK) {
-            case SOLID:
-                shapeRenderer.rect(x + width - borderSize / 2, y - borderSize / 2, borderSize, borderSize + height);
-                break;
-            case DASHED:
-                float dashCoord = 0;
-                while (dashCoord < borderSize + height) {
-                    shapeRenderer.rect(x + width - borderSize / 2, y - borderSize / 2 + dashCoord, borderSize, Math.min(dashSize, borderSize + height - dashCoord));
-                    dashCoord += dashSize + dashGapSize;
-                }
-                break;
-        }
+        shapeRenderer.rect(x + width - borderSize / 2, y - borderSize / 2, borderSize, borderSize + height);
 
         // Bottom border
-        switch ((borderInfo >> BOTTOM) & BORDER_TYPE_MASK) {
-            case SOLID:
-                shapeRenderer.rect(x - borderSize / 2, y - borderSize / 2, borderSize + width, borderSize);
-                break;
-            case DASHED:
-                float dashCoord = 0;
-                while (dashCoord < borderSize + width) {
-                    shapeRenderer.rect(x - borderSize / 2 + dashCoord, y - borderSize / 2, Math.min(dashSize, borderSize + width - dashCoord), borderSize);
-                    dashCoord += dashSize + dashGapSize;
-                }
-                break;
-
-        }
+        shapeRenderer.rect(x - borderSize / 2, y - borderSize / 2, borderSize + width, borderSize);
 
         // Left border
-        switch ((borderInfo >> LEFT) & BORDER_TYPE_MASK) {
-            case SOLID:
-                shapeRenderer.rect(x - borderSize / 2, y - borderSize / 2, borderSize, borderSize + height);
-                break;
-            case DASHED:
-                float dashCoord = 0;
-                while (dashCoord < borderSize + height) {
-                    shapeRenderer.rect(x - borderSize / 2, y - borderSize / 2 + dashCoord, borderSize, Math.min(dashSize, borderSize + height - dashCoord));
-                    dashCoord += dashSize + dashGapSize;
-                }
-                break;
-        }
+        shapeRenderer.rect(x - borderSize / 2, y - borderSize / 2, borderSize, borderSize + height);
     }
 
     // Draws multiple textures in one square

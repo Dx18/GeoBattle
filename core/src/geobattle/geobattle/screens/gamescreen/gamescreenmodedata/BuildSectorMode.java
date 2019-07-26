@@ -43,14 +43,14 @@ public final class BuildSectorMode extends GameScreenModeData {
         ));
         Color mainColor = canBuildSector
                 ? new Color(playerColor.r, playerColor.g, playerColor.b, 0.1f)
-                : new Color(1, 0, 0, 0.05f);
+                : new Color(1, 0, 0, 0);
         Color borderColor = canBuildSector
                 ? new Color(playerColor.r, playerColor.g, playerColor.b, 1)
                 : new Color(1, 0, 0, 1);
 
         map.drawRegionRectAdvancedSubTiles(
                 buildX, buildY, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE,
-                mainColor, borderColor, 0x2222
+                mainColor, borderColor
         );
     }
 }
