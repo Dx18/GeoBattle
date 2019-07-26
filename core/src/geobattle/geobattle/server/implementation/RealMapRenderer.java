@@ -7,8 +7,8 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 
 import geobattle.geobattle.GeoBattleConst;
-import geobattle.geobattle.map.TileTree;
 import geobattle.geobattle.map.TileCounter;
+import geobattle.geobattle.map.TileTree;
 import geobattle.geobattle.server.MapRenderer;
 import geobattle.geobattle.util.CoordinateConverter;
 import geobattle.geobattle.util.IntRect;
