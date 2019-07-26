@@ -66,19 +66,6 @@ public class GameState {
         this.lastUpdateTime = time;
     }
 
-    // Clones GameState
-    public GameState clone() {
-        GameState cloned = new GameState(resources, playerId, time);
-
-        for (PlayerState player : players)
-            cloned.players.add(player.clone());
-
-        for (AttackScript event : attackScripts)
-            cloned.addAttackScript(event.clone());
-
-        return cloned;
-    }
-
     // Returns player's resources
     public float getResources() {
         return resources;

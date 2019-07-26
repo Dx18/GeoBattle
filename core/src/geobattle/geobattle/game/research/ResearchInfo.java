@@ -46,11 +46,6 @@ public final class ResearchInfo {
         setLevel(researchType, getLevel(researchType) + 1);
     }
 
-    // Clones ResearchInfo
-    public ResearchInfo clone() {
-        return new ResearchInfo(turretDamageLevel, unitDamageLevel, generatorEfficiencyLevel);
-    }
-
     // Creates ResearchInfo from JSON
     public static ResearchInfo fromJson(JsonObject object) {
         return new ResearchInfo(

@@ -316,15 +316,6 @@ public final class UnitGroup {
         return count;
     }
 
-    // Clones unit group
-    public UnitGroup clone(Hangar clonedHangar) {
-        Unit[] units = new Unit[4];
-        for (int index = 0; index < 4; index++)
-            units[index] = this.units[index].clone();
-
-        return new UnitGroup(units, clonedHangar);
-    }
-
     // Creates unit group from JSON
     public static UnitGroup fromJson(JsonObject object, Hangar hangar) {
         JsonArray jsonUnits = object.getAsJsonArray("units");

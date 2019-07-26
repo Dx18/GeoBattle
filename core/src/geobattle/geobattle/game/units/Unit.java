@@ -231,9 +231,6 @@ public abstract class Unit {
         return null;
     }
 
-    // Clones unit
-    public abstract Unit clone();
-
     // Creates unit from unit type and some parameters
     public static Unit from(UnitType unitType, double x, double y, double direction, int id, int hangarId, int hangarSlot) {
         switch (unitType) {

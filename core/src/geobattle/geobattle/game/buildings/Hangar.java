@@ -44,12 +44,6 @@ public final class Hangar extends Building {
         }
     }
 
-    // Clones hangar
-    @Override
-    public Building clone() {
-        return new Hangar(getParams());
-    }
-
     // Creates hangar from JSON
     public static Hangar fromJson(JsonObject object, BuildingParams params) {
         Hangar result = new Hangar(params);

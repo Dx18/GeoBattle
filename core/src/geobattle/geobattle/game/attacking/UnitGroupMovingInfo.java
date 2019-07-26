@@ -27,11 +27,6 @@ public final class UnitGroupMovingInfo {
         this.returnTime = returnTime;
     }
 
-    // Clones UnitGroupMovingInfo
-    public UnitGroupMovingInfo clone() {
-        return new UnitGroupMovingInfo(hangarId, arriveTime, arriveX, arriveY, returnTime);
-    }
-
     // Creates UnitGroupMovingInfo from JSON
     public static UnitGroupMovingInfo fromJson(JsonObject object) {
         int hangarId = object.getAsJsonPrimitive("hangarId").getAsInt();

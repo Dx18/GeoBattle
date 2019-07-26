@@ -8,12 +8,6 @@ public final class Mine extends Building {
         super(params, BuildingType.MINE);
     }
 
-    // Clones mine
-    @Override
-    public Building clone() {
-        return new Mine(getParams());
-    }
-
     // Creates mine from JSON
     public static Mine fromJson(JsonObject object, BuildingParams params) {
         return new Mine(params);

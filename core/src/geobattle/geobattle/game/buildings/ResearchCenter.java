@@ -8,12 +8,6 @@ public final class ResearchCenter extends Building {
         super(params, BuildingType.RESEARCH_CENTER);
     }
 
-    // Clones research center
-    @Override
-    public Building clone() {
-        return new ResearchCenter(getParams());
-    }
-
     // Creates research center from JSON
     public static ResearchCenter fromJson(JsonObject object, BuildingParams params) {
         return new ResearchCenter(params);

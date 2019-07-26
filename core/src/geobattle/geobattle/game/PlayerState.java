@@ -86,21 +86,6 @@ public class PlayerState {
         maxSectorY = Integer.MIN_VALUE;
     }
 
-    // Clones player state
-    public PlayerState clone() {
-        String name = this.name;
-        Color color = this.color.cpy();
-        ResearchInfo researchInfo = this.researchInfo.clone();
-
-        PlayerState cloned = new PlayerState(name, this.playerId, color, researchInfo);
-        for (Sector sector : sectors)
-            cloned.addSector(sector.clone());
-        for (Unit unit : units)
-            cloned.addUnit(unit.clone());
-
-        return cloned;
-    }
-
     // Adds sector. Keeps sectors sorted by ID
     public void addSector(Sector sector) {
         int index = Collections.binarySearch(sectors, sector, sectorComparator);

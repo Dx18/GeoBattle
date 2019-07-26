@@ -22,11 +22,6 @@ public final class TimePoint {
         this.unitGroupHealth = unitGroupHealth;
     }
 
-    // Clones TimePoint
-    public TimePoint clone() {
-        return new TimePoint(time, sectorHealth, new IntFloatMap(unitGroupHealth));
-    }
-
     // Creates TimePoint from JSON
     public static TimePoint fromJson(JsonObject object) {
         double time = object.getAsJsonPrimitive("time").getAsDouble();

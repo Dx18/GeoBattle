@@ -111,9 +111,6 @@ public abstract class Building {
         return null;
     }
 
-    // Clones building
-    public abstract Building clone();
-
     // Creates building from building type and some parameters
     public static Building from(BuildingType buildingType, BuildingParams params) {
         switch (buildingType) {

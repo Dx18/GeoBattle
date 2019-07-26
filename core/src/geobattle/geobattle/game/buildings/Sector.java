@@ -309,16 +309,6 @@ public final class Sector {
         return buildingCount.get(buildingType, 0);
     }
 
-    // Clones sector
-    public Sector clone() {
-        Sector result = new Sector(x, y, sectorId, playerId, researchInfo.clone());
-
-        for (Building building : buildings)
-            result.addBuilding(building.clone());
-
-        return result;
-    }
-
     // Creates Sector from JSON
     public static Sector fromJson(JsonObject object, int playerId, ResearchInfo researchInfo) {
         int x = object.getAsJsonPrimitive("x").getAsInt();

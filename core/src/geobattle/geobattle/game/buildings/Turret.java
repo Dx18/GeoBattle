@@ -100,12 +100,6 @@ public final class Turret extends Building {
         }
     }
 
-    // Clones turret
-    @Override
-    public Building clone() {
-        return new Turret(getParams());
-    }
-
     // Creates turret from JSON
     public static Turret fromJson(JsonObject object, BuildingParams params) {
         return new Turret(params);

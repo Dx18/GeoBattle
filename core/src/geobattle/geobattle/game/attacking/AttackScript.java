@@ -112,19 +112,6 @@ public final class AttackScript {
         return new AttackScript(id, attackerId, victimId, sectorId, unitGroupMoving, timePoints);
     }
 
-    // Clones AttackScript
-    public AttackScript clone() {
-        UnitGroupMovingInfo[] unitGroupMoving = new UnitGroupMovingInfo[this.unitGroupMoving.length];
-        for (int index = 0; index < this.unitGroupMoving.length; index++)
-            unitGroupMoving[index] = this.unitGroupMoving[index].clone();
-
-        TimePoint[] timePoints = new TimePoint[this.timePoints.length];
-        for (int index = 0; index < this.timePoints.length; index++)
-            timePoints[index] = this.timePoints[index].clone();
-
-        return new AttackScript(id, attackerId, victimId, sectorId, unitGroupMoving, timePoints);
-    }
-
     // Return ID of AttackScript used as hash code
     @Override
     public int hashCode() {
