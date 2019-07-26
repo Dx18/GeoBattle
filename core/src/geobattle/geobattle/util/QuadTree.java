@@ -137,15 +137,17 @@ public final class QuadTree<T> {
 
     // Removes points equal to given point
     public void removeAsPoint(IntPoint point) {
-        ArrayList<Integer> toRemove = new ArrayList<Integer>();
-        int index = 0;
-        for (QuadTreePoint existingPoint : points) {
-            if (existingPoint.x == point.x && existingPoint.y == point.y)
-                toRemove.add(index);
-            index++;
+        int newLength = 0;
+        for (int index = 0; index < points.size(); index++) {
+            QuadTreePoint existingPoint = points.get(index);
+
+            if (existingPoint.x != point.x || existingPoint.y != point.y) {
+                points.set(newLength, existingPoint);
+                newLength++;
+            }
         }
-        for (int i = toRemove.size() - 1; i >= 0; i--)
-            points.remove(toRemove.get(i).intValue());
+        while (points.size() > newLength)
+            points.remove(points.size() - 1);
 
         if (topLeft != null)
             if (GeoBattleMath.tileRectanglesIntersect(rect, topLeft.rect)) {
@@ -171,21 +173,21 @@ public final class QuadTree<T> {
     }
 
     // Queries all items in rect
-    public HashSet<T> queryByRect(IntRect rect) {
+    public HashSet<T> queryByRectIntersection(IntRect rect) {
         HashSet<T> result = new HashSet<T>();
-        queryByRect(result, rect, Integer.MAX_VALUE);
+        queryByRectIntersection(result, rect, Integer.MAX_VALUE);
         return result;
     }
 
     // Queries all items in rect
-    public HashSet<T> queryByRect(IntRect rect, int maxCount) {
+    public HashSet<T> queryByRectIntersection(IntRect rect, int maxCount) {
         HashSet<T> result = new HashSet<T>();
-        queryByRect(result, rect, maxCount);
+        queryByRectIntersection(result, rect, maxCount);
         return result;
     }
 
     // Queries all items in rect
-    private void queryByRect(HashSet<T> result, IntRect rect, int maxCount) {
+    private void queryByRectIntersection(HashSet<T> result, IntRect rect, int maxCount) {
         for (QuadTreePoint point : points) {
             if (result.size() >= maxCount)
                 return;
@@ -198,18 +200,18 @@ public final class QuadTree<T> {
 
         if (topLeft != null)
             if (GeoBattleMath.tileRectanglesIntersect(rect, topLeft.rect))
-                topLeft.queryByRect(result, rect, maxCount);
+                topLeft.queryByRectIntersection(result, rect, maxCount);
 
         if (topRight != null)
             if (GeoBattleMath.tileRectanglesIntersect(rect, topRight.rect))
-                topRight.queryByRect(result, rect, maxCount);
+                topRight.queryByRectIntersection(result, rect, maxCount);
 
         if (bottomRight != null)
             if (GeoBattleMath.tileRectanglesIntersect(rect, bottomRight.rect))
-                bottomRight.queryByRect(result, rect, maxCount);
+                bottomRight.queryByRectIntersection(result, rect, maxCount);
 
         if (bottomLeft != null)
             if (GeoBattleMath.tileRectanglesIntersect(rect, bottomLeft.rect))
-                bottomLeft.queryByRect(result, rect, maxCount);
+                bottomLeft.queryByRectIntersection(result, rect, maxCount);
     }
 }

@@ -610,7 +610,7 @@ public class GeoBattleMap extends Actor {
                 }
 
                 while (true) {
-                    HashSet<UnitGroup> maybeGroup = units.queryByRect(mapRect, 1);
+                    HashSet<UnitGroup> maybeGroup = units.queryByRectIntersection(mapRect, 1);
                     if (maybeGroup.size() == 0)
                         break;
 
@@ -624,7 +624,7 @@ public class GeoBattleMap extends Actor {
                         units.removeAsPoint(new IntPoint((int) currentGroup.x, (int) currentGroup.y));
                         component.add(currentGroup);
 
-                        HashSet<UnitGroup> nextGroups = units.queryByRect(new IntRect(
+                        HashSet<UnitGroup> nextGroups = units.queryByRectIntersection(new IntRect(
                                 (int) currentGroup.x - maxDistance,
                                 (int) currentGroup.y - maxDistance,
                                 maxDistance * 2 + 1,
