@@ -249,6 +249,16 @@ public class GeoBattleMap extends Actor {
     // Updates map
     @Override
     public void act(float delta) {
+        xOffset += camera.position.x >= 0
+                ? (int) (camera.position.x / 128) * 128
+                : (int) ((camera.position.x - 128) / 128) * 128;
+        yOffset += camera.position.y >= 0
+                ? (int) (camera.position.y / 128) * 128
+                : (int) ((camera.position.y - 128) / 128) * 128;
+
+        camera.position.x = (camera.position.x % 128 + 128) % 128;
+        camera.position.y = (camera.position.y % 128 + 128) % 128;
+
         for (int animationInstance = 0; animationInstance < animationInstances.size();) {
             AnimationInstance current = animationInstances.get(animationInstance);
             current.update(delta);

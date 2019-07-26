@@ -98,7 +98,7 @@ public final class GameScreen implements Screen {
 
         map = new GeoBattleMap(
                 camera, gameState, assetManager,
-                new RealMapRenderer((int) geolocation.x, (int) geolocation.y, game.getExternalAPI().tileRequestPool),
+                new RealMapRenderer(game.getExternalAPI().tileRequestPool),
                 game
         );
         tilesStage.addActor(map);

@@ -6,10 +6,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 
-import geobattle.geobattle.map.GeoBattleCamera;
-import geobattle.geobattle.map.TileCounter;
+import geobattle.geobattle.GeoBattleConst;
 import geobattle.geobattle.map.TileTree;
+import geobattle.geobattle.map.TileCounter;
 import geobattle.geobattle.server.MapRenderer;
+import geobattle.geobattle.util.CoordinateConverter;
 import geobattle.geobattle.util.IntRect;
 
 // Renderer of real map
@@ -23,18 +24,10 @@ public final class RealMapRenderer implements MapRenderer {
     // Tile request pool
     private final TileRequestPool tileRequestPool;
 
-    // X offset of map
-    private final int xOffset;
-
-    // Y offset of map
-    private final int yOffset;
-
-    public RealMapRenderer(final int xOffset, final int yOffset, TileRequestPool tileRequestPool) {
-        this.tiles = new TileTree(xOffset, yOffset);
+    public RealMapRenderer(TileRequestPool tileRequestPool) {
+        this.tiles = new TileTree();
         this.counter = new TileCounter();
         this.tileRequestPool = tileRequestPool;
-        this.xOffset = xOffset;
-        this.yOffset = yOffset;
 
         tileRequestPool.setOnLoadListener(new TileRequestPool.TileRequestCallback() {
             @Override
@@ -42,7 +35,7 @@ public final class RealMapRenderer implements MapRenderer {
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
                     public void run() {
-                        tiles.setTile(pixmap, counter, xOffset, yOffset, x, y, zoomLevel);
+                        tiles.setTile(pixmap, counter, x, y, zoomLevel);
                     }
                 });
             }
@@ -50,34 +43,47 @@ public final class RealMapRenderer implements MapRenderer {
     }
 
     @Override
-    public void drawAndReduceTiles(Batch batch, int xOffset, int yOffset, GeoBattleCamera camera) {
-        final int zoomLevel = 20 - Math.max(1, (int)MathUtils.log2(camera.viewportWidth));
+    public void drawAndReduceTiles(Batch batch, int xOffset, int yOffset, IntRect visibleRect) {
+        final int zoomLevel = 20 - Math.max(1, (int)MathUtils.log2(
+                CoordinateConverter.subTilesToRealWorld(visibleRect.width, GeoBattleConst.SUBDIVISION)
+        ));
 
-        final int startX = camera.getTileStartX(zoomLevel, xOffset);
-        final int startY = camera.getTileStartY(zoomLevel, yOffset);
-        final int endX = camera.getTileEndX(zoomLevel, xOffset);
-        final int endY = camera.getTileEndY(zoomLevel, yOffset);
+//        final int startX = camera.getTileStartX(zoomLevel, xOffset);
+//        final int startY = camera.getTileStartY(zoomLevel, yOffset);
+//        final int endX = camera.getTileEndX(zoomLevel, xOffset);
+//        final int endY = camera.getTileEndY(zoomLevel, yOffset);
 
-        tileRequestPool.setVisibleData(
-                new IntRect(
-                        startX + xOffset, startY + yOffset,
-                        endX - startX + (1 << (19 - zoomLevel)),
-                        endY - startY + (1 << (19 - zoomLevel))
-                ),
-                zoomLevel
+        int startX = (int) CoordinateConverter.subTilesToRealWorld(visibleRect.x, GeoBattleConst.SUBDIVISION);
+        startX -= startX % (1 << (TileTree.MAX_ZOOM_LEVEL - zoomLevel));
+
+        int startY = (int) CoordinateConverter.subTilesToRealWorld(visibleRect.y, GeoBattleConst.SUBDIVISION);
+        startY -= startY % (1 << (TileTree.MAX_ZOOM_LEVEL - zoomLevel));
+
+        int endX = (int) CoordinateConverter.subTilesToRealWorld(visibleRect.x + visibleRect.width, GeoBattleConst.SUBDIVISION);
+        endX -= endX % (1 << (TileTree.MAX_ZOOM_LEVEL - zoomLevel));
+
+        int endY = (int) CoordinateConverter.subTilesToRealWorld(visibleRect.y + visibleRect.height, GeoBattleConst.SUBDIVISION);
+        endY -= endY % (1 << (TileTree.MAX_ZOOM_LEVEL - zoomLevel));
+
+        final IntRect finalVisibleRect = new IntRect(
+                startX, startY,
+                endX - startX + (1 << (TileTree.MAX_ZOOM_LEVEL - zoomLevel)),
+                endY - startY + (1 << (TileTree.MAX_ZOOM_LEVEL - zoomLevel))
         );
+
+        tileRequestPool.setVisibleData(finalVisibleRect, zoomLevel);
 
         int middle = startX + (endX - startX) / 3 - (endX - startX) / 3 % (1 << (19 - zoomLevel));
 
         for (int x = middle; x >= startX; x -= (1 << (19 - zoomLevel)))
             for (int y = startY; y <= endY; y += (1 << (19 - zoomLevel))) {
-                Texture tile = tiles.getTile(x, y, zoomLevel, xOffset, yOffset, tileRequestPool, counter);
+                Texture tile = tiles.getTile(x, y, zoomLevel, tileRequestPool, counter);
 
                 if (tile != null)
                     batch.draw(
                             tile,
-                            x,
-                            y,
+                            x - xOffset,
+                            y - yOffset,
                             1 << (19 - zoomLevel),
                             1 << (19 - zoomLevel)
                     );
@@ -85,13 +91,13 @@ public final class RealMapRenderer implements MapRenderer {
 
         for (int x = endX; x > middle; x -= (1 << (19 - zoomLevel)))
             for (int y = startY; y <= endY; y += (1 << (19 - zoomLevel))) {
-                Texture tile = tiles.getTile(x, y, zoomLevel, xOffset, yOffset, tileRequestPool, counter);
+                Texture tile = tiles.getTile(x, y, zoomLevel, tileRequestPool, counter);
 
                 if (tile != null)
                     batch.draw(
                             tile,
-                            x,
-                            y,
+                            x - xOffset,
+                            y - yOffset,
                             1 << (19 - zoomLevel),
                             1 << (19 - zoomLevel)
                     );
@@ -102,9 +108,8 @@ public final class RealMapRenderer implements MapRenderer {
                 @Override
                 public void run() {
                     tiles.reduceTiles(
-                            startX, startY,
-                            endX, endY,
-                            zoomLevel, 2,
+                            finalVisibleRect,
+                            zoomLevel, new TileTree.ReduceTilesOptions(2),
                             counter
                     );
                 }
