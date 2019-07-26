@@ -28,9 +28,6 @@ public final class TileTree {
         }
     }
 
-    // Min level of zoom
-    public static final int MIN_ZOOM_LEVEL = 0;
-
     // Max level of zoom
     public static final int MAX_ZOOM_LEVEL = 19;
 
@@ -69,7 +66,7 @@ public final class TileTree {
 
     // Creates root of tile tree
     public TileTree() {
-        this(MIN_ZOOM_LEVEL, 0, 0);
+        this(0, 0, 0);
     }
 
     // Returns size of current tree
@@ -102,11 +99,11 @@ public final class TileTree {
 
     // Sets tile of subtree or current tree
     public void setTile(Pixmap tile, TileCounter tileCounter, int x, int y, int zoomLevel) {
-        if (zoomLevel < MIN_ZOOM_LEVEL || zoomLevel > MAX_ZOOM_LEVEL)
+        if (zoomLevel < 0 || zoomLevel > MAX_ZOOM_LEVEL)
             return;
-        if (x < 0 || x > (1 << (MAX_ZOOM_LEVEL - MIN_ZOOM_LEVEL)))
+        if (x < 0 || x > (1 << MAX_ZOOM_LEVEL))
             return;
-        if (y < 0 || y > (1 << (MAX_ZOOM_LEVEL - MIN_ZOOM_LEVEL)))
+        if (y < 0 || y > (1 << MAX_ZOOM_LEVEL))
             return;
 
         if (this.zoomLevel < zoomLevel) {
@@ -159,11 +156,11 @@ public final class TileTree {
     // Returns tile by coordinates and zoom level
     // If tile is not yet loaded this method tries to load it
     public Texture getTile(int x, int y, int zoomLevel, TileRequestPool tileRequestPool, TileCounter tileCounter) {
-        if (zoomLevel < MIN_ZOOM_LEVEL || zoomLevel > MAX_ZOOM_LEVEL)
+        if (zoomLevel < 0 || zoomLevel > MAX_ZOOM_LEVEL)
             return null;
-        if (x < 0 || x > (1 << (MAX_ZOOM_LEVEL - MIN_ZOOM_LEVEL)))
+        if (x < 0 || x > (1 << MAX_ZOOM_LEVEL))
             return null;
-        if (y < 0 || y > (1 << (MAX_ZOOM_LEVEL - MIN_ZOOM_LEVEL)))
+        if (y < 0 || y > (1 << MAX_ZOOM_LEVEL))
             return null;
 
         if (this.zoomLevel < zoomLevel) {
