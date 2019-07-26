@@ -815,9 +815,9 @@ public class GeoBattleMap extends Actor {
             sound.sound.setVolume(soundId, getSoundVolumeAt(sound.x, sound.y));
         }
 
-        mapRenderer.drawAndReduceTiles(batch, xOffset, yOffset, camera);
-
         IntRect visible = getVisibleRect();
+
+        mapRenderer.drawAndReduceTiles(batch, xOffset, yOffset, visible);
 
         batch.end();
         Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
