@@ -621,7 +621,7 @@ public class GeoBattleMap extends Actor {
                     ArrayList<UnitGroup> component = new ArrayList<UnitGroup>();
                     while (!groups.isEmpty()) {
                         UnitGroup currentGroup = groups.removeFirst();
-                        units.removeAsPoint(new IntPoint((int) currentGroup.x, (int) currentGroup.y));
+                        units.removeAsPoint(currentGroup, new IntPoint((int) currentGroup.x, (int) currentGroup.y));
                         component.add(currentGroup);
 
                         HashSet<UnitGroup> nextGroups = units.queryByRectIntersection(new IntRect(
@@ -633,7 +633,7 @@ public class GeoBattleMap extends Actor {
 
                         for (UnitGroup nextGroup : nextGroups) {
                             groups.addLast(nextGroup);
-                            units.removeAsPoint(new IntPoint((int) nextGroup.x, (int) nextGroup.y));
+                            units.removeAsPoint(nextGroup, new IntPoint((int) nextGroup.x, (int) nextGroup.y));
                         }
                     }
 
