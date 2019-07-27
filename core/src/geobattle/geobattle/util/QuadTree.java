@@ -186,6 +186,31 @@ public final class QuadTree<T> {
         return result;
     }
 
+    // Queries all items from quad tree
+    public HashSet<T> queryAll() {
+        HashSet<T> result = new HashSet<T>();
+        queryAll(result);
+        return result;
+    }
+
+    // Queries all items from quad tree
+    private void queryAll(HashSet<T> result) {
+        for (QuadTreePoint point : points)
+            result.add(point.data);
+
+        if (topLeft != null)
+            topLeft.queryAll(result);
+
+        if (topRight != null)
+            topRight.queryAll(result);
+
+        if (bottomRight != null)
+            bottomRight.queryAll(result);
+
+        if (bottomLeft != null)
+            bottomLeft.queryAll(result);
+    }
+
     // Queries all items in rect
     public HashSet<T> queryByRectIntersection(IntRect rect, int maxCount) {
         HashSet<T> result = new HashSet<T>();
@@ -205,20 +230,32 @@ public final class QuadTree<T> {
         if (result.size() >= maxCount)
             return;
 
-        if (topLeft != null)
-            if (GeoBattleMath.tileRectanglesIntersect(rect, topLeft.rect))
+        if (topLeft != null) {
+            if (GeoBattleMath.tileRectangleContains(rect, topLeft.rect))
+                topLeft.queryAll(result);
+            else if (GeoBattleMath.tileRectanglesIntersect(rect, topLeft.rect))
                 topLeft.queryByRectIntersection(result, rect, maxCount);
+        }
 
-        if (topRight != null)
-            if (GeoBattleMath.tileRectanglesIntersect(rect, topRight.rect))
+        if (topRight != null) {
+            if (GeoBattleMath.tileRectangleContains(rect, topRight.rect))
+                topRight.queryAll(result);
+            else if (GeoBattleMath.tileRectanglesIntersect(rect, topRight.rect))
                 topRight.queryByRectIntersection(result, rect, maxCount);
+        }
 
-        if (bottomRight != null)
-            if (GeoBattleMath.tileRectanglesIntersect(rect, bottomRight.rect))
+        if (bottomRight != null) {
+            if (GeoBattleMath.tileRectangleContains(rect, bottomRight.rect))
+                bottomRight.queryAll(result);
+            else if (GeoBattleMath.tileRectanglesIntersect(rect, bottomRight.rect))
                 bottomRight.queryByRectIntersection(result, rect, maxCount);
+        }
 
-        if (bottomLeft != null)
-            if (GeoBattleMath.tileRectanglesIntersect(rect, bottomLeft.rect))
+        if (bottomLeft != null) {
+            if (GeoBattleMath.tileRectangleContains(rect, bottomLeft.rect))
+                bottomLeft.queryAll(result);
+            else if (GeoBattleMath.tileRectanglesIntersect(rect, bottomLeft.rect))
                 bottomLeft.queryByRectIntersection(result, rect, maxCount);
+        }
     }
 }
