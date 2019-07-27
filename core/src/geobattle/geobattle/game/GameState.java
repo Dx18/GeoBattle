@@ -1,12 +1,11 @@
 package geobattle.geobattle.game;
 
 import com.badlogic.gdx.utils.IntFloatMap;
+import com.badlogic.gdx.utils.IntMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,10 +37,13 @@ public class GameState {
     private double lastUpdateTime;
 
     // Players
-    private ArrayList<PlayerState> players;
+    private IntMap<PlayerState> players;
 
     // Attack events
     private HashSet<AttackScript> attackScripts;
+
+    // Tracker of game objects
+    public final GameObjectTracker gameObjectTracker;
 
     // Comparator for buildings
     private final static Comparator<PlayerState> playerComparator = new Comparator<PlayerState>() {
@@ -55,7 +57,7 @@ public class GameState {
         this.resources = resources;
         this.playerId = playerId;
         this.time = time;
-        this.players = new ArrayList<PlayerState>();
+        this.players = new IntMap<PlayerState>();
         this.attackScripts = new HashSet<AttackScript>();
 
         IntFloatMap unitHealth1 = new IntFloatMap();
@@ -64,6 +66,8 @@ public class GameState {
         unitHealth2.put(-1, UnitType.BOMBER.maxHealth * 2f);
 
         this.lastUpdateTime = time;
+
+        this.gameObjectTracker = new GameObjectTracker();
     }
 
     // Returns player's resources
@@ -113,27 +117,12 @@ public class GameState {
 
     // Returns iterator over players
     public Iterator<PlayerState> getPlayers() {
-        return players.iterator();
+        return players.values();
     }
 
     // Returns player by ID
     public PlayerState getPlayer(int id) {
-        int left = 0;
-        int right = players.size() - 1;
-
-        while (left <= right) {
-            int mid = (left + right) >> 1;
-
-            PlayerState midPlayer = players.get(mid);
-            if (midPlayer.getPlayerId() < id)
-                left = mid + 1;
-            else if (midPlayer.getPlayerId() > id)
-                right = mid - 1;
-            else
-                return midPlayer;
-        }
-
-        return null;
+        return players.get(id);
     }
 
     // Returns current player
@@ -143,19 +132,16 @@ public class GameState {
 
     // Adds player to game
     public void addPlayer(PlayerState player) {
-        int index = Collections.binarySearch(players, player, playerComparator);
-        if (index >= 0)
+        if (players.containsKey(player.getPlayerId()))
             throw new IllegalArgumentException("Cannot add player with existing ID");
-
-        players.add(-index - 1, player);
+        players.put(player.getPlayerId(), player);
     }
 
     // Removes player from game
     public void removePlayer(PlayerState player) {
-        int index = Collections.binarySearch(players, player, playerComparator);
-        if (index < 0)
+        if (!players.containsKey(player.getPlayerId()))
             throw new IllegalArgumentException("Cannot remove player with specified ID");
-        players.remove(index);
+        players.remove(player.getPlayerId());
     }
 
     // Returns iterator over attack scripts
@@ -183,7 +169,7 @@ public class GameState {
 
         JsonArray jsonPlayers = object.getAsJsonArray("players");
         for (JsonElement jsonPlayer : jsonPlayers)
-            gameState.addPlayer(PlayerState.fromJson(jsonPlayer.getAsJsonObject()));
+            gameState.addPlayer(PlayerState.fromJson(jsonPlayer.getAsJsonObject(), gameState.gameObjectTracker));
 
         JsonArray jsonAttackEvents = object.getAsJsonArray("attackEvents");
         for (JsonElement jsonAttackEvent : jsonAttackEvents)
@@ -197,7 +183,7 @@ public class GameState {
         for (PlayerState removed : diff.removedPlayers)
             removePlayer(removed);
         for (PlayerStateDiff playerStateDiff : diff.changedPlayers)
-            getPlayer(playerStateDiff.playerId).applyDiff(playerStateDiff);
+            getPlayer(playerStateDiff.playerId).applyDiff(playerStateDiff, gameObjectTracker);
         for (PlayerState added : diff.addedPlayers)
             addPlayer(added);
     }
@@ -327,7 +313,7 @@ public class GameState {
             }
         }
 
-        for (PlayerState enemy : players) {
+        for (PlayerState enemy : players.values()) {
             if (enemy == getCurrentPlayer())
                 continue;
 

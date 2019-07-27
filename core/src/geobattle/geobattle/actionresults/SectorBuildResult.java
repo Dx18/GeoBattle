@@ -32,7 +32,7 @@ public abstract class SectorBuildResult implements ActionResult {
                         info.x, info.y, info.id,
                         info.playerIndex,
                         gameState.getCurrentPlayer().getResearchInfo()
-                ));
+                ), gameState.gameObjectTracker);
             } catch (IllegalArgumentException ignored) {
                 // Sector already added
             }

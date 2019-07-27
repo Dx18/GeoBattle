@@ -594,6 +594,6 @@ public class GameEvents {
         }
 
         for (Sector sectorToRemove : sectorsToRemove)
-            gameState.getPlayer(sectorToRemove.playerId).removeSector(sectorToRemove);
+            gameState.getPlayer(sectorToRemove.playerId).removeSector(sectorToRemove, gameState.gameObjectTracker);
     }
 }

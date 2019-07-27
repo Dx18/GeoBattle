@@ -87,7 +87,7 @@ public class PlayerState {
     }
 
     // Adds sector. Keeps sectors sorted by ID
-    public void addSector(Sector sector) {
+    public void addSector(Sector sector, GameObjectTracker tracker) {
         int index = Collections.binarySearch(sectors, sector, sectorComparator);
         if (index >= 0)
             throw new IllegalArgumentException("Cannot add sector with existing ID");
@@ -115,15 +115,17 @@ public class PlayerState {
         centerPoint.y = (int) ((centerPoint.y * sectors.size() + sector.y + Sector.SECTOR_SIZE / 2) / (sectors.size() + 1.0));
 
         sectors.add(-index - 1, sector);
+        tracker.addSector(sector);
     }
 
     // Removes sector
-    public void removeSector(Sector sector) {
+    public void removeSector(Sector sector, GameObjectTracker tracker) {
         int removeIndex = Collections.binarySearch(sectors, sector, sectorComparator);
         if (removeIndex < 0)
             throw new IllegalArgumentException("Cannot remove sector with specified ID");
 
         sectors.remove(removeIndex);
+        tracker.removeSector(sector);
 
         if (
                 sector.x == minSectorX || sector.y == minSectorY ||
@@ -303,7 +305,7 @@ public class PlayerState {
     }
 
     // Creates PlayerState from JSON
-    public static PlayerState fromJson(JsonObject object) {
+    public static PlayerState fromJson(JsonObject object, GameObjectTracker tracker) {
         String name = object.getAsJsonPrimitive("name").getAsString();
         int playerId = object.getAsJsonPrimitive("playerId").getAsInt();
         Color color = JsonObjects.fromJson(object.getAsJsonObject("color"));
@@ -313,19 +315,19 @@ public class PlayerState {
 
         JsonArray jsonSectors = object.getAsJsonArray("sectors");
         for (JsonElement jsonSector : jsonSectors)
-            player.addSector(Sector.fromJson(jsonSector.getAsJsonObject(), playerId, researchInfo));
+            player.addSector(Sector.fromJson(jsonSector.getAsJsonObject(), playerId, researchInfo), tracker);
 
         return player;
     }
 
     // Applies PlayerStateDiff to player state
-    public void applyDiff(PlayerStateDiff diff) {
+    public void applyDiff(PlayerStateDiff diff, GameObjectTracker tracker) {
         for (Sector removed : diff.removedSectors)
-            removeSector(removed);
+            removeSector(removed, tracker);
         for (SectorDiff sectorDiff : diff.changedSectors)
             getSector(sectorDiff.sectorId).applyDiff(sectorDiff);
         for (Sector added : diff.addedSectors)
-            addSector(added);
+            addSector(added, tracker);
     }
 
     // Returns point of base center

@@ -386,38 +386,14 @@ public class GeoBattleMap extends Actor {
     private void drawSectors(IntRect visible) {
         if (Math.min(visible.width, visible.height) < 3000) {
             Color playerSectorColor = new Color(1, 1, 1, 0.2f);
-            Iterator<PlayerState> players = gameState.getPlayers();
-            while (players.hasNext()) {
-                PlayerState player = players.next();
-
-                IntRect playerRect = new IntRect(
-                        player.getMinSectorX(), player.getMinSectorY(),
-                        player.getMaxSectorX() - player.getMinSectorX() + Sector.SECTOR_SIZE,
-                        player.getMaxSectorY() - player.getMinSectorY() + Sector.SECTOR_SIZE
-                );
-
-                if (!GeoBattleMath.tileRectanglesIntersect(visible, playerRect))
-                    continue;
-
+            HashSet<Sector> sectors = gameState.gameObjectTracker.getSectors(visible);
+            for (Sector sector : sectors) {
+                PlayerState player = gameState.getPlayer(sector.playerId);
                 playerSectorColor.set(player.getColor());
                 playerSectorColor.a = 0.2f;
-
-                ReadOnlyArrayList<Sector> sectors = player.getAllSectors();
-                for (int sectorIndex = 0; sectorIndex < sectors.size(); sectorIndex++) {
-                    Sector next = sectors.get(sectorIndex);
-
-                    if (!GeoBattleMath.tileRectanglesIntersect(
-                            visible.x, visible.y,
-                            visible.width, visible.height,
-                            next.x, next.y,
-                            Sector.SECTOR_SIZE, Sector.SECTOR_SIZE
-                    ))
-                        continue;
-
-                    drawRegionRectSubTiles(
-                            next.x, next.y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE, playerSectorColor
-                    );
-                }
+                drawRegionRectSubTiles(
+                        sector.x, sector.y, Sector.SECTOR_SIZE, Sector.SECTOR_SIZE, playerSectorColor
+                );
             }
         } else {
             Color playerSectorColor = new Color(1, 1, 1, 0);
@@ -468,44 +444,20 @@ public class GeoBattleMap extends Actor {
 
         final int padding = Sector.SECTOR_SIZE / 3;
 
-        Iterator<PlayerState> players = gameState.getPlayers();
-        while (players.hasNext()) {
-            PlayerState player = players.next();
+        HashSet<Sector> sectors = gameState.gameObjectTracker.getSectors(visible);
+        for (Sector sector : sectors) {
+            ArrayList<TextureRegion> toDraw = new ArrayList<TextureRegion>();
+            if (sector.isBlocked())
+                toDraw.add(sectorStateTextures.blocked);
+            if (sector.getEnergy() < 0)
+                toDraw.add(sectorStateTextures.noEnergy);
 
-            IntRect playerRect = new IntRect(
-                    player.getMinSectorX(), player.getMinSectorY(),
-                    player.getMaxSectorX() - player.getMinSectorX() + Sector.SECTOR_SIZE,
-                    player.getMaxSectorY() - player.getMinSectorY() + Sector.SECTOR_SIZE
+            drawMultipleTexturesSubTiles(
+                    batch, toDraw,
+                    sector.x + padding, sector.y + padding,
+                    Sector.SECTOR_SIZE - 2 * padding,
+                    new Color(1, 1, 1, 0.6f)
             );
-
-            if (!GeoBattleMath.tileRectanglesIntersect(visible, playerRect))
-                continue;
-
-            ReadOnlyArrayList<Sector> sectors = player.getAllSectors();
-            for (int sectorIndex = 0; sectorIndex < sectors.size(); sectorIndex++) {
-                Sector next = sectors.get(sectorIndex);
-
-                if (!GeoBattleMath.tileRectanglesIntersect(
-                        visible.x, visible.y,
-                        visible.width, visible.height,
-                        next.x, next.y,
-                        Sector.SECTOR_SIZE, Sector.SECTOR_SIZE
-                ))
-                    continue;
-
-                ArrayList<TextureRegion> toDraw = new ArrayList<TextureRegion>();
-                if (next.isBlocked())
-                    toDraw.add(sectorStateTextures.blocked);
-                if (next.getEnergy() < 0)
-                    toDraw.add(sectorStateTextures.noEnergy);
-
-                drawMultipleTexturesSubTiles(
-                        batch, toDraw,
-                        next.x + padding, next.y + padding,
-                        Sector.SECTOR_SIZE - 2 * padding,
-                        new Color(1, 1, 1, 0.6f)
-                );
-            }
         }
     }
 
@@ -521,48 +473,25 @@ public class GeoBattleMap extends Actor {
 
         boolean drawIcons = visibleTiles >= 100;
 
-        // Draws buildings
-        Iterator<PlayerState> players = gameState.getPlayers();
-        while (players.hasNext()) {
-            PlayerState player = players.next();
+        HashSet<Sector> sectors = gameState.gameObjectTracker.getSectors(visible);
+        for (Sector sector : sectors) {
+            PlayerState player = gameState.getPlayer(sector.playerId);
 
-            IntRect playerRect = new IntRect(
-                    player.getMinSectorX(), player.getMinSectorY(),
-                    player.getMaxSectorX() - player.getMinSectorX() + Sector.SECTOR_SIZE,
-                    player.getMaxSectorY() - player.getMinSectorY() + Sector.SECTOR_SIZE
-            );
+            sector.drawBeacon(batch, this, buildingTextures, player.getColor(), drawIcons);
 
-            if (!GeoBattleMath.tileRectanglesIntersect(visible, playerRect))
-                continue;
-
-            ReadOnlyArrayList<Sector> sectors = player.getAllSectors();
-            for (int sectorIndex = 0; sectorIndex < sectors.size(); sectorIndex++) {
-                Sector nextSector = sectors.get(sectorIndex);
+            ReadOnlyArrayList<Building> buildings = sector.getAllBuildings();
+            for (int building = 0; building < buildings.size(); building++) {
+                Building nextBuilding = buildings.get(building);
 
                 if (!GeoBattleMath.tileRectanglesIntersect(
                         visible.x, visible.y,
                         visible.width, visible.height,
-                        nextSector.x, nextSector.y,
-                        Sector.SECTOR_SIZE, Sector.SECTOR_SIZE
+                        nextBuilding.x, nextBuilding.y,
+                        nextBuilding.getSizeX(), nextBuilding.getSizeY()
                 ))
                     continue;
 
-                nextSector.drawBeacon(batch, this, buildingTextures, player.getColor(), drawIcons);
-
-                ReadOnlyArrayList<Building> buildings = nextSector.getAllBuildings();
-                for (int building = 0; building < buildings.size(); building++) {
-                    Building nextBuilding = buildings.get(building);
-
-                    if (!GeoBattleMath.tileRectanglesIntersect(
-                            visible.x, visible.y,
-                            visible.width, visible.height,
-                            nextBuilding.x, nextBuilding.y,
-                            nextBuilding.getSizeX(), nextBuilding.getSizeY()
-                    ))
-                        continue;
-
-                    nextBuilding.draw(batch, this, buildingTextures, animations, player.getColor(), drawIcons);
-                }
+                nextBuilding.draw(batch, this, buildingTextures, animations, player.getColor(), drawIcons);
             }
         }
     }
