@@ -2,9 +2,10 @@ package geobattle.geobattle.server.implementation;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
+
+import java.util.HashSet;
 
 import geobattle.geobattle.GeoBattleConst;
 import geobattle.geobattle.map.TileCounter;
@@ -73,35 +74,17 @@ public final class RealMapRenderer implements MapRenderer {
 
         tileRequestPool.setVisibleData(finalVisibleRect, zoomLevel);
 
-        int middle = startX + (endX - startX) / 3 - (endX - startX) / 3 % (1 << (19 - zoomLevel));
-
-        for (int x = middle; x >= startX; x -= (1 << (19 - zoomLevel)))
-            for (int y = startY; y <= endY; y += (1 << (19 - zoomLevel))) {
-                Texture tile = tiles.getTile(x, y, zoomLevel, tileRequestPool, counter);
-
-                if (tile != null)
-                    batch.draw(
-                            tile,
-                            x - xOffset,
-                            y - yOffset,
-                            1 << (19 - zoomLevel),
-                            1 << (19 - zoomLevel)
-                    );
-            }
-
-        for (int x = endX; x > middle; x -= (1 << (19 - zoomLevel)))
-            for (int y = startY; y <= endY; y += (1 << (19 - zoomLevel))) {
-                Texture tile = tiles.getTile(x, y, zoomLevel, tileRequestPool, counter);
-
-                if (tile != null)
-                    batch.draw(
-                            tile,
-                            x - xOffset,
-                            y - yOffset,
-                            1 << (19 - zoomLevel),
-                            1 << (19 - zoomLevel)
-                    );
-            }
+        HashSet<TileTree.TileTexture> tileTextures = tiles.getTiles(finalVisibleRect, zoomLevel, tileRequestPool, counter);
+        for (TileTree.TileTexture tile : tileTextures) {
+            if (tile.texture != null)
+                batch.draw(
+                        tile.texture,
+                        tile.x - xOffset,
+                        tile.y - yOffset,
+                        1 << (19 - zoomLevel),
+                        1 << (19 - zoomLevel)
+                );
+        }
 
         if (counter.getLoadedCount() > 90) {
             Gdx.app.postRunnable(new Runnable() {

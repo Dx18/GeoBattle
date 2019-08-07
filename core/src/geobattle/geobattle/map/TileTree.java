@@ -3,6 +3,8 @@ package geobattle.geobattle.map;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 
+import java.util.HashSet;
+
 import geobattle.geobattle.server.implementation.TileRequestPool;
 import geobattle.geobattle.util.GeoBattleMath;
 import geobattle.geobattle.util.IntRect;
@@ -25,6 +27,24 @@ public final class TileTree {
                             visibleRect.x, visibleRect.y, visibleRect.width, visibleRect.height,
                             tree.x, tree.y, tree.getSize(), tree.getSize()
                     );
+        }
+    }
+
+    // Texture of tile
+    public static final class TileTexture {
+        // Texture of tile
+        public final Texture texture;
+
+        // X coordinate of tile
+        public final int x;
+
+        // Y coordinate of tile
+        public final int y;
+
+        public TileTexture(Texture texture, int x, int y) {
+            this.texture = texture;
+            this.x = x;
+            this.y = y;
         }
     }
 
@@ -97,6 +117,14 @@ public final class TileTree {
         }
     }
 
+    private void removeTile(TileCounter tileCounter) {
+        if (texture != null) {
+            texture.dispose();
+            texture = null;
+            tileCounter.onUnload();
+        }
+    }
+
     // Sets tile of subtree or current tree
     public void setTile(Pixmap tile, TileCounter tileCounter, int x, int y, int zoomLevel) {
         if (zoomLevel < 0 || zoomLevel > MAX_ZOOM_LEVEL)
@@ -155,6 +183,7 @@ public final class TileTree {
 
     // Returns tile by coordinates and zoom level
     // If tile is not yet loaded this method tries to load it
+    // Coordinates must be divisible by size of tile
     public Texture getTile(int x, int y, int zoomLevel, TileRequestPool tileRequestPool, TileCounter tileCounter) {
         if (zoomLevel < 0 || zoomLevel > MAX_ZOOM_LEVEL)
             return null;
@@ -185,10 +214,70 @@ public final class TileTree {
         return null;
     }
 
+    // Returns all tiles in rectangle
+    // If some tiles are not yet loaded this method tries to load them
+    public HashSet<TileTexture> getTiles(IntRect rect, int zoomLevel, TileRequestPool tileRequestPool, TileCounter tileCounter) {
+        HashSet<TileTexture> result = new HashSet<TileTexture>();
+        getTilesInternal(result, rect, zoomLevel, tileRequestPool, tileCounter);
+        return result;
+    }
+
+    // Internal implementation of getTiles
+    private void getTilesInternal(HashSet<TileTexture> result, IntRect rect, int zoomLevel, TileRequestPool tileRequestPool, TileCounter tileCounter) {
+        if (zoomLevel < 0 || zoomLevel > MAX_ZOOM_LEVEL)
+            return;
+
+        if (this.zoomLevel < zoomLevel) {
+            if (GeoBattleMath.tileRectanglesIntersect(
+                    x, y + (getSize() >> 1), getSize() >> 1, getSize() >> 1,
+                    rect.x, rect.y, rect.width, rect.height
+            )) {
+                if (topLeftTree == null)
+                    topLeftTree = new TileTree(this.zoomLevel + 1, x, y + (getSize() >> 1));
+                topLeftTree.getTilesInternal(result, rect, zoomLevel, tileRequestPool, tileCounter);
+            }
+
+            if (GeoBattleMath.tileRectanglesIntersect(
+                    x + (getSize() >> 1), y + (getSize() >> 1), getSize() >> 1, getSize() >> 1,
+                    rect.x, rect.y, rect.width, rect.height
+            )) {
+                if (topRightTree == null)
+                    topRightTree = new TileTree(this.zoomLevel + 1, x + (getSize() >> 1), y + (getSize() >> 1));
+                topRightTree.getTilesInternal(result, rect, zoomLevel, tileRequestPool, tileCounter);
+            }
+
+            if (GeoBattleMath.tileRectanglesIntersect(
+                    x + (getSize() >> 1), y, getSize() >> 1, getSize() >> 1,
+                    rect.x, rect.y, rect.width, rect.height
+            )) {
+                if (bottomRightTree == null)
+                    bottomRightTree = new TileTree(this.zoomLevel + 1, x + (getSize() >> 1), y);
+                bottomRightTree.getTilesInternal(result, rect, zoomLevel, tileRequestPool, tileCounter);
+            }
+
+            if (GeoBattleMath.tileRectanglesIntersect(
+                    x, y, getSize() >> 1, getSize() >> 1,
+                    rect.x, rect.y, rect.width, rect.height
+            )) {
+                if (bottomLeftTree == null)
+                    bottomLeftTree = new TileTree(this.zoomLevel + 1, x, y);
+                bottomLeftTree.getTilesInternal(result, rect, zoomLevel, tileRequestPool, tileCounter);
+            }
+        } else if (this.zoomLevel == zoomLevel && GeoBattleMath.tileRectangleContains(rect, x, y)) {
+            if (texture == null && !textureRequested) {
+                textureRequested = true;
+                tileRequestPool.put(new TileRequestPool.TileRequest(x, y, zoomLevel));
+                tileCounter.onRequest();
+            }
+            if (texture != null)
+                result.add(new TileTexture(texture, x, y));
+        }
+    }
+
     // Reduces number of tiles loaded
     public void reduceTiles(IntRect visibleRect, int zoomLevel, ReduceTilesOptions options, TileCounter tileCounter) {
         if (!options.shouldKeepTexture(zoomLevel, visibleRect, this))
-            setTile(null, tileCounter);
+            removeTile(tileCounter);
 
         if (topLeftTree != null)
             topLeftTree.reduceTiles(visibleRect, zoomLevel, options, tileCounter);
