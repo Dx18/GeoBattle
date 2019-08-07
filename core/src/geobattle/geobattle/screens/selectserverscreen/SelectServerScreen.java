@@ -15,10 +15,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import geobattle.geobattle.GeoBattle;
 import geobattle.geobattle.GeoBattleAssets;
 import geobattle.geobattle.screens.BackButtonProcessor;
+import geobattle.geobattle.server.ExternalAPI;
 import geobattle.geobattle.server.ServerAddress;
 import geobattle.geobattle.util.GeoBattleMath;
 
@@ -116,7 +118,15 @@ public final class SelectServerScreen implements Screen {
 
     public ArrayList<ServerAddress> getOfficialServers() {
         ArrayList<ServerAddress> result = new ArrayList<ServerAddress>();
-        result.add(new ServerAddress("Main server", "82.146.61.124", 12000));
+        ExternalAPI externalAPI = game.getExternalAPI();
+        int serverNumber = 1;
+        for (int port : externalAPI.officialServerPorts) {
+            result.add(new ServerAddress(
+                    String.format(Locale.US, "Main server #%d", serverNumber),
+                    externalAPI.officialServerIp, port
+            ));
+            serverNumber++;
+        }
         return result;
     }
 

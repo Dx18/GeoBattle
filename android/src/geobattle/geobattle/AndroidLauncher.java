@@ -22,7 +22,6 @@ import geobattle.geobattle.server.OSAPI;
 import geobattle.geobattle.server.ServerAddress;
 import geobattle.geobattle.server.implementation.FixedGeolocationAPI;
 import geobattle.geobattle.server.implementation.SocketServer;
-import geobattle.geobattle.server.implementation.TileRequestPool;
 
 // Android launcher for GeoBattle
 public class AndroidLauncher extends AndroidApplication {
@@ -135,9 +134,13 @@ public class AndroidLauncher extends AndroidApplication {
         };
 
         externalAPI = new ExternalAPI(
+                "82.146.61.124",
+                new int[] { 12000 },
+                11998,
                 new SocketServer(11999, null, 0),
                 geolocationAPI,
-                new TileRequestPool("82.146.61.124", 11998, null, 3),
+                null,
+                3,
                 oSAPI
         );
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();

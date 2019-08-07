@@ -19,7 +19,6 @@ import geobattle.geobattle.server.OSAPI;
 import geobattle.geobattle.server.ServerAddress;
 import geobattle.geobattle.server.implementation.FixedGeolocationAPI;
 import geobattle.geobattle.server.implementation.SocketServer;
-import geobattle.geobattle.server.implementation.TileRequestPool;
 
 public class DesktopLauncher {
     private static ExternalAPI createExternalAPI(String path, String cachePath) {
@@ -72,9 +71,13 @@ public class DesktopLauncher {
             };
 
             return new ExternalAPI(
-                    new SocketServer(11999, "78.47.182.60", 12000),
+                    "82.146.61.124",
+                    new int[] { 12000 },
+                    11998,
+                    new SocketServer(11999, null, 0),
                     new FixedGeolocationAPI(longitude, latitude),
-                    new TileRequestPool("82.146.61.124", 11998, cachePath, 3),
+                    cachePath,
+                    3,
                     oSAPI
             );
         } catch (FileNotFoundException e) {
