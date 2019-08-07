@@ -24,17 +24,17 @@ public final class GameObjectTracker {
 
     // Adds sector
     public void addSector(Sector sector) {
-        sectors.insertAsPoint(sector, new IntPoint(sector.x, sector.y), null);
+        sectors.insert(sector, new IntPoint(sector.x, sector.y));
     }
 
     // Removes sector
     public void removeSector(Sector sector) {
-        sectors.removeAsPoint(sector, new IntPoint(sector.x, sector.y));
+        sectors.remove(sector, new IntPoint(sector.x, sector.y));
     }
 
     // Returns sectors in rect
     public HashSet<Sector> getSectors(IntRect rect) {
-        return sectors.queryByRectIntersection(new IntRect(
+        return sectors.queryByRect(new IntRect(
                 rect.x - Sector.SECTOR_SIZE, rect.y - Sector.SECTOR_SIZE,
                 rect.width + Sector.SECTOR_SIZE, rect.height + Sector.SECTOR_SIZE
         ));

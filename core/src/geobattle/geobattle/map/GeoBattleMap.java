@@ -530,16 +530,15 @@ public class GeoBattleMap extends Actor {
                         ))
                             continue;
 
-                        units.insertAsPoint(
+                        units.insert(
                                 nextHangar.units,
-                                new IntPoint((int) nextHangar.units.x, (int) nextHangar.units.y),
-                                null
+                                new IntPoint((int) nextHangar.units.x, (int) nextHangar.units.y)
                         );
                     }
                 }
 
                 while (true) {
-                    HashSet<UnitGroup> maybeGroup = units.queryByRectIntersection(mapRect, 1);
+                    HashSet<UnitGroup> maybeGroup = units.queryByRect(mapRect, 1);
                     if (maybeGroup.size() == 0)
                         break;
 
@@ -550,10 +549,10 @@ public class GeoBattleMap extends Actor {
                     ArrayList<UnitGroup> component = new ArrayList<UnitGroup>();
                     while (!groups.isEmpty()) {
                         UnitGroup currentGroup = groups.removeFirst();
-                        units.removeAsPoint(currentGroup, new IntPoint((int) currentGroup.x, (int) currentGroup.y));
+                        units.remove(currentGroup, new IntPoint((int) currentGroup.x, (int) currentGroup.y));
                         component.add(currentGroup);
 
-                        HashSet<UnitGroup> nextGroups = units.queryByRectIntersection(new IntRect(
+                        HashSet<UnitGroup> nextGroups = units.queryByRect(new IntRect(
                                 (int) currentGroup.x - maxDistance,
                                 (int) currentGroup.y - maxDistance,
                                 maxDistance * 2 + 1,
@@ -562,7 +561,7 @@ public class GeoBattleMap extends Actor {
 
                         for (UnitGroup nextGroup : nextGroups) {
                             groups.addLast(nextGroup);
-                            units.removeAsPoint(nextGroup, new IntPoint((int) nextGroup.x, (int) nextGroup.y));
+                            units.remove(nextGroup, new IntPoint((int) nextGroup.x, (int) nextGroup.y));
                         }
                     }
 

@@ -13,16 +13,12 @@ public final class QuadTree<T> {
         // Y of point
         public final int y;
 
-        // Parent rectangle
-        public final IntRect parentRect;
-
         // Data
         public final T data;
 
-        public QuadTreePoint(int x, int y, IntRect parentRect, T data) {
+        public QuadTreePoint(int x, int y, T data) {
             this.x = x;
             this.y = y;
-            this.parentRect = parentRect;
             this.data = data;
         }
     }
@@ -86,16 +82,8 @@ public final class QuadTree<T> {
         );
     }
 
-    // Insert item as rect
-    public void insertAsRect(T item, IntRect rect) {
-        insertAsPoint(item, new IntPoint(rect.x, rect.y), rect);
-        insertAsPoint(item, new IntPoint(rect.x, rect.y + rect.height - 1), rect);
-        insertAsPoint(item, new IntPoint(rect.x + rect.width - 1, rect.y), rect);
-        insertAsPoint(item, new IntPoint(rect.x + rect.width - 1, rect.y + rect.height - 1), rect);
-    }
-
     // Inserts item as point
-    public void insertAsPoint(T item, IntPoint point, IntRect parentRect) {
+    public void insert(T item, IntPoint point) {
         if (!GeoBattleMath.tileRectangleContains(rect, point.x, point.y))
             return;
 
@@ -104,7 +92,7 @@ public final class QuadTree<T> {
             if (GeoBattleMath.tileRectangleContains(topLeftRect, point.x, point.y)) {
                 if (topLeft == null)
                     topLeft = new QuadTree<T>(capacity, topLeftRect);
-                topLeft.insertAsPoint(item, point, parentRect);
+                topLeft.insert(item, point);
                 return;
             }
 
@@ -112,7 +100,7 @@ public final class QuadTree<T> {
             if (GeoBattleMath.tileRectangleContains(topRightRect, point.x, point.y)) {
                 if (topRight == null)
                     topRight = new QuadTree<T>(capacity, topRightRect);
-                topRight.insertAsPoint(item, point, parentRect);
+                topRight.insert(item, point);
                 return;
             }
 
@@ -120,7 +108,7 @@ public final class QuadTree<T> {
             if (GeoBattleMath.tileRectangleContains(bottomRightRect, point.x, point.y)) {
                 if (bottomRight == null)
                     bottomRight = new QuadTree<T>(capacity, bottomRightRect);
-                bottomRight.insertAsPoint(item, point, parentRect);
+                bottomRight.insert(item, point);
                 return;
             }
 
@@ -128,22 +116,15 @@ public final class QuadTree<T> {
             if (GeoBattleMath.tileRectangleContains(bottomLeftRect, point.x, point.y)) {
                 if (bottomLeft == null)
                     bottomLeft = new QuadTree<T>(capacity, bottomLeftRect);
-                bottomLeft.insertAsPoint(item, point, parentRect);
+                bottomLeft.insert(item, point);
             }
         } else {
-            points.add(new QuadTreePoint(point.x, point.y, parentRect, item));
+            points.add(new QuadTreePoint(point.x, point.y, item));
         }
     }
 
-    public void removeAsRect(T item, IntRect rect) {
-        removeAsPoint(item, new IntPoint(rect.x, rect.y));
-        removeAsPoint(item, new IntPoint(rect.x, rect.y + rect.height - 1));
-        removeAsPoint(item, new IntPoint(rect.x + rect.width - 1, rect.y));
-        removeAsPoint(item, new IntPoint(rect.x + rect.width - 1, rect.y + rect.height - 1));
-    }
-
     // Removes points equal to given point
-    public void removeAsPoint(T item, IntPoint point) {
+    public void remove(T item, IntPoint point) {
         int newLength = 0;
         for (int index = 0; index < points.size(); index++) {
             QuadTreePoint existingPoint = points.get(index);
@@ -158,32 +139,25 @@ public final class QuadTree<T> {
 
         if (topLeft != null)
             if (GeoBattleMath.tileRectanglesIntersect(rect, topLeft.rect)) {
-                topLeft.removeAsPoint(item, point);
+                topLeft.remove(item, point);
                 return;
             }
 
         if (topRight != null)
             if (GeoBattleMath.tileRectanglesIntersect(rect, topRight.rect)) {
-                topRight.removeAsPoint(item, point);
+                topRight.remove(item, point);
                 return;
             }
 
         if (bottomRight != null)
             if (GeoBattleMath.tileRectanglesIntersect(rect, bottomRight.rect)) {
-                bottomRight.removeAsPoint(item, point);
+                bottomRight.remove(item, point);
                 return;
             }
 
         if (bottomLeft != null)
             if (GeoBattleMath.tileRectanglesIntersect(rect, bottomLeft.rect))
-                bottomLeft.removeAsPoint(item, point);
-    }
-
-    // Queries all items in rect
-    public HashSet<T> queryByRectIntersection(IntRect rect) {
-        HashSet<T> result = new HashSet<T>();
-        queryByRectIntersection(result, rect, Integer.MAX_VALUE);
-        return result;
+                bottomLeft.remove(item, point);
     }
 
     // Queries all items from quad tree
@@ -212,14 +186,21 @@ public final class QuadTree<T> {
     }
 
     // Queries all items in rect
-    public HashSet<T> queryByRectIntersection(IntRect rect, int maxCount) {
+    public HashSet<T> queryByRect(IntRect rect) {
         HashSet<T> result = new HashSet<T>();
-        queryByRectIntersection(result, rect, maxCount);
+        queryByRect(result, rect, Integer.MAX_VALUE);
         return result;
     }
 
     // Queries all items in rect
-    private void queryByRectIntersection(HashSet<T> result, IntRect rect, int maxCount) {
+    public HashSet<T> queryByRect(IntRect rect, int maxCount) {
+        HashSet<T> result = new HashSet<T>();
+        queryByRect(result, rect, maxCount);
+        return result;
+    }
+
+    // Queries all items in rect
+    private void queryByRect(HashSet<T> result, IntRect rect, int maxCount) {
         for (QuadTreePoint point : points) {
             if (result.size() >= maxCount)
                 return;
@@ -234,28 +215,28 @@ public final class QuadTree<T> {
             if (GeoBattleMath.tileRectangleContains(rect, topLeft.rect))
                 topLeft.queryAll(result);
             else if (GeoBattleMath.tileRectanglesIntersect(rect, topLeft.rect))
-                topLeft.queryByRectIntersection(result, rect, maxCount);
+                topLeft.queryByRect(result, rect, maxCount);
         }
 
         if (topRight != null) {
             if (GeoBattleMath.tileRectangleContains(rect, topRight.rect))
                 topRight.queryAll(result);
             else if (GeoBattleMath.tileRectanglesIntersect(rect, topRight.rect))
-                topRight.queryByRectIntersection(result, rect, maxCount);
+                topRight.queryByRect(result, rect, maxCount);
         }
 
         if (bottomRight != null) {
             if (GeoBattleMath.tileRectangleContains(rect, bottomRight.rect))
                 bottomRight.queryAll(result);
             else if (GeoBattleMath.tileRectanglesIntersect(rect, bottomRight.rect))
-                bottomRight.queryByRectIntersection(result, rect, maxCount);
+                bottomRight.queryByRect(result, rect, maxCount);
         }
 
         if (bottomLeft != null) {
             if (GeoBattleMath.tileRectangleContains(rect, bottomLeft.rect))
                 bottomLeft.queryAll(result);
             else if (GeoBattleMath.tileRectanglesIntersect(rect, bottomLeft.rect))
-                bottomLeft.queryByRectIntersection(result, rect, maxCount);
+                bottomLeft.queryByRect(result, rect, maxCount);
         }
     }
 }
